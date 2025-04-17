@@ -58,6 +58,7 @@ flutter:
     - lib/assets/icon/icnBooking.png
     - lib/assets/icon/icnHome.png
     - lib/assets/icon/icnProfile.png
+    - lib/assets/picture/sapiens_register.png
   fonts:
     - family: Roboto
       fonts:
