@@ -1,6 +1,5 @@
 import 'package:b_camp/main.dart';
 import 'package:flutter/material.dart';
-import 'package:b_camp/screen/home_dashboard.dart';
 import 'package:supercharged/supercharged.dart';
 
 class search_Section extends StatefulWidget {
