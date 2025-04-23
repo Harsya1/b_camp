@@ -55,9 +55,15 @@ flutter:
   uses-material-design: true
   assets:
     - lib/assets/background/background_home_dashboard.jpg
+    
     - lib/assets/icon/icnBooking.png
     - lib/assets/icon/icnHome.png
     - lib/assets/icon/icnProfile.png
+
+    - lib/assets/picture/sapiens_register.png
+    - lib/assets/picture/sapiens_login.png
+    - lib/assets/picture/sapiens_dump_notlogin.png
+    - lib/assets/picture/img_dump_booking.png
   fonts:
     - family: Roboto
       fonts:

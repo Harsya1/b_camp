@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:b_camp/screen/search_section.dart';
 import 'package:supercharged/supercharged.dart';
 
-
 class dashboard_main extends StatefulWidget {
   const dashboard_main({super.key});
 
