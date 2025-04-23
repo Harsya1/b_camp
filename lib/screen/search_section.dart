@@ -1,3 +1,4 @@
+import 'package:b_camp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:b_camp/screen/home_dashboard.dart';
 import 'package:supercharged/supercharged.dart';
@@ -38,9 +39,10 @@ class _MyWidgetState extends State<search_Section> {
                     color: Colors.black,
                   ), // Ikon warna hitam
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (context) => dashboard_main()),
+                      MaterialPageRoute(builder: (context) => MyApp()),
+                      (Route<dynamic> route) => false,
                     );
                   },
                 ),
