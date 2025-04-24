@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'screen/home_dashboard.dart';
 import 'screen/login_register_section/register_action.dart';
-import 'screen/login_register_section/profile_dump.dart';
-import 'screen/booking_section/booking_dump.dart';
+// import 'screen/login_register_section/profile_dump.dart';
+import 'screen/booking_section/booking.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +21,7 @@ class _MyAppState extends State<MyApp> {
   // Daftar halaman untuk navigasi
   final List<Widget> pages = [
     dashboard_main(), // Menggunakan navbar dari dashboard_main
-    DumpBooking(), // Placeholder untuk halaman Booking
+    BookingSection(), // Placeholder untuk halaman Booking
     register_section(), // Placeholder untuk halaman Profile
   ];
 
