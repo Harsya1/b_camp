@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screen/home_dashboard.dart';
+import 'screen/login_register_section/login_action.dart'; 
 
 void main() {
   runApp(const MyApp());
@@ -14,22 +15,20 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int selectedIndex = 0;
+  bool isLoggedIn = false;
 
-  // Daftar halaman untuk navigasi
   final List<Widget> pages = [
-    dashboard_main(), // Menggunakan navbar dari dashboard_main
-    Center(child: Text('Booking Page')), // Placeholder untuk halaman Booking
-    Center(child: Text('Profile Page')), // Placeholder untuk halaman Profile
+    dashboard_main(),
+    Center(child: Text('Booking Page')),
+    Center(child: Text('Profile Page')),
   ];
 
-  // Daftar ikon navigasi
   final List<Widget> navIcons = [
     ImageIcon(AssetImage('assets/icon/icnHome.png'), size: 24),
     ImageIcon(AssetImage('assets/icon/icnBooking.png'), size: 24),
     ImageIcon(AssetImage('assets/icon/icnProfile.png'), size: 24),
   ];
 
-  // Daftar judul navigasi
   final List<String> navTitles = ['Ayo Cari', 'Booking', 'Profile'];
 
   @override
@@ -39,10 +38,19 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Scaffold(
-        body: pages[selectedIndex], // Menampilkan halaman berdasarkan indeks
-        bottomNavigationBar: _navbar(),
-      ),
+      debugShowCheckedModeBanner: false,
+      home: isLoggedIn
+          ? Scaffold(
+              body: pages[selectedIndex],
+              bottomNavigationBar: _navbar(),
+            )
+          : LoginPage(
+              onLogin: () {
+                setState(() {
+                  isLoggedIn = true;
+                });
+              },
+            ),
     );
   }
 
@@ -67,7 +75,7 @@ class _MyAppState extends State<MyApp> {
           return GestureDetector(
             onTap: () {
               setState(() {
-                selectedIndex = index; // Ubah halaman berdasarkan indeks
+                selectedIndex = index;
               });
             },
             child: Column(
