@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'screen/home_dashboard.dart';
 import 'screen/login_register_section/login_action.dart'; 
 
+import 'screen/login_register_section/register_action.dart';
+import 'screen/login_register_section/profile_dump.dart';
+import 'screen/booking_section/booking_dump.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -18,15 +22,17 @@ class _MyAppState extends State<MyApp> {
   bool isLoggedIn = false;
 
   final List<Widget> pages = [
-    dashboard_main(),
-    Center(child: Text('Booking Page')),
-    Center(child: Text('Profile Page')),
+
+    dashboard_main(), // Menggunakan navbar dari dashboard_main
+    DumpBooking(), // Placeholder untuk halaman Booking
+    register_section(), // Placeholder untuk halaman Profile
+
   ];
 
   final List<Widget> navIcons = [
-    ImageIcon(AssetImage('assets/icon/icnHome.png'), size: 24),
-    ImageIcon(AssetImage('assets/icon/icnBooking.png'), size: 24),
-    ImageIcon(AssetImage('assets/icon/icnProfile.png'), size: 24),
+    Image.asset('lib/assets/icon/icnHome.png', width: 24, height: 24),
+    Image.asset('lib/assets/icon/icnBooking.png', width: 24, height: 24),
+    Image.asset('lib/assets/icon/icnProfile.png', width: 24, height: 24),
   ];
 
   final List<String> navTitles = ['Ayo Cari', 'Booking', 'Profile'];
@@ -38,19 +44,13 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      debugShowCheckedModeBanner: false,
-      home: isLoggedIn
-          ? Scaffold(
-              body: pages[selectedIndex],
-              bottomNavigationBar: _navbar(),
-            )
-          : LoginPage(
-              onLogin: () {
-                setState(() {
-                  isLoggedIn = true;
-                });
-              },
-            ),
+
+      home: Scaffold(
+        extendBody: true,
+        body: pages[selectedIndex], // Menampilkan halaman berdasarkan indeks
+        bottomNavigationBar: _navbar(),
+      ),
+
     );
   }
 
@@ -59,13 +59,17 @@ class _MyAppState extends State<MyApp> {
       height: 65,
       margin: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
       decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(30),
+        color: Colors.black.withOpacity(
+          0.8,
+        ), // Warna navbar dengan transparansi
+        borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
-            color: Colors.white.withAlpha(20),
+            color: Colors.black.withOpacity(
+              0.2,
+            ), // Bayangan dengan transparansi
             blurRadius: 20,
-            spreadRadius: 10,
+            spreadRadius: 5,
           ),
         ],
       ),
@@ -81,7 +85,10 @@ class _MyAppState extends State<MyApp> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                navIcons[index],
+                Opacity(
+                  opacity: selectedIndex == index ? 1 : 0.5,
+                  child: navIcons[index],
+                ),
                 Text(
                   navTitles[index],
                   style: TextStyle(
