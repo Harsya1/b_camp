@@ -60,10 +60,15 @@ flutter:
     - lib/assets/icon/icnHome.png
     - lib/assets/icon/icnProfile.png
 
+    - lib/assets/background/login_logo.png
+    - lib/assets/background/change_pass_icon.png
+    - lib/assets/background/avatar.jpg
+
     - lib/assets/picture/sapiens_register.png
     - lib/assets/picture/sapiens_login.png
     - lib/assets/picture/sapiens_dump_notlogin.png
     - lib/assets/picture/img_dump_booking.png
+
   fonts:
     - family: Roboto
       fonts:
