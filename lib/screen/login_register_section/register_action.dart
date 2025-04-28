@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:b_camp/main.dart';
+
+// import 'package:http/http.dart' as http;
 
 // Halaman untuk registrasi user baru
 class register_section extends StatefulWidget {
@@ -196,6 +198,12 @@ class _MyWidgetState extends State<register_section> {
                           child: ElevatedButton(
                             onPressed: () {
                               // TODO: Tambahkan logika registrasi di sini
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MyApp(),
+                                ),
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
@@ -204,6 +212,7 @@ class _MyWidgetState extends State<register_section> {
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
+                            // Tombol untuk registrasi
                             child: const Text(
                               'Register',
                               style: TextStyle(
