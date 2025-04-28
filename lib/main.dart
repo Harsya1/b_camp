@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screen/home_dashboard.dart';
+import 'screen/profile_section/profile_dashboard.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,34 +14,32 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int selectedIndex = 0;
+  int selectedIndex = 2; // Set ke halaman profil saat start
 
-  // Daftar halaman untuk navigasi
   final List<Widget> pages = [
-    dashboard_main(), // Menggunakan navbar dari dashboard_main
-    Center(child: Text('Booking Page')), // Placeholder untuk halaman Booking
-    Center(child: Text('Profile Page')), // Placeholder untuk halaman Profile
+    dashboard_main(),
+    Center(child: Text('Booking Page')),
+    const ProfilePage(),
   ];
 
-  // Daftar ikon navigasi
   final List<Widget> navIcons = [
     ImageIcon(AssetImage('assets/icon/icnHome.png'), size: 24),
     ImageIcon(AssetImage('assets/icon/icnBooking.png'), size: 24),
     ImageIcon(AssetImage('assets/icon/icnProfile.png'), size: 24),
   ];
 
-  // Daftar judul navigasi
   final List<String> navTitles = ['Ayo Cari', 'Booking', 'Profile'];
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'B-Camp',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
       home: Scaffold(
-        body: pages[selectedIndex], // Menampilkan halaman berdasarkan indeks
+        body: pages[selectedIndex],
         bottomNavigationBar: _navbar(),
       ),
     );
@@ -67,7 +66,7 @@ class _MyAppState extends State<MyApp> {
           return GestureDetector(
             onTap: () {
               setState(() {
-                selectedIndex = index; // Ubah halaman berdasarkan indeks
+                selectedIndex = index;
               });
             },
             child: Column(
