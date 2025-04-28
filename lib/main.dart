@@ -23,14 +23,6 @@ class _MyAppState extends State<MyApp> {
     final List<Widget> pages = [
       const dashboard_main(), // Halaman Dashboard
       const BookingSection(), // Halaman Booking
-      LoginPage(
-        onLogin: () {
-          setState(() {
-            isLoggedIn = true; // Tandai bahwa pengguna sudah login
-            selectedIndex = 0; // Arahkan ke halaman Dashboard setelah login
-          });
-        },
-      ),
     ];
 
     final List<Widget> navIcons = [
@@ -48,8 +40,17 @@ class _MyAppState extends State<MyApp> {
       ),
       home: Scaffold(
         extendBody: true,
-        body: pages[selectedIndex], // Menampilkan halaman berdasarkan indeks
-        bottomNavigationBar: _navbar(navIcons, navTitles),
+        body:
+            selectedIndex < 2
+                ? pages[selectedIndex] // Menampilkan halaman Dashboard atau Booking
+                : null, // Tidak menampilkan apa pun jika di halaman Login
+        bottomNavigationBar:
+            selectedIndex < 2
+                ? _navbar(
+                  navIcons,
+                  navTitles,
+                ) // Navbar hanya muncul di Dashboard dan Booking
+                : null, // Navbar disembunyikan di halaman Login
       ),
     );
   }
@@ -78,9 +79,32 @@ class _MyAppState extends State<MyApp> {
         children: List.generate(navIcons.length, (index) {
           return GestureDetector(
             onTap: () {
-              setState(() {
-                selectedIndex = index;
-              });
+              if (index == 2) {
+                // Jika klik Profile, navigasi ke LoginPage
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder:
+                          (context) => LoginPage(
+                            onLogin: () {
+                              setState(() {
+                                isLoggedIn = true; // Tandai pengguna sudah login
+                                selectedIndex = 0; // Kembali ke halaman utama
+                              });
+                              Navigator.pop(
+                                context,
+                              ); // Kembali ke halaman utama
+                            },
+                          ),
+                    ),
+                  );
+                });
+              } else {
+                // Jika klik selain Profile, ubah halaman
+                setState(() {
+                  selectedIndex = index;
+                });
+              }
             },
             child: Column(
               mainAxisSize: MainAxisSize.min,
