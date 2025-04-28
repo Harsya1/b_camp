@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 // Halaman untuk registrasi user baru
 class register_section extends StatefulWidget {
