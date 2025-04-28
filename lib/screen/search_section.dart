@@ -34,7 +34,7 @@ class _MyWidgetState extends State<search_Section> {
                 ),
                 child: IconButton(
                   icon: Icon(
-                    Icons.arrow_back,
+                    Icons.chevron_left,
                     color: Colors.black,
                   ), // Ikon warna hitam
                   onPressed: () {

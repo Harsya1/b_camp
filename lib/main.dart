@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screen/home_dashboard.dart';
-import 'screen/login_register_section/login_action.dart'; 
-
-import 'screen/login_register_section/register_action.dart';
-import 'screen/login_register_section/profile_dump.dart';
-import 'screen/booking_section/booking_dump.dart';
+import 'screen/login_register_section/login_action.dart';
+import 'screen/booking_section/booking.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,40 +18,43 @@ class _MyAppState extends State<MyApp> {
   int selectedIndex = 0;
   bool isLoggedIn = false;
 
-  final List<Widget> pages = [
-
-    dashboard_main(), // Menggunakan navbar dari dashboard_main
-    DumpBooking(), // Placeholder untuk halaman Booking
-    register_section(), // Placeholder untuk halaman Profile
-
-  ];
-
-  final List<Widget> navIcons = [
-    Image.asset('lib/assets/icon/icnHome.png', width: 24, height: 24),
-    Image.asset('lib/assets/icon/icnBooking.png', width: 24, height: 24),
-    Image.asset('lib/assets/icon/icnProfile.png', width: 24, height: 24),
-  ];
-
-  final List<String> navTitles = ['Ayo Cari', 'Booking', 'Profile'];
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      const dashboard_main(), // Halaman Dashboard
+      const BookingSection(), // Halaman Booking
+      LoginPage(
+        onLogin: () {
+          setState(() {
+            isLoggedIn = true; // Tandai bahwa pengguna sudah login
+            selectedIndex = 0; // Arahkan ke halaman Dashboard setelah login
+          });
+        },
+      ),
+    ];
+
+    final List<Widget> navIcons = [
+      Image.asset('lib/assets/icon/icnHome.png', width: 24, height: 24),
+      Image.asset('lib/assets/icon/icnBooking.png', width: 24, height: 24),
+      Image.asset('lib/assets/icon/icnProfile.png', width: 24, height: 24),
+    ];
+
+    final List<String> navTitles = ['Ayo Cari', 'Booking', 'Profile'];
+
     return MaterialApp(
       title: 'B-Camp',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-
       home: Scaffold(
         extendBody: true,
         body: pages[selectedIndex], // Menampilkan halaman berdasarkan indeks
-        bottomNavigationBar: _navbar(),
+        bottomNavigationBar: _navbar(navIcons, navTitles),
       ),
-
     );
   }
 
-  Widget _navbar() {
+  Widget _navbar(List<Widget> navIcons, List<String> navTitles) {
     return Container(
       height: 65,
       margin: const EdgeInsets.only(left: 24, right: 24, bottom: 24),

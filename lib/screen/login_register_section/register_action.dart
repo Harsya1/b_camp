@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
+// Halaman untuk registrasi user baru
 class register_section extends StatefulWidget {
   const register_section({super.key});
 
@@ -8,10 +10,12 @@ class register_section extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<register_section> {
+  // Controller untuk input teks
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  // Membersihkan controller saat widget dihapus dari tree
   @override
   void dispose() {
     _emailController.dispose();
@@ -24,17 +28,16 @@ class _MyWidgetState extends State<register_section> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      resizeToAvoidBottomInset:
-          true, // Agar konten menyesuaikan dengan keyboard
+      resizeToAvoidBottomInset: true, // Menyesuaikan konten dengan keyboard
       body: Center(
         child: SingleChildScrollView(
-          // Membungkus konten agar bisa digulir
-          child: Container(
+          // Agar tampilan bisa digulir saat keyboard muncul
+          child: SizedBox(
             width: double.infinity,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Illustration image
+                // Gambar ilustrasi registrasi
                 Image.asset(
                   'lib/assets/picture/sapiens_register.png',
                   width: 300,
@@ -42,7 +45,8 @@ class _MyWidgetState extends State<register_section> {
                   fit: BoxFit.contain,
                   semanticLabel: 'Illustration for registration',
                 ),
-                // Title
+
+                // Judul form
                 const Text(
                   'Ayo Daftar Sekarang',
                   style: TextStyle(
@@ -52,7 +56,8 @@ class _MyWidgetState extends State<register_section> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                // Description
+
+                // Deskripsi
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
@@ -67,7 +72,8 @@ class _MyWidgetState extends State<register_section> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Register form
+
+                // Container untuk form input
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -82,10 +88,13 @@ class _MyWidgetState extends State<register_section> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const SizedBox(height: 14),
-                        // Email input
+
+                        // Input email
                         TextField(
                           controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
+                          keyboardType:
+                              TextInputType
+                                  .emailAddress, // Mengatur jenis input sebagai email
                           decoration: InputDecoration(
                             hintText: 'Email',
                             filled: true,
@@ -114,7 +123,8 @@ class _MyWidgetState extends State<register_section> {
                           style: const TextStyle(color: Colors.black),
                         ),
                         const SizedBox(height: 16),
-                        // Password input
+
+                        // Input password
                         TextField(
                           controller: _passwordController,
                           obscureText: true,
@@ -146,7 +156,8 @@ class _MyWidgetState extends State<register_section> {
                           style: const TextStyle(color: Colors.black),
                         ),
                         const SizedBox(height: 16),
-                        // Confirm Password input
+
+                        // Input konfirmasi password
                         TextField(
                           controller: _confirmPasswordController,
                           obscureText: true,
@@ -178,12 +189,13 @@ class _MyWidgetState extends State<register_section> {
                           style: const TextStyle(color: Colors.black),
                         ),
                         const SizedBox(height: 24),
-                        // Register button
+
+                        // Tombol registrasi
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () {
-                              // Handle register action
+                              // TODO: Tambahkan logika registrasi di sini
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
