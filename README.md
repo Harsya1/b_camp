@@ -24,20 +24,23 @@
 
 1. Clone this repository:
    ```bash
- git clone https://github.com/Harsya1/b_camp.git
- ```
-2. Go to the project directory:
+   git clone https://github.com/Harsya1/b_camp.git
+   ```
+
+2. Masuk ke direktori project:
    ```bash
- cd b_camp
- ```
+   cd b_camp
+   ```
+
 3. Install dependencies:
    ```bash
- flutter pub get
- ```
+   flutter pub get
+   ```
+
 4. Run the application:
    ```bash
- flutter run
- ```
+   flutter run
+   ```
 
 ## Project Structure
 - `/lib` - contains the main source code
