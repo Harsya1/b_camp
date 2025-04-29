@@ -1,16 +1,51 @@
-# b_camp
+# BCamp
 
-A new Flutter project.
+**BCamp** adalah aplikasi mobile berbasis Flutter yang dirancang untuk memudahkan pencarian dan booking *camp* (asrama) bagi siswa Brilliant English Course di Pare, Kediri. Aplikasi ini dikembangkan menggunakan **framework Flutter** dan **bahasa pemrograman Dart**.
 
-## Getting Started
+## Fitur Utama
 
-This project is a starting point for a Flutter application.
+- **Booking Camp**  
+  Pengguna dapat mencari dan memesan camp (asrama) sesuai kebutuhan mereka saat proses belajar di Brilliant English Course.
 
-A few resources to get you started if this is your first Flutter project:
+- **Login dan Pendaftaran Diri**  
+  Sebelum melakukan booking, pengguna harus melakukan login dan melengkapi data diri dengan benar.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Feed Acara**  
+  Pengguna dapat melihat berbagai acara yang diselenggarakan oleh Brilliant, seperti seminar, lomba, dan event sosial lainnya.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Teknologi yang Digunakan
+
+- Flutter (Frontend Mobile Development)
+- Dart (Programming Language)
+- (Tambahkan jika ada backend, database, atau API yang digunakan)
+
+## Cara Install dan Menjalankan
+
+1. Clone repositori ini:
+   ```bash
+   git clone https://github.com/Harsya1/b_camp.git
+   ```
+2. Masuk ke direktori project:
+   ```bash
+   cd BCamp
+   ```
+3. Install dependencies:
+   ```bash
+   flutter pub get
+   ```
+4. Jalankan aplikasi:
+   ```bash
+   flutter run
+   ```
+
+## Struktur Project
+- `/lib` - berisi source code utama
+- `/lib/screen` - halaman-halaman seperti Login, Booking, Feed, profile
+- `/lib/assets` - komponen-komponen UI reusable
+- `/lib/services` - API service atau authentication service
+
+## Tujuan Aplikasi
+
+- Membantu siswa Brilliant English Course menemukan asrama dengan mudah.
+- Memberikan informasi terkini tentang acara dan kegiatan di Brilliant.
+- Mempercepat proses registrasi dan booking secara digital.
