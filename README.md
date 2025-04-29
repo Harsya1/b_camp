@@ -27,7 +27,7 @@
    ```
 2. Masuk ke direktori project:
    ```bash
-   cd BCamp
+   cd b_camp
    ```
 3. Install dependencies:
    ```bash
