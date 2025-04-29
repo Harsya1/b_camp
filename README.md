@@ -17,7 +17,8 @@
 
 - Flutter (Frontend Mobile Development)
 - Dart (Programming Language)
-- (Tambahkan jika ada backend, database, atau API yang digunakan)
+- Laravel (Backend API)
+- MySQL (Database)
 
 ## Cara Install dan Menjalankan
 
