@@ -1,52 +1,52 @@
 # BCamp
 
-**BCamp** adalah aplikasi mobile berbasis Flutter yang dirancang untuk memudahkan pencarian dan booking *camp* (asrama) bagi siswa Brilliant English Course di Pare, Kediri. Aplikasi ini dikembangkan menggunakan **framework Flutter** dan **bahasa pemrograman Dart**.
+**BCamp** is a Flutter-based mobile application designed to facilitate the search and booking of *camp* (dormitory) for Brilliant English Course students in Pare, Kediri. This application was developed using **Flutter framework** and **Dart programming language**.
 
-## Fitur Utama
+## Main Features
 
-- **Booking Camp**  
-  Pengguna dapat mencari dan memesan camp (asrama) sesuai kebutuhan mereka saat proses belajar di Brilliant English Course.
+- **Booking Camp** 
+ Users can search and book camps (dormitories) according to their needs during the learning process at Brilliant English Course.
 
-- **Login dan Pendaftaran Diri**  
-  Sebelum melakukan booking, pengguna harus melakukan login dan melengkapi data diri dengan benar.
+- **Login and Self Registration** 
+ Before making a booking, users must log in and complete their personal data correctly.
 
-- **Feed Acara**  
-  Pengguna dapat melihat berbagai acara yang diselenggarakan oleh Brilliant, seperti seminar, lomba, dan event sosial lainnya.
+- **Feed Events** 
+ Users can see various events organized by Brilliant, such as seminars, competitions, and other social events.
 
-## Teknologi yang Digunakan
+## Technology Used
 
 - Flutter (Frontend Mobile Development)
 - Dart (Programming Language)
 - Laravel (Backend API)
 - MySQL (Database)
 
-## Cara Install dan Menjalankan
+## How to Install and Run
 
-1. Clone repositori ini:
+1. Clone this repository:
    ```bash
-   git clone https://github.com/Harsya1/b_camp.git
-   ```
-2. Masuk ke direktori project:
+ git clone https://github.com/Harsya1/b_camp.git
+ ```
+2. Go to the project directory:
    ```bash
-   cd b_camp
-   ```
+ cd b_camp
+ ```
 3. Install dependencies:
    ```bash
-   flutter pub get
-   ```
-4. Jalankan aplikasi:
+ flutter pub get
+ ```
+4. Run the application:
    ```bash
-   flutter run
-   ```
+ flutter run
+ ```
 
-## Struktur Project
-- `/lib` - berisi source code utama
-- `/lib/screen` - halaman-halaman seperti Login, Booking, Feed, profile
-- `/lib/assets` - komponen-komponen UI reusable
-- `/lib/services` - API service atau authentication service
+## Project Structure
+- `/lib` - contains the main source code
+- `/lib/screen` - pages such as Login, Booking, Feed, profile
+- `/lib/assets` - reusable UI components
+- `/lib/services` - API service or authentication service
 
-## Tujuan Aplikasi
+## Application Purpose
 
-- Membantu siswa Brilliant English Course menemukan asrama dengan mudah.
-- Memberikan informasi terkini tentang acara dan kegiatan di Brilliant.
-- Mempercepat proses registrasi dan booking secara digital.
+- Helps Brilliant English Course students find dormitories easily.
+- Provide up-to-date information about events and activities at Brilliant.
+- Speed up the registration and booking process digitally.
