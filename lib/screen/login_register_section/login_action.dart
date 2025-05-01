@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
 import 'register_action.dart'; // Import halaman register
+import 'package:b_camp/service/database/controller/UserAplikasiController.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   final VoidCallback onLogin;
 
   const LoginPage({Key? key, required this.onLogin}) : super(key: key);
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +69,7 @@ class LoginPage extends StatelessWidget {
                 SizedBox(
                   width: 290,
                   child: TextField(
+                    controller: _emailController,
                     decoration: InputDecoration(
                       hintText: 'Email',
                       filled: true,
@@ -86,6 +103,7 @@ class LoginPage extends StatelessWidget {
                 SizedBox(
                   width: 290,
                   child: TextField(
+                    controller: _passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       hintText: 'Password',
@@ -127,10 +145,67 @@ class LoginPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(50),
                       ),
                     ),
-                    onPressed: () {
-                      // Saat tombol login ditekan
-                      print("Login ditekan");
-                      onLogin(); // Panggil callback ke main
+                    onPressed: () async {
+                      try {
+                        if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Mohon isi email dan password'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final response = await AuthService.login(
+                          email: _emailController.text.trim(),
+                          password: _passwordController.text,
+                        );
+
+                        if (response['status'] == 'success') {
+                          widget.onLogin();
+                        } else {
+                          String errorMessage;
+                          
+                          // Simplified error handling
+                          switch (response['message']) {
+                            case 'Invalid credentials':
+                              errorMessage = 'Email atau password salah';
+                              break;
+                            case 'User not found':
+                              errorMessage = 'Email belum terdaftar';
+                              break;
+                            default:
+                              errorMessage = 'Gagal masuk ke aplikasi';
+                          }
+                          
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(errorMessage),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        String errorMessage;
+                        
+                        if (e is Exception) {
+                          if (e.toString().contains('SocketException')) {
+                            errorMessage = 'Gagal terhubung ke server, cek koneksi internet anda';
+                          } else {
+                            errorMessage = 'Gagal masuk ke aplikasi';
+                          }
+                        } else {
+                          errorMessage = 'Terjadi kesalahan, silakan coba lagi';
+                        }
+                        
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(errorMessage),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
                     },
                     child: const Text(
                       'Log In',
