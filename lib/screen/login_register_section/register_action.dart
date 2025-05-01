@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:b_camp/main.dart';
+import 'package:b_camp/service/database/controller/UserAplikasiController.dart';
 
 // import 'package:http/http.dart' as http;
 
@@ -196,14 +197,92 @@ class _MyWidgetState extends State<register_section> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
-                              // TODO: Tambahkan logika registrasi di sini
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const MyApp(),
-                                ),
-                              );
+                            onPressed: () async {
+                              try {
+                                if (_emailController.text.isEmpty || 
+                                    _passwordController.text.isEmpty || 
+                                    _confirmPasswordController.text.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Mohon isi semua data yang diperlukan'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                if (_passwordController.text != _confirmPasswordController.text) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Password tidak sama'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                if (_passwordController.text.length < 8) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Password minimal 8 karakter'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                final response = await AuthService.register(
+                                  name: _emailController.text.split('@')[0],
+                                  email: _emailController.text,
+                                  password: _passwordController.text,
+                                );
+
+                                if (response['status'] == 'success') {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Pendaftaran berhasil! Silakan login'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                } else {
+                                  String errorMessage;
+                                  
+                                  // Simplified error handling with switch
+                                  switch (response['message']) {
+                                    case 'The email has already been taken':
+                                      errorMessage = 'Email sudah terdaftar';
+                                      break;
+                                    case 'The email field is required':
+                                      errorMessage = 'Email harus diisi';
+                                      break;
+                                    case 'The email must be a valid email address':
+                                      errorMessage = 'Format email tidak valid';
+                                      break;
+                                    default:
+                                      errorMessage = 'Gagal mendaftar';
+                                  }
+                                  
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(errorMessage),
+                                      duration: const Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                String errorMessage = 'Gagal mendaftar';
+                                if (e.toString().contains('SocketException')) {
+                                  errorMessage = 'Gagal terhubung ke server, cek koneksi internet anda';
+                                }
+                                
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(errorMessage),
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
