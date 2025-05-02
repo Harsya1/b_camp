@@ -2,14 +2,21 @@ import 'package:b_camp/main.dart';
 import 'package:flutter/material.dart';
 import 'package:supercharged/supercharged.dart';
 
-class search_Section extends StatefulWidget {
-  const search_Section({super.key});
+class SearchSection extends StatefulWidget {
+  const SearchSection({super.key});
 
   @override
-  State<search_Section> createState() => _MyWidgetState();
+  State<SearchSection> createState() => _MyWidgetState();
 }
 
-class _MyWidgetState extends State<search_Section> {
+class _MyWidgetState extends State<SearchSection> {
+  // Variabel untuk menyimpan filter yang dipilih
+  String selectedCategory = 'VIP'; // Default kategori
+  String selectedType = 'All'; // Default tipe camp
+
+  bool showFilters =
+      false; // Untuk menampilkan atau menyembunyikan semua filter
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,8 +25,9 @@ class _MyWidgetState extends State<search_Section> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Tombol kembali
             Padding(
-              padding: EdgeInsets.only(left: 20, top: 30),
+              padding: const EdgeInsets.only(left: 20, top: 30),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white, // Latar belakang putih
@@ -28,32 +36,33 @@ class _MyWidgetState extends State<search_Section> {
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1), // Bayangan lembut
                       blurRadius: 5,
-                      offset: Offset(0, 2),
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.chevron_left,
                     color: Colors.black,
                   ), // Ikon warna hitam
                   onPressed: () {
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (context) => MyApp()),
+                      MaterialPageRoute(builder: (context) => const MyApp()),
                       (Route<dynamic> route) => false,
                     );
                   },
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
+            // Input pencarian
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: TextField(
                 decoration: InputDecoration(
                   hintText: 'Ayo cari camp yang kamu mau',
-                  hintStyle: TextStyle(
+                  hintStyle: const TextStyle(
                     color: Colors.black, // Warna teks hint
                   ),
                   border: OutlineInputBorder(
@@ -62,15 +71,168 @@ class _MyWidgetState extends State<search_Section> {
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: EdgeInsets.symmetric(
+                  contentPadding: const EdgeInsets.symmetric(
                     vertical: 15,
                     horizontal: 20,
                   ),
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
+            // Dropdown untuk menampilkan semua filter
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showFilters = !showFilters; // Toggle visibilitas filter
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Filter',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Icon(
+                      showFilters
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      color: Colors.black,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (showFilters)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Tipe Camp',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            _buildFilterButton('VIP', selectedCategory, (
+                              value,
+                            ) {
+                              setState(() {
+                                selectedCategory = value;
+                              });
+                            }),
+                            const SizedBox(width: 10),
+                            _buildFilterButton('Reguler', selectedCategory, (
+                              value,
+                            ) {
+                              setState(() {
+                                selectedCategory = value;
+                              });
+                            }),
+                            const SizedBox(width: 10),
+                            _buildFilterButton('Homestay', selectedCategory, (
+                              value,
+                            ) {
+                              setState(() {
+                                selectedCategory = value;
+                              });
+                            }),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Filter Tipe Camp
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Kategori',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            _buildFilterButton('All', selectedType, (value) {
+                              setState(() {
+                                selectedType = value;
+                              });
+                            }),
+                            const SizedBox(width: 10),
+                            _buildFilterButton('Male', selectedType, (value) {
+                              setState(() {
+                                selectedType = value;
+                              });
+                            }),
+                            const SizedBox(width: 10),
+                            _buildFilterButton('Female', selectedType, (value) {
+                              setState(() {
+                                selectedType = value;
+                              });
+                            }),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Filter Kategori
+                ],
+              ),
+            const SizedBox(height: 20),
           ],
+        ),
+      ),
+    );
+  }
+
+  // Widget untuk membuat tombol filter
+  Widget _buildFilterButton(
+    String label,
+    String selectedValue,
+    Function(String) onTap,
+  ) {
+    final bool isSelected = label == selectedValue;
+    return GestureDetector(
+      onTap: () => onTap(label),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.black : Colors.white, // Warna tombol
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(
+            color: isSelected ? Colors.black : Colors.grey, // Warna border
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 10, // Ukuran teks lebih kecil
+            color: isSelected ? Colors.white : Colors.black, // Warna teks
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
