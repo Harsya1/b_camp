@@ -21,7 +21,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      const dashboard_main(), // Halaman Dashboard
+      const DashboardMain(), // Halaman Dashboard
       const BookingSection(), // Halaman Booking
     ];
 
@@ -88,7 +88,8 @@ class _MyAppState extends State<MyApp> {
                           (context) => LoginPage(
                             onLogin: () {
                               setState(() {
-                                isLoggedIn = true; // Tandai pengguna sudah login
+                                isLoggedIn =
+                                    true; // Tandai pengguna sudah login
                                 selectedIndex = 0; // Kembali ke halaman utama
                               });
                               Navigator.pop(
