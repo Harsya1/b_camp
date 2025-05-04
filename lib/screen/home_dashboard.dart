@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:b_camp/screen/search_section.dart';
 import 'package:supercharged/supercharged.dart';
+import 'package:b_camp/service/database/controller/itemCampController.dart';
 
 class DashboardMain extends StatefulWidget {
   const DashboardMain({super.key});
@@ -211,8 +212,8 @@ class _MyWidgetState extends State<DashboardMain> {
 
   // Widget untuk menampilkan daftar tipe camp dalam bentuk horizontal scroll
   Widget _itemCamp() {
-    return FutureBuilder<List<dynamic>>(
-      future: widget.getItemCamp(),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: ItemCampController.getCamps(), // Panggil API dari controller
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -221,13 +222,14 @@ class _MyWidgetState extends State<DashboardMain> {
         } else if (snapshot.hasData) {
           var data = snapshot.data!;
           return SizedBox(
-            height: 250, // Tinggi kontainer untuk item camp
+            height: 200, // Tinggi kontainer untuk item camp
             child: ListView.builder(
               scrollDirection: Axis.horizontal, // Scroll secara horizontal
               itemCount: data.length,
               itemBuilder: (context, index) {
+                final camp = data[index];
                 return Container(
-                  width: 120,
+                  width: 250, // Lebar kontainer
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -241,24 +243,38 @@ class _MyWidgetState extends State<DashboardMain> {
                     ],
                   ),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Gambar tipe camp
-                      Image.network(
-                        data[index]['image'], // URL gambar dari API
-                        height: 80,
-                        width: 80,
-                        fit: BoxFit.cover,
+                      ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
+                        child: Image.network(
+                          camp['gambar'], // URL gambar dari API
+                          height: 120,
+                          width: 250,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.broken_image, size: 120);
+                          },
+                        ),
                       ),
                       const SizedBox(height: 10),
                       // Nama tipe camp
-                      Text(
-                        data[index]['name'], // Nama tipe camp dari API
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          camp['nama_kamar'], // Nama tipe camp dari API
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ChangePassword extends StatelessWidget {
   final VoidCallback onPasswordChanged; 
 
-  const ChangePassword({Key? key, required this.onPasswordChanged}) : super(key: key);
+  const ChangePassword({super.key, required this.onPasswordChanged});
 
   @override
   Widget build(BuildContext context) {
