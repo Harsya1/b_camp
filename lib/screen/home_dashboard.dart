@@ -104,7 +104,7 @@ class _MyWidgetState extends State<DashboardMain> {
               ),
             ),
             const SizedBox(
-              height: 100,
+              height: 150,
             ), // Jarak antara event dan konten lainnya
           ],
         ),
