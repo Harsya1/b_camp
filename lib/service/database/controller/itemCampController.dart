@@ -30,14 +30,8 @@ class ItemCampController {
       print('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-
-        // Pastikan responseData adalah list
-        if (responseData is List) {
-          return List<Map<String, dynamic>>.from(responseData);
-        } else {
-          throw Exception('Unexpected response format');
-        }
+        final List<dynamic> responseData = jsonDecode(response.body);
+        return responseData.map((item) => item as Map<String, dynamic>).toList();
       } else {
         throw Exception('Failed to fetch camps: ${response.body}');
       }
