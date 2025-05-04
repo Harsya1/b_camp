@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:b_camp/screen/search_section.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:b_camp/service/database/controller/itemCampController.dart';
+import 'package:b_camp/service/database/controller/itemEventController.dart';
 
 class DashboardMain extends StatefulWidget {
   const DashboardMain({super.key});
@@ -301,63 +302,121 @@ class _MyWidgetState extends State<DashboardMain> {
 
   // Widget untuk menampilkan daftar event dalam bentuk dua item berjajar
   Widget _itemEvent() {
-    return SizedBox(
-      height: 150, // Tinggi kontainer untuk item event
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Item Event 1
-          Container(
-            width: 180, // Lebar kontainer
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 5,
-                  offset: const Offset(0, 2),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: ItemEventController.getEvents(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('Tidak ada event tersedia'));
+        }
+
+        var events = snapshot.data!;
+        return SizedBox(
+          height: 260,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: events.length,
+            itemBuilder: (context, index) {
+              final event = events[index];
+              return Container(
+                width: 180,
+                margin: const EdgeInsets.only(right: 15),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: const Center(
-              child: Text(
-                'Event 1',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Event Image
+                    ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
+                      child: Image.network(
+                        event['gambar'] ?? 'https://via.placeholder.com/300x120',
+                        height: 80,
+                        width: 180,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 80,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.event, size: 48),
+                          );
+                        },
+                      ),
+                    ),
+                    // Event Details
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            event['nama_event'] ?? 'Event tidak tersedia',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            event['lokasi'] ?? 'Lokasi tidak tersedia',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.calendar_today, 
+                                  size: 16, color: Colors.blue[700]),
+                              const SizedBox(width: 4),
+                              Text(
+                                _formatDate(event['tanggal_mulai']),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ),
+              );
+            },
           ),
-          // Item Event 2
-          Container(
-            width: 180, // Lebar kontainer
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 5,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: const Center(
-              child: Text(
-                'Event 2',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
+  }
+
+  // Add this helper method for date formatting
+  String _formatDate(String? dateString) {
+    if (dateString == null) return 'Tanggal tidak tersedia';
+    try {
+      final date = DateTime.parse(dateString);
+      return '${date.day}/${date.month}/${date.year}';
+    } catch (e) {
+      return 'Invalid date';
+    }
   }
 }
