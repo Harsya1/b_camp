@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ItemCampController {
+class ItemEventController {
   static const String baseUrl =
       'https://kampunginggrismu.com/api'; // Ganti dengan URL API Anda
 
-  // Fungsi untuk GET data camp
-  static Future<List<Map<String, dynamic>>> getCamps() async {
+  // Fungsi untuk GET data event
+  static Future<List<Map<String, dynamic>>> getEvents() async {
     try {
       // Ambil token dari SharedPreferences
       final prefs = await SharedPreferences.getInstance();
@@ -18,7 +18,7 @@ class ItemCampController {
       }
 
       final response = await http.get(
-        Uri.parse('$baseUrl/kamar'), // Endpoint untuk mendapatkan data camp
+        Uri.parse('$baseUrl/events'), // Endpoint untuk mendapatkan data event
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token', // Tambahkan token ke header
@@ -39,10 +39,10 @@ class ItemCampController {
           throw Exception('Unexpected response format');
         }
       } else {
-        throw Exception('Failed to fetch camps: ${response.body}');
+        throw Exception('Failed to fetch events: ${response.body}');
       }
     } catch (e) {
-      print('Error fetching camps: $e');
+      print('Error fetching events: $e');
       rethrow;
     }
   }

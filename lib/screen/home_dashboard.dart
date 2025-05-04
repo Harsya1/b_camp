@@ -79,6 +79,33 @@ class _MyWidgetState extends State<DashboardMain> {
                 ],
               ),
             ),
+            // Tambahkan di bawah _itemCamp() pada line 83
+            const SizedBox(
+              height: 20,
+            ), // Jarak antara _itemCamp() dan section event
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Judul "Event Kami"
+                  const Text(
+                    'Event Kami',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto',
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Konten event (placeholder untuk sekarang)
+                  _itemEvent(),
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 100,
+            ), // Jarak antara event dan konten lainnya
           ],
         ),
       ),
@@ -222,14 +249,14 @@ class _MyWidgetState extends State<DashboardMain> {
         } else if (snapshot.hasData) {
           var data = snapshot.data!;
           return SizedBox(
-            height: 200, // Tinggi kontainer untuk item camp
+            height: 250, // Tinggi kontainer untuk item camp
             child: ListView.builder(
               scrollDirection: Axis.horizontal, // Scroll secara horizontal
               itemCount: data.length,
               itemBuilder: (context, index) {
                 final camp = data[index];
                 return Container(
-                  width: 250, // Lebar kontainer
+                  width: 300, // Lebar kontainer
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -242,36 +269,19 @@ class _MyWidgetState extends State<DashboardMain> {
                       ),
                     ],
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  child: Stack(
                     children: [
-                      // Gambar tipe camp
-                      ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                        ),
-                        child: Image.network(
-                          camp['gambar'], // URL gambar dari API
-                          height: 120,
-                          width: 250,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.broken_image, size: 120);
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      // Nama tipe camp
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      // Nama tipe camp di pojok kiri bawah
+                      Positioned(
+                        bottom: 10,
+                        left: 10,
                         child: Text(
                           camp['nama_kamar'], // Nama tipe camp dari API
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
-                          textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -286,6 +296,68 @@ class _MyWidgetState extends State<DashboardMain> {
           return const Center(child: Text('No data available'));
         }
       },
+    );
+  }
+
+  // Widget untuk menampilkan daftar event dalam bentuk dua item berjajar
+  Widget _itemEvent() {
+    return SizedBox(
+      height: 150, // Tinggi kontainer untuk item event
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Item Event 1
+          Container(
+            width: 180, // Lebar kontainer
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Center(
+              child: Text(
+                'Event 1',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+          // Item Event 2
+          Container(
+            width: 180, // Lebar kontainer
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Center(
+              child: Text(
+                'Event 2',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
