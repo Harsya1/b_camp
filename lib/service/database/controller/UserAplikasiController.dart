@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:b_camp/service/api_service.dart'; 
 
 class AuthService {
@@ -34,6 +35,10 @@ class AuthService {
         if (responseData['status'] == 'success') {
           final token = responseData['data']?['token'];
           if (token != null) {
+            
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('auth_token', token);
+            
             ApiService.setToken(token);
             print('Token set successfully');
           } else {

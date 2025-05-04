@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:b_camp/service/api_service.dart'; 
-
+import 'package:b_camp/service/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ItemCampController {
   static const String baseUrl =
@@ -10,9 +10,20 @@ class ItemCampController {
   // Fungsi untuk GET data camp
   static Future<List<Map<String, dynamic>>> getCamps() async {
     try {
+      // Ambil token dari SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        throw Exception('Token not found. Please log in again.');
+      }
+
       final response = await http.get(
         Uri.parse('$baseUrl/kamar'), // Endpoint untuk mendapatkan data camp
-        headers: {'Accept': 'application/json'},
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token', // Tambahkan token ke header
+        },
       );
 
       // Debugging: Print response
