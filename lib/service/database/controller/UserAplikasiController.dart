@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'dart:math';
 import 'package:b_camp/service/api_service.dart'; 
 
 class AuthService {

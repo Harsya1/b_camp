@@ -5,7 +5,7 @@ import 'package:b_camp/service/database/controller/UserAplikasiController.dart';
 class LoginPage extends StatefulWidget {
   final VoidCallback onLogin;
 
-  const LoginPage({Key? key, required this.onLogin}) : super(key: key);
+  const LoginPage({super.key, required this.onLogin});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -70,6 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: 290,
                   child: TextField(
                     controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       hintText: 'Email',
                       filled: true,
