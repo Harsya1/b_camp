@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:b_camp/screen/search_section.dart';
 import 'package:supercharged/supercharged.dart';
+import 'package:b_camp/screen/camp_section/camp_detail.dart';
 import 'package:b_camp/service/database/controller/itemCampController.dart';
 import 'package:b_camp/service/database/controller/itemEventController.dart';
 
@@ -256,38 +257,46 @@ class _MyWidgetState extends State<DashboardMain> {
               itemCount: data.length,
               itemBuilder: (context, index) {
                 final camp = data[index];
-                return Container(
-                  width: 300, // Lebar kontainer
-                  margin: const EdgeInsets.only(right: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Stack(
-                    children: [
-                      // Nama tipe camp di pojok kiri bawah
-                      Positioned(
-                        bottom: 10,
-                        left: 10,
-                        child: Text(
-                          camp['nama_kamar'], // Nama tipe camp dari API
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CampDetail()),
+                    );
+                  },
+                  child: Container(
+                    width: 300, // Lebar kontainer
+                    margin: const EdgeInsets.only(right: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 5,
+                          offset: const Offset(0, 2),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Stack(
+                      children: [
+                        // Nama tipe camp di pojok kiri bawah
+                        Positioned(
+                          bottom: 10,
+                          left: 10,
+                          child: Text(
+                            camp['nama_kamar'], // Nama tipe camp dari API
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

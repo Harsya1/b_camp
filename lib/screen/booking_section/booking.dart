@@ -31,7 +31,7 @@ class _BookingSection extends State<BookingSection> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: "f2f2f2".toColor(), // Warna latar belakang
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
@@ -43,7 +43,7 @@ class _BookingSection extends State<BookingSection> {
                   ),
                   child: Center(
                     child: Text(
-                      'Konten Booking Anda di sini',
+                      'isi konten',
                       style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                     ),
                   ),
