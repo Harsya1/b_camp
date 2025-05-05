@@ -27,7 +27,7 @@ class _MyWidgetState extends State<SearchSection> {
           children: [
             // Tombol kembali
             Padding(
-              padding: const EdgeInsets.only(left: 20, top: 30),
+              padding: const EdgeInsets.only(left: 20, top: 50),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white, // Latar belakang putih
@@ -40,6 +40,7 @@ class _MyWidgetState extends State<SearchSection> {
                     ),
                   ],
                 ),
+
                 child: IconButton(
                   icon: const Icon(
                     Icons.chevron_left,

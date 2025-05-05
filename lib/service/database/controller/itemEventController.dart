@@ -18,7 +18,7 @@ class ItemEventController {
       }
 
       final response = await http.get(
-        Uri.parse('$baseUrl/events'), // Endpoint untuk mendapatkan data event
+        Uri.parse('$baseUrl/aplikasi_event'), // Endpoint untuk mendapatkan data event
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token', // Tambahkan token ke header
@@ -26,17 +26,16 @@ class ItemEventController {
       );
 
       // Debugging: Print response
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      print('Event Status Code: ${response.statusCode}');
+      print('Event Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-
-        // Pastikan responseData adalah list
-        if (responseData is List) {
-          return List<Map<String, dynamic>>.from(responseData);
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        
+        if (responseData['status'] == 'success' && responseData['data'] is List) {
+          return List<Map<String, dynamic>>.from(responseData['data']);
         } else {
-          throw Exception('Unexpected response format');
+          throw Exception('Invalid response format');
         }
       } else {
         throw Exception('Failed to fetch events: ${response.body}');
