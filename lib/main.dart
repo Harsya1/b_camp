@@ -1,6 +1,7 @@
+import 'package:b_camp/screen/booking_section/booking.dart';
 import 'package:flutter/material.dart';
 import 'screen/home_dashboard.dart';
-import 'screen/login_register_section/login_action.dart'; 
+import 'screen/profile_section/profile_dashboard.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,13 +16,13 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int selectedIndex = 0;
-  bool isLoggedIn = false;
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      const DashboardMain(), // Halaman Dashboard
+      const dashboard_main(), // Halaman Dashboard
       const BookingSection(), // Halaman Booking
+      const ProfileDashboard(), // Halaman Profile
     ];
 
     final List<Widget> navIcons = [
@@ -39,17 +40,8 @@ class _MyAppState extends State<MyApp> {
       ),
       home: Scaffold(
         extendBody: true,
-        body:
-            selectedIndex < 2
-                ? pages[selectedIndex] // Menampilkan halaman Dashboard atau Booking
-                : null, // Tidak menampilkan apa pun jika di halaman Login
-        bottomNavigationBar:
-            selectedIndex < 2
-                ? _navbar(
-                  navIcons,
-                  navTitles,
-                ) // Navbar hanya muncul di Dashboard dan Booking
-                : null, // Navbar disembunyikan di halaman Login
+        body: pages[selectedIndex], // Menampilkan halaman berdasarkan selectedIndex
+        bottomNavigationBar: _navbar(navIcons, navTitles), // Navigasi bawah
       ),
     );
   }
@@ -59,15 +51,11 @@ class _MyAppState extends State<MyApp> {
       height: 65,
       margin: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(
-          0.8,
-        ), // Warna navbar dengan transparansi
+        color: Colors.black.withOpacity(0.8),
         borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
-              0.2,
-            ), // Bayangan dengan transparansi
+            color: Colors.black.withOpacity(0.2),
             blurRadius: 20,
             spreadRadius: 5,
           ),
@@ -78,33 +66,9 @@ class _MyAppState extends State<MyApp> {
         children: List.generate(navIcons.length, (index) {
           return GestureDetector(
             onTap: () {
-              if (index == 2) {
-                // Jika klik Profile, navigasi ke LoginPage
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder:
-                          (context) => LoginPage(
-                            onLogin: () {
-                              setState(() {
-                                isLoggedIn =
-                                    true; // Tandai pengguna sudah login
-                                selectedIndex = 0; // Kembali ke halaman utama
-                              });
-                              Navigator.pop(
-                                context,
-                              ); // Kembali ke halaman utama
-                            },
-                          ),
-                    ),
-                  );
-                });
-              } else {
-                // Jika klik selain Profile, ubah halaman
-                setState(() {
-                  selectedIndex = index;
-                });
-              }
+              setState(() {
+                selectedIndex = index; // Ubah halaman aktif
+              });
             },
             child: Column(
               mainAxisSize: MainAxisSize.min,
