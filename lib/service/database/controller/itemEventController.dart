@@ -18,7 +18,7 @@ class ItemEventController {
       }
 
       final response = await http.get(
-        Uri.parse('$baseUrl/events'), // Endpoint untuk mendapatkan data event
+        Uri.parse('$baseUrl/aplikasi_event'), // Endpoint untuk mendapatkan data event
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token', // Tambahkan token ke header
