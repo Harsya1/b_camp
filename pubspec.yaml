@@ -35,7 +35,10 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   supercharged: ^2.1.1
-
+  http: ^1.3.0
+  dio: ^5.8.0+1
+  shared_preferences: ^2.5.3
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -55,14 +58,19 @@ flutter:
   uses-material-design: true
   assets:
     - lib/assets/background/background_home_dashboard.jpg
+    
     - lib/assets/icon/icnBooking.png
     - lib/assets/icon/icnHome.png
     - lib/assets/icon/icnProfile.png
+
     - lib/assets/background/login_logo.png
     - lib/assets/background/change_pass_icon.png
     - lib/assets/background/avatar.jpg
 
-  
+    - lib/assets/picture/sapiens_register.png
+    - lib/assets/picture/sapiens_login.png
+    - lib/assets/picture/sapiens_dump_notlogin.png
+    - lib/assets/picture/img_dump_booking.png
 
   fonts:
     - family: Roboto

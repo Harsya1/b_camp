@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class EditProfile extends StatefulWidget {
+  const EditProfile({super.key});
+
   @override
   EditProfilePageState createState() => EditProfilePageState();
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screen/home_dashboard.dart';
 import 'screen/login_register_section/login_action.dart'; 
-import 'screen/profile_section/profile_dashboard.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,55 +17,59 @@ class _MyAppState extends State<MyApp> {
   int selectedIndex = 0;
   bool isLoggedIn = false;
 
-  final List<Widget> pages = [
-    dashboard_main(),
-    Center(child: Text('Booking Page')),
-    Center(child: Text('Profile Page')),
-  ];
-
-  final List<Widget> navIcons = [
-    ImageIcon(AssetImage('assets/icon/icnHome.png'), size: 24),
-    ImageIcon(AssetImage('assets/icon/icnBooking.png'), size: 24),
-    ImageIcon(AssetImage('assets/icon/icnProfile.png'), size: 24),
-  ];
-
-  final List<String> navTitles = ['Ayo Cari', 'Booking', 'Profile'];
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      const DashboardMain(), // Halaman Dashboard
+      const BookingSection(), // Halaman Booking
+    ];
+
+    final List<Widget> navIcons = [
+      Image.asset('lib/assets/icon/icnHome.png', width: 24, height: 24),
+      Image.asset('lib/assets/icon/icnBooking.png', width: 24, height: 24),
+      Image.asset('lib/assets/icon/icnProfile.png', width: 24, height: 24),
+    ];
+
+    final List<String> navTitles = ['Ayo Cari', 'Booking', 'Profile'];
+
     return MaterialApp(
       title: 'B-Camp',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      debugShowCheckedModeBanner: false,
-      home: isLoggedIn
-          ? Scaffold(
-              body: pages[selectedIndex],
-              bottomNavigationBar: _navbar(),
-            )
-          : LoginPage(
-              onLogin: () {
-                setState(() {
-                  isLoggedIn = true;
-                });
-              },
-            ),
+      home: Scaffold(
+        extendBody: true,
+        body:
+            selectedIndex < 2
+                ? pages[selectedIndex] // Menampilkan halaman Dashboard atau Booking
+                : null, // Tidak menampilkan apa pun jika di halaman Login
+        bottomNavigationBar:
+            selectedIndex < 2
+                ? _navbar(
+                  navIcons,
+                  navTitles,
+                ) // Navbar hanya muncul di Dashboard dan Booking
+                : null, // Navbar disembunyikan di halaman Login
+      ),
     );
   }
 
-  Widget _navbar() {
+  Widget _navbar(List<Widget> navIcons, List<String> navTitles) {
     return Container(
       height: 65,
       margin: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
       decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(30),
+        color: Colors.black.withOpacity(
+          0.8,
+        ), // Warna navbar dengan transparansi
+        borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
-            color: Colors.white.withAlpha(20),
+            color: Colors.black.withOpacity(
+              0.2,
+            ), // Bayangan dengan transparansi
             blurRadius: 20,
-            spreadRadius: 10,
+            spreadRadius: 5,
           ),
         ],
       ),
@@ -75,14 +78,41 @@ class _MyAppState extends State<MyApp> {
         children: List.generate(navIcons.length, (index) {
           return GestureDetector(
             onTap: () {
-              setState(() {
-                selectedIndex = index;
-              });
+              if (index == 2) {
+                // Jika klik Profile, navigasi ke LoginPage
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder:
+                          (context) => LoginPage(
+                            onLogin: () {
+                              setState(() {
+                                isLoggedIn =
+                                    true; // Tandai pengguna sudah login
+                                selectedIndex = 0; // Kembali ke halaman utama
+                              });
+                              Navigator.pop(
+                                context,
+                              ); // Kembali ke halaman utama
+                            },
+                          ),
+                    ),
+                  );
+                });
+              } else {
+                // Jika klik selain Profile, ubah halaman
+                setState(() {
+                  selectedIndex = index;
+                });
+              }
             },
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                navIcons[index],
+                Opacity(
+                  opacity: selectedIndex == index ? 1 : 0.5,
+                  child: navIcons[index],
+                ),
                 Text(
                   navTitles[index],
                   style: TextStyle(
