@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screen/home_dashboard.dart';
 import 'screen/login_register_section/login_action.dart'; 
+import 'screen/profile_section/profile_dashboard.dart';
 
 void main() {
   runApp(const MyApp());
