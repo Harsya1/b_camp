@@ -26,7 +26,6 @@ class _DashboardCamp extends State<DashboardCamp> {
           children: [
             // Header dengan hanya sidebar navigasi dan textfield cari camp
             _buildHeader(),
-            const SizedBox(height: 50),
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20),
               child: Column(
@@ -144,9 +143,9 @@ class _DashboardCamp extends State<DashboardCamp> {
     );
   }
 
-  // Widget untuk menampilkan daftar tipe camp dalam bentuk horizontal scroll
+  // Widget untuk menampilkan daftar tipe camp dalam bentuk grid
   Widget _itemCamp() {
-    return FutureBuilder<List<Kamar>>( // Changed type from List<Map<String, dynamic>> to List<Kamar>
+    return FutureBuilder<List<Kamar>>(
       future: ItemCampController.getCamps(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -159,112 +158,114 @@ class _DashboardCamp extends State<DashboardCamp> {
         }
 
         var kamarList = snapshot.data!;
-        return SizedBox(
-          height: 250,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: kamarList.length,
-            itemBuilder: (context, index) {
-              final kamar = kamarList[index]; // Now using Kamar model
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CampDetail(kamarId: kamar.id), // Pass the ID
-                    ),
-                  );
-                },
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  margin: const EdgeInsets.only(right: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Stack(
-                    children: [
-                      // Image
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10),
-                          ),
-                          child: kamar.gambar != null
-                              ? Image.network(
-                                  kamar.gambar!,
-                                  height: 150,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      height: 150,
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.broken_image, size: 48),
-                                    );
-                                  },
-                                )
-                              : Container(
-                                  height: 150,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.image, size: 48),
-                                ),
-                        ),
-                      ),
-                      // Room details
-                      Positioned(
-                        bottom: 10,
-                        left: 10,
-                        right: 10,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              kamar.namaKamar,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Rp ${kamar.harga.toStringAsFixed(0)}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.green,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Gender: ${kamar.gender}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+        return GridView.builder(
+          physics:
+              const NeverScrollableScrollPhysics(), // Non-scrollable jika berada di dalam SingleChildScrollView
+          shrinkWrap: true, // Agar ukuran GridView menyesuaikan konten
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Jumlah kolom
+            crossAxisSpacing: 10, // Jarak horizontal antar item
+            mainAxisSpacing: 10, // Jarak vertikal antar item
+            mainAxisExtent: 250, // Tinggi setiap item
           ),
+          itemCount: kamarList.length,
+          itemBuilder: (context, index) {
+            final kamar = kamarList[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CampDetail(kamarId: kamar.id),
+                  ),
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Gambar kamar
+                    ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
+                      child:
+                          kamar.gambar != null
+                              ? Image.network(
+                                kamar.gambar!,
+                                height: 150,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 150,
+                                    color: Colors.grey[300],
+                                    child: const Icon(
+                                      Icons.broken_image,
+                                      size: 48,
+                                    ),
+                                  );
+                                },
+                              )
+                              : Container(
+                                height: 150,
+                                width: double.infinity,
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.image, size: 48),
+                              ),
+                    ),
+                    // Detail kamar
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            kamar.namaKamar,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Rp ${kamar.harga.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Gender: ${kamar.gender}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );
