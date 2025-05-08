@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:supercharged/supercharged.dart';
 import 'package:b_camp/screen/camp_section/camp_detail.dart';
 import 'package:b_camp/service/database/controller/itemCampController.dart';
+import 'package:b_camp/service/database/model/Kamar.dart';
 import 'dashboard_calender.dart';
 
 class DashboardCamp extends StatefulWidget {
@@ -145,99 +146,126 @@ class _DashboardCamp extends State<DashboardCamp> {
 
   // Widget untuk menampilkan daftar tipe camp dalam bentuk horizontal scroll
   Widget _itemCamp() {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: ItemCampController.getCamps(), // Panggil API dari controller
+    return FutureBuilder<List<Kamar>>( // Changed type from List<Map<String, dynamic>> to List<Kamar>
+      future: ItemCampController.getCamps(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Tampilkan indikator loading saat data sedang dimuat
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          // Tampilkan pesan error jika terjadi kesalahan
           print('Error: ${snapshot.error}');
           return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (snapshot.hasData) {
-          // Jika data tersedia
-          var data = snapshot.data!;
-          if (data.isEmpty) {
-            // Jika data kosong
-            return const Center(child: Text('Tidak ada data camp tersedia'));
-          }
-
-          return SizedBox(
-            height: 250, // Tinggi kontainer untuk item camp
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal, // Scroll secara horizontal
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                final camp = data[index];
-                return GestureDetector(
-                  onTap: () {
-                    // Navigasi ke halaman detail camp
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CampDetail()),
-                    );
-                  },
-                  child: Container(
-                    width:
-                        MediaQuery.of(context).size.width *
-                        0.8, // Lebar responsif
-                    margin: const EdgeInsets.only(right: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 5,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        // Placeholder untuk gambar (warna abu-abu)
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            height: 150,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Nama tipe camp di pojok kiri bawah
-                        Positioned(
-                          bottom: 10,
-                          left: 10,
-                          child: Text(
-                            camp['nama_kamar'] ?? 'Nama tidak tersedia',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        } else {
-          // Jika tidak ada data
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('Tidak ada data camp tersedia'));
         }
+
+        var kamarList = snapshot.data!;
+        return SizedBox(
+          height: 250,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: kamarList.length,
+            itemBuilder: (context, index) {
+              final kamar = kamarList[index]; // Now using Kamar model
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CampDetail(kamarId: kamar.id), // Pass the ID
+                    ),
+                  );
+                },
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  margin: const EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      // Image
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                          ),
+                          child: kamar.gambar != null
+                              ? Image.network(
+                                  kamar.gambar!,
+                                  height: 150,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      height: 150,
+                                      color: Colors.grey[300],
+                                      child: const Icon(Icons.broken_image, size: 48),
+                                    );
+                                  },
+                                )
+                              : Container(
+                                  height: 150,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.image, size: 48),
+                                ),
+                        ),
+                      ),
+                      // Room details
+                      Positioned(
+                        bottom: 10,
+                        left: 10,
+                        right: 10,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              kamar.namaKamar,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Rp ${kamar.harga.toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Gender: ${kamar.gender}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
       },
     );
   }
