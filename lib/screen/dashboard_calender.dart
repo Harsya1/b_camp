@@ -47,7 +47,61 @@ class _DashboardCalenderState extends State<DashboardCalender> {
           ],
         ),
       ),
-      body: _contentCalendar(), // Gunakan widget kalender di sini
+      body: Row(
+        children: [
+          // ListView untuk daftar kamar
+          Container(
+            width:
+                MediaQuery.of(context).size.width * 0.3, // 30% dari lebar layar
+            color: Colors.grey[200], // Latar belakang abu-abu
+            child: ListView.builder(
+              itemCount: 50, // Jumlah kamar
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text('Kamar ${index + 1}'),
+                  onTap: () {
+                    // Aksi ketika kamar dipilih
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Kamar ${index + 1}'),
+                          content: SizedBox(
+                            height: 300,
+                            child: SfCalendar(
+                              view: CalendarView.month,
+                              firstDayOfWeek: 1,
+                              dataSource:
+                                  _getCalendarDataSource(), // Data kalender
+                              backgroundColor:
+                                  Colors.grey[300], // Latar belakang abu-abu
+                              monthViewSettings: const MonthViewSettings(
+                                appointmentDisplayMode:
+                                    MonthAppointmentDisplayMode.appointment,
+                                showAgenda: true,
+                              ),
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Tutup'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          // Kalender utama di sebelah kanan
+          Expanded(child: _contentCalendar()),
+        ],
+      ),
     );
   }
 

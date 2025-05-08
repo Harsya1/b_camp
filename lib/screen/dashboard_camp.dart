@@ -117,14 +117,17 @@ class _DashboardCamp extends State<DashboardCamp> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.home, color: Colors.black),
-            title: const Text(
-              'Dashboard Camp',
-              style: TextStyle(color: Colors.black),
-            ),
+            leading: const Icon(Icons.home),
+            title: const Text('Dashboard Camp'),
             onTap: () {
-              Navigator.pop(context); // Kembali ke halaman utama
-              Navigator.pushNamed(context, '/dashboard_camp');
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) =>
+                          const DashboardCamp(), // Menggunakan DashboardCamp
+                ),
+              );
             },
           ),
           ListTile(
