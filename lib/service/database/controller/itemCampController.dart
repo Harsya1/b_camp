@@ -1,44 +1,55 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:b_camp/service/database/model/Kamar.dart';
 
 class ItemCampController {
-  static const String baseUrl =
-      'https://kampunginggrismu.com/api'; // Ganti dengan URL API Anda
+  static const String baseUrl = 'https://kampunginggrismu.com/api';
 
-  // Fungsi untuk GET data camp
-  static Future<List<Map<String, dynamic>>> getCamps() async {
+  static Future<List<Kamar>> getCamps() async {
     try {
-      // Ambil token dari SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-
-      if (token == null) {
-        throw Exception('Token not found. Please log in again.');
-      }
-
       final response = await http.get(
-        Uri.parse('$baseUrl/kamar'), // Endpoint untuk mendapatkan data camp
+        Uri.parse('$baseUrl/kamar'),
         headers: {
           'Accept': 'application/json',
-          'Authorization': 'Bearer $token', // Tambahkan token ke header
+          'Content-Type': 'application/json',
         },
       );
 
-      // Debugging: Print response
       print('Status Code: ${response.statusCode}');
       print('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final List<dynamic> responseData = jsonDecode(response.body);
-        return responseData
-            .map((item) => item as Map<String, dynamic>)
-            .toList();
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final List<dynamic> kamarData = responseData['data'] ?? responseData;
+        return kamarData.map((json) => Kamar.fromJson(json)).toList();
       } else {
         throw Exception('Failed to fetch camps: ${response.body}');
       }
     } catch (e) {
       print('Error fetching camps: $e');
+      rethrow;
+    }
+  }
+
+  static Future<Kamar> getCampDetail(int id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/kamar/$id'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        return Kamar.fromJson(responseData['data'] ?? responseData);
+      } else {
+        throw Exception('Failed to fetch camp details: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching camp details: $e');
       rethrow;
     }
   }
