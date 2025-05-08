@@ -49,4 +49,22 @@ class _DashboardCalenderState extends State<DashboardCalender> {
       body: const Center(child: Text('Halaman Kalender')),
     );
   }
+
+  Widget _ontentCalendar(){
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          const Text(
+            'Calendar',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          // Tambahkan widget kalender di sini
+          // Misalnya, menggunakan widget Calendar dari package flutter_calendar
+        ],
+      ),
+    );
+  }
+
 }
