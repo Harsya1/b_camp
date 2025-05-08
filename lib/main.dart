@@ -1,131 +1,22 @@
 import 'package:flutter/material.dart';
-import 'screen/home_dashboard.dart';
-import 'screen/login_register_section/login_action.dart';
-import 'screen/booking_section/booking.dart';
+import 'screen/routes/routes.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  int selectedIndex = 0;
-  bool isLoggedIn = false;
-
-  @override
   Widget build(BuildContext context) {
-    final List<Widget> pages = [
-      const DashboardMain(), // Halaman Dashboard
-      const BookingSection(), // Halaman Booking
-    ];
-
-    final List<Widget> navIcons = [
-      Image.asset('lib/assets/icon/icnHome.png', width: 24, height: 24),
-      Image.asset('lib/assets/icon/icnBooking.png', width: 24, height: 24),
-      Image.asset('lib/assets/icon/icnProfile.png', width: 24, height: 24),
-    ];
-
-    final List<String> navTitles = ['Ayo Cari', 'Booking', 'Profile'];
-
     return MaterialApp(
       title: 'B-Camp',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Scaffold(
-        extendBody: true,
-        body:
-            selectedIndex < 2
-                ? pages[selectedIndex] // Menampilkan halaman Dashboard atau Booking
-                : null, // Tidak menampilkan apa pun jika di halaman Login
-        bottomNavigationBar:
-            selectedIndex < 2
-                ? _navbar(
-                  navIcons,
-                  navTitles,
-                ) // Navbar hanya muncul di Dashboard dan Booking
-                : null, // Navbar disembunyikan di halaman Login
-      ),
-    );
-  }
-
-  Widget _navbar(List<Widget> navIcons, List<String> navTitles) {
-    return Container(
-      height: 65,
-      margin: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(
-          0.8,
-        ), // Warna navbar dengan transparansi
-        borderRadius: BorderRadius.circular(50),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(
-              0.2,
-            ), // Bayangan dengan transparansi
-            blurRadius: 20,
-            spreadRadius: 5,
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(navIcons.length, (index) {
-          return GestureDetector(
-            onTap: () {
-              if (index == 2) {
-                // Jika klik Profile, navigasi ke LoginPage
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder:
-                          (context) => LoginPage(
-                            onLogin: () {
-                              setState(() {
-                                isLoggedIn =
-                                    true; // Tandai pengguna sudah login
-                                selectedIndex = 0; // Kembali ke halaman utama
-                              });
-                              Navigator.pop(
-                                context,
-                              ); // Kembali ke halaman utama
-                            },
-                          ),
-                    ),
-                  );
-                });
-              } else {
-                // Jika klik selain Profile, ubah halaman
-                setState(() {
-                  selectedIndex = index;
-                });
-              }
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Opacity(
-                  opacity: selectedIndex == index ? 1 : 0.5,
-                  child: navIcons[index],
-                ),
-                Text(
-                  navTitles[index],
-                  style: TextStyle(
-                    color: selectedIndex == index ? Colors.white : Colors.grey,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-      ),
+      initialRoute: '/dashboard_camp', // Halaman utama adalah DashboardCamp
+      onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
 }
