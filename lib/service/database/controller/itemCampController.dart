@@ -31,7 +31,9 @@ class ItemCampController {
 
       if (response.statusCode == 200) {
         final List<dynamic> responseData = jsonDecode(response.body);
-        return responseData.map((item) => item as Map<String, dynamic>).toList();
+        return responseData
+            .map((item) => item as Map<String, dynamic>)
+            .toList();
       } else {
         throw Exception('Failed to fetch camps: ${response.body}');
       }
