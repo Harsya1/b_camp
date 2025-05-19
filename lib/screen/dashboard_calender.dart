@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'dashboard_camp.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -11,137 +12,184 @@ class DashboardCalender extends StatefulWidget {
 }
 
 class _DashboardCalenderState extends State<DashboardCalender> {
-  int selectedRoomIndex =
-      0; // Indeks kamar yang dipilih, default ke kamar 1 (indeks 0)
+  int selectedRoomIndex = 0;
+  final CalendarController _calendarController = CalendarController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Dashboard Booking Calendar')),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.black),
-              child: const Text(
-                'B-Camp Admin Menu',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Dashboard Camp'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DashboardCamp(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.calendar_today),
-              title: const Text('Dashboard Calendar'),
-              onTap: () {
-                Navigator.pop(context); // Tetap di halaman ini
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: _buildDrawer(),
       body: Row(
         children: [
-          // ListView untuk daftar kamar
-          Container(
-            width:
-                MediaQuery.of(context).size.width * 0.2, // 20% dari lebar layar
-            color: Colors.grey[100], // Latar belakang abu-abu lebih gelap
-            child: ListView.builder(
-              itemCount: 2, // Jumlah kamar dikurangi menjadi 2
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedRoomIndex = index; // Perbarui kamar yang dipilih
-                    });
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 5,
-                      horizontal: 10,
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color:
-                          selectedRoomIndex == index
-                              ? "FFCA07"
-                                  .toColor() // Warna untuk kamar yang dipilih
-                              : Colors
-                                  .white, // Warna untuk kamar yang tidak dipilih
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'No. kamar', // Teks di atas nomor kamar
-                          style: TextStyle(
-                            fontSize: 8, // Ukuran font kecil
-                            color: Colors.black, // Warna teks hitam
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 4,
-                        ), // Jarak antara teks dan nomor kamar
-                        Text(
-                          '${index + 1}', // Nomor kamar
-                          style: const TextStyle(
-                            fontSize: 16, // Ukuran font untuk nomor kamar
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black, // Warna teks hitam
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+          _buildRoomList(),
+          Expanded(child: _contentCalendar(selectedRoomIndex)),
+        ],
+      ),
+    );
+  }
+
+  // Drawer menu dengan tombol login di bawah
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(color: Colors.black),
+            child: const Text(
+              'B-Camp Admin Menu',
+              style: TextStyle(color: Colors.white, fontSize: 24),
             ),
           ),
-          // Kalender utama di sebelah kanan
-          Expanded(
-            child: _contentCalendar(
-              selectedRoomIndex,
-            ), // Kirim indeks kamar yang dipilih
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Dashboard Camp'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const DashboardCamp()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.calendar_today),
+            title: const Text('Dashboard Calendar'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/login');
+                },
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
+  // Daftar kamar di kiri
+  Widget _buildRoomList() {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.2,
+      color: Colors.grey[100],
+      child: ListView.builder(
+        itemCount: 2,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => setState(() => selectedRoomIndex = index),
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color:
+                    selectedRoomIndex == index
+                        ? "FFCA07".toColor()
+                        : Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'No. kamar',
+                    style: TextStyle(fontSize: 8, color: Colors.black),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${index + 1}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Konten utama: dropdown + kalender
   Widget _contentCalendar(int roomIndex) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Kalender Booking - Kamar ${roomIndex + 1}',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          DropdownSearch<String>(
+            mode: Mode.form,
+            items: (filter, cs) => ['VVIP', 'VIP', 'Barack'],
+            selectedItem: 'VVIP',
+            decoratorProps: DropDownDecoratorProps(
+              decoration: InputDecoration(
+                labelText: 'Pilih Camp',
+                hintText: 'Pilih tipe',
+              ),
+            ),
+            popupProps: PopupProps.menu(
+              showSearchBox: true,
+              searchFieldProps: TextFieldProps(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.black),
+                  ),
+                ),
+              ),
+            ),
+            onChanged: (value) {},
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: SfCalendar(
-              view: CalendarView.month, // Tampilan kalender bulanan
-              firstDayOfWeek: 1, // Mulai dari hari Senin
-              dataSource: _getCalendarDataSource(
-                roomIndex,
-              ), // Data untuk kalender
-              monthViewSettings: const MonthViewSettings(
-                appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-                showAgenda: true, // Menampilkan agenda di bawah kalender
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SfCalendar(
+                controller: _calendarController,
+                view: CalendarView.month,
+                firstDayOfWeek: 1,
+                dataSource: _getCalendarDataSource(roomIndex),
+                monthViewSettings: const MonthViewSettings(
+                  appointmentDisplayMode:
+                      MonthAppointmentDisplayMode.appointment,
+                  showAgenda: true,
+                ),
+                headerStyle: CalendarHeaderStyle(
+                  textAlign: TextAlign.center,
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                  backgroundColor: "FFCA07".toColor(),
+                ),
+                headerHeight: 50,
+                headerDateFormat: 'MMMM yyyy',
+                onTap: (calendarTapDetails) {
+                  // Optional: handle tap on calendar
+                },
               ),
             ),
           ),
@@ -150,17 +198,15 @@ class _DashboardCalenderState extends State<DashboardCalender> {
     );
   }
 
-  // Fungsi untuk mendapatkan data sumber kalender berdasarkan kamar
+  // Data dummy kalender per kamar
   MeetingDataSource _getCalendarDataSource(int roomIndex) {
-    final List<Meeting> meetings = <Meeting>[];
-
+    final List<Meeting> meetings = [];
     if (roomIndex == 0) {
-      // Data untuk kamar 1
       meetings.add(
         Meeting(
           eventName: 'Meeting with Team',
           from: DateTime.now(),
-          to: DateTime.now().add(const Duration(hours: 2)),
+          to: DateTime.now().add(const Duration(days: 5)),
           background: Colors.blue,
           isAllDay: false,
         ),
@@ -175,7 +221,6 @@ class _DashboardCalenderState extends State<DashboardCalender> {
         ),
       );
     } else if (roomIndex == 1) {
-      // Data untuk kamar 2
       meetings.add(
         Meeting(
           eventName: 'Project Deadline',
@@ -195,12 +240,11 @@ class _DashboardCalenderState extends State<DashboardCalender> {
         ),
       );
     }
-
     return MeetingDataSource(meetings);
   }
 }
 
-// Model untuk data kalender
+// Model data kalender
 class Meeting {
   Meeting({
     required this.eventName,
@@ -217,34 +261,24 @@ class Meeting {
   final bool isAllDay;
 }
 
-// DataSource untuk kalender
+// DataSource untuk Syncfusion Calendar
 class MeetingDataSource extends CalendarDataSource {
   MeetingDataSource(List<Meeting> source) {
     appointments = source;
   }
 
   @override
-  DateTime getStartTime(int index) {
-    return appointments![index].from;
-  }
+  DateTime getStartTime(int index) => appointments![index].from;
 
   @override
-  DateTime getEndTime(int index) {
-    return appointments![index].to;
-  }
+  DateTime getEndTime(int index) => appointments![index].to;
 
   @override
-  String getSubject(int index) {
-    return appointments![index].eventName;
-  }
+  String getSubject(int index) => appointments![index].eventName;
 
   @override
-  Color getColor(int index) {
-    return appointments![index].background;
-  }
+  Color getColor(int index) => appointments![index].background;
 
   @override
-  bool isAllDay(int index) {
-    return appointments![index].isAllDay;
-  }
+  bool isAllDay(int index) => appointments![index].isAllDay;
 }

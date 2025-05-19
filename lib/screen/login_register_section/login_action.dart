@@ -148,7 +148,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     onPressed: () async {
                       try {
-                        if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+                        if (_emailController.text.isEmpty ||
+                            _passwordController.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Mohon isi email dan password'),
@@ -164,10 +165,14 @@ class _LoginPageState extends State<LoginPage> {
                         );
 
                         if (response['status'] == 'success') {
-                          widget.onLogin();
+                          // Saat login sukses
+                          Navigator.pushReplacementNamed(
+                            context,
+                            '/dashboard_calender',
+                          );
                         } else {
                           String errorMessage;
-                          
+
                           // Simplified error handling
                           switch (response['message']) {
                             case 'Invalid credentials':
@@ -179,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                             default:
                               errorMessage = 'Gagal masuk ke aplikasi';
                           }
-                          
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(errorMessage),
@@ -189,17 +194,18 @@ class _LoginPageState extends State<LoginPage> {
                         }
                       } catch (e) {
                         String errorMessage;
-                        
+
                         if (e is Exception) {
                           if (e.toString().contains('SocketException')) {
-                            errorMessage = 'Gagal terhubung ke server, cek koneksi internet anda';
+                            errorMessage =
+                                'Gagal terhubung ke server, cek koneksi internet anda';
                           } else {
                             errorMessage = 'Gagal masuk ke aplikasi';
                           }
                         } else {
                           errorMessage = 'Terjadi kesalahan, silakan coba lagi';
                         }
-                        
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(errorMessage),

@@ -198,19 +198,22 @@ class _MyWidgetState extends State<register_section> {
                           child: ElevatedButton(
                             onPressed: () async {
                               try {
-                                if (_emailController.text.isEmpty || 
-                                    _passwordController.text.isEmpty || 
+                                if (_emailController.text.isEmpty ||
+                                    _passwordController.text.isEmpty ||
                                     _confirmPasswordController.text.isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Mohon isi semua data yang diperlukan'),
+                                      content: Text(
+                                        'Mohon isi semua data yang diperlukan',
+                                      ),
                                       duration: Duration(seconds: 2),
                                     ),
                                   );
                                   return;
                                 }
 
-                                if (_passwordController.text != _confirmPasswordController.text) {
+                                if (_passwordController.text !=
+                                    _confirmPasswordController.text) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('Password tidak sama'),
@@ -223,7 +226,9 @@ class _MyWidgetState extends State<register_section> {
                                 if (_passwordController.text.length < 8) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Password minimal 8 karakter'),
+                                      content: Text(
+                                        'Password minimal 8 karakter',
+                                      ),
                                       duration: Duration(seconds: 2),
                                     ),
                                   );
@@ -237,16 +242,21 @@ class _MyWidgetState extends State<register_section> {
                                 );
 
                                 if (response['status'] == 'success') {
-                                  Navigator.pop(context);
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    '/dashboard_calender',
+                                  );
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Pendaftaran berhasil! Silakan login'),
+                                      content: Text(
+                                        'Pendaftaran berhasil! Silakan login',
+                                      ),
                                       duration: Duration(seconds: 2),
                                     ),
                                   );
                                 } else {
                                   String errorMessage;
-                                  
+
                                   // Simplified error handling with switch
                                   switch (response['message']) {
                                     case 'The email has already been taken':
@@ -261,7 +271,7 @@ class _MyWidgetState extends State<register_section> {
                                     default:
                                       errorMessage = 'Gagal mendaftar';
                                   }
-                                  
+
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(errorMessage),
@@ -272,9 +282,10 @@ class _MyWidgetState extends State<register_section> {
                               } catch (e) {
                                 String errorMessage = 'Gagal mendaftar';
                                 if (e.toString().contains('SocketException')) {
-                                  errorMessage = 'Gagal terhubung ke server, cek koneksi internet anda';
+                                  errorMessage =
+                                      'Gagal terhubung ke server, cek koneksi internet anda';
                                 }
-                                
+
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(errorMessage),
