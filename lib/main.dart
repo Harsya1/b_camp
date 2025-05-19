@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: '/dashboard_camp', // Halaman utama adalah DashboardCamp
+      initialRoute: '/login', // Halaman utama adalah DashboardCamp
       onGenerateRoute: RouteGenerator.generateRoute,
     );
   }

@@ -141,6 +141,29 @@ class _DashboardCamp extends State<DashboardCamp> {
               Navigator.pushNamed(context, '/dashboard_calender');
             },
           ),
+          const Spacer(), // Jarak antara item menu dan bagian bawah
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/login');
+                },
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

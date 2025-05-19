@@ -39,6 +39,10 @@ dependencies:
   dio: ^5.8.0+1
   shared_preferences: ^2.5.3
   syncfusion_flutter_calendar: ^29.1.41
+  dropdown_search: ^6.0.2
+  intl: ^0.20.2
+  month_picker_dialog: ^6.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
