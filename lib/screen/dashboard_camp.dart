@@ -1,11 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:supercharged/supercharged.dart';
 import 'package:b_camp/screen/camp_section/camp_detail.dart';
 import 'package:b_camp/service/database/controller/itemCampController.dart';
 import 'package:b_camp/service/database/model/Kamar.dart';
-import 'dashboard_calender.dart';
 
 class DashboardCamp extends StatefulWidget {
   const DashboardCamp({super.key});
@@ -106,14 +103,16 @@ class _DashboardCamp extends State<DashboardCamp> {
   // Widget untuk side navigation bar
   Widget _buildSideNavigationBar(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: Colors.black),
-            child: const Text(
-              'B-Camp Admin Menu',
-              style: TextStyle(color: Colors.white, fontSize: 24),
+          const SizedBox(
+            width: double.infinity,
+            child: DrawerHeader(
+              decoration: BoxDecoration(color: Colors.black),
+              child: const Text(
+                'B-Camp Admin Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
             ),
           ),
           ListTile(
@@ -143,7 +142,12 @@ class _DashboardCamp extends State<DashboardCamp> {
           ),
           const Spacer(), // Jarak antara item menu dan bagian bawah
           Padding(
-            padding: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.only(
+              top: 50,
+              bottom: 20,
+              left: 16,
+              right: 16,
+            ),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -158,7 +162,7 @@ class _DashboardCamp extends State<DashboardCamp> {
                   Navigator.pushNamed(context, '/login');
                 },
                 child: const Text(
-                  'Login',
+                  'Logout',
                   style: TextStyle(color: Colors.white),
                 ),
               ),

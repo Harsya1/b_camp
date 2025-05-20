@@ -18,7 +18,7 @@ class _DashboardCalenderState extends State<DashboardCalender> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard Booking Calendar')),
+      appBar: AppBar(title: const Text('Booking Calendar')),
       drawer: _buildDrawer(),
       body: Row(
         children: [
@@ -32,14 +32,16 @@ class _DashboardCalenderState extends State<DashboardCalender> {
   // Drawer menu dengan tombol login di bawah
   Widget _buildDrawer() {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(color: Colors.black),
-            child: const Text(
-              'B-Camp Admin Menu',
-              style: TextStyle(color: Colors.white, fontSize: 24),
+          const SizedBox(
+            width: double.infinity,
+            child: DrawerHeader(
+              decoration: const BoxDecoration(color: Colors.black),
+              child: const Text(
+                'B-Camp Admin Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
             ),
           ),
           ListTile(
@@ -59,7 +61,7 @@ class _DashboardCalenderState extends State<DashboardCalender> {
               Navigator.pop(context);
             },
           ),
-          const SizedBox(height: 20),
+          const Spacer(),
           Padding(
             padding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
             child: SizedBox(
@@ -76,7 +78,7 @@ class _DashboardCalenderState extends State<DashboardCalender> {
                   Navigator.pushNamed(context, '/login');
                 },
                 child: const Text(
-                  'Login',
+                  'Logout',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
