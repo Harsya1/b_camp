@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: '/dashboard_camp',
+      initialRoute: '/login',
       onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
