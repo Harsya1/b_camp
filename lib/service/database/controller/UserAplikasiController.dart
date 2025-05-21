@@ -1,20 +1,21 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:b_camp/service/api_service.dart'; 
+import 'package:b_camp/service/api_service.dart';
 
 class AuthService {
-  static const String baseUrl = 'https://kampunginggrismu.com/api'; // Update this with your Laravel domain
+  static const String baseUrl = 'https://kampunginggrismu.com/api';
 
   static Future<Map<String, dynamic>> login({
     required String email,
     required String password,
   }) async {
     try {
-      print('Attempting login with: email=${email.trim()}, passwordLength=${password.length}');
+      print('Requesting token for: $email');
       
-      final response = await http.post(
-        Uri.parse('$baseUrl/admins'),
+      // Request token only
+      final tokenResponse = await http.post(
+        Uri.parse('$baseUrl/token'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -25,34 +26,33 @@ class AuthService {
         }),
       );
 
-      print('Status Code: ${response.statusCode}');
-      print('Response Headers: ${response.headers}');
-      print('Full Response Body: ${response.body}');
+      print('Token Status Code: ${tokenResponse.statusCode}');
+      print('Token Response: ${tokenResponse.body}');
 
-      final responseData = jsonDecode(response.body);
+      final tokenData = jsonDecode(tokenResponse.body);
 
-      if (response.statusCode == 200) {
-        if (responseData['status'] == 'success') {
-          final token = responseData['data']?['token'];
-          if (token != null) {
-            
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setString('auth_token', token);
-            
-            ApiService.setToken(token);
-            print('Token set successfully');
-          } else {
-            print('Warning: No token in success response');
-          }
-          return responseData;
-        } else {
-          throw Exception(responseData['message'] ?? 'Unknown error occurred');
-        }
-      } else {
-        print('Error response: ${response.body}');
-        throw Exception(responseData['message'] ?? 
-            'Server returned status code: ${response.statusCode}');
+      if (tokenResponse.statusCode != 200) {
+        throw Exception(tokenData['message'] ?? 'Failed to get token');
       }
+
+      final token = tokenData['token'];
+      if (token == null) {
+        throw Exception('No token received');
+      }
+
+      // Save token
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_token', token);
+      ApiService.setToken(token);
+
+      // Return success response
+      return {
+        'status': 'success',
+        'message': 'Login successful',
+        'data': {
+          'token': token
+        }
+      };
     } catch (e) {
       print('Login error: $e');
       rethrow;

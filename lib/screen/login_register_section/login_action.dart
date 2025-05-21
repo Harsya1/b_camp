@@ -159,51 +159,43 @@ class _LoginPageState extends State<LoginPage> {
                           return;
                         }
 
+                        // Show loading indicator
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },
+                        );
+
                         final response = await AuthService.login(
                           email: _emailController.text.trim(),
                           password: _passwordController.text,
                         );
 
+                        // Hide loading indicator
+                        Navigator.pop(context);
+
                         if (response['status'] == 'success') {
-                          // Saat login sukses
-                          Navigator.pushReplacementNamed(
-                            context,
-                            '/dashboard_calender',
-                          );
-                        } else {
-                          String errorMessage;
-
-                          // Simplified error handling
-                          switch (response['message']) {
-                            case 'Invalid credentials':
-                              errorMessage = 'Email atau password salah';
-                              break;
-                            case 'User not found':
-                              errorMessage = 'Email belum terdaftar';
-                              break;
-                            default:
-                              errorMessage = 'Gagal masuk ke aplikasi';
-                          }
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(errorMessage),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
+                          // Login successful
+                          widget.onLogin(); // Call the callback
+                          Navigator.pushReplacementNamed(context, '/dashboard_calender');
                         }
                       } catch (e) {
-                        String errorMessage;
+                        // Hide loading indicator if still showing
+                        Navigator.of(context).pop();
 
-                        if (e is Exception) {
-                          if (e.toString().contains('SocketException')) {
-                            errorMessage =
-                                'Gagal terhubung ke server, cek koneksi internet anda';
-                          } else {
-                            errorMessage = 'Gagal masuk ke aplikasi';
-                          }
+                        String errorMessage;
+                        if (e.toString().contains('Invalid credentials')) {
+                          errorMessage = 'Email atau password salah';
+                        } else if (e.toString().contains('User not found')) {
+                          errorMessage = 'Email belum terdaftar';
+                        } else if (e.toString().contains('SocketException')) {
+                          errorMessage = 'Gagal terhubung ke server, cek koneksi internet Anda';
                         } else {
-                          errorMessage = 'Terjadi kesalahan, silakan coba lagi';
+                          errorMessage = 'Gagal masuk ke aplikasi, silakan coba lagi';
                         }
 
                         ScaffoldMessenger.of(context).showSnackBar(
