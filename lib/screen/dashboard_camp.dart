@@ -3,6 +3,7 @@ import 'package:supercharged/supercharged.dart';
 import 'package:b_camp/screen/camp_section/camp_detail.dart';
 import 'package:b_camp/service/database/controller/itemCampController.dart';
 import 'package:b_camp/service/database/model/Kamar.dart';
+import 'package:b_camp/screen/booking_section/input_data.dart';
 
 class DashboardCamp extends StatefulWidget {
   const DashboardCamp({super.key});
