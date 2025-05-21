@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:b_camp/screen/routes/app_drawer.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 class DashboardCalender extends StatefulWidget {
   const DashboardCalender({super.key});
@@ -149,8 +150,27 @@ class _DashboardCalenderState extends State<DashboardCalender> {
                     ),
                   );
                 },
-                onTap: (calendarTapDetails) {
-                  // Optional: handle tap on calendar
+                onTap: (calendarTapDetails) async {
+                  final DateTime? selected = await showMonthPicker(
+                    context: context,
+                    initialDate:
+                        _calendarController.displayDate ?? DateTime.now(),
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(3000),
+                    monthPickerDialogSettings: MonthPickerDialogSettings(
+                      headerSettings: PickerHeaderSettings(
+                        headerBackgroundColor: const Color(0xFFFFCA07),
+                        headerCurrentPageTextStyle: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  );
+                  if (selected != null) {
+                    setState(() {
+                      _calendarController.displayDate = selected;
+                    });
+                  }
                 },
               ),
             ),
