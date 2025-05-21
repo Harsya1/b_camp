@@ -3,6 +3,7 @@ import 'package:supercharged/supercharged.dart';
 import 'package:b_camp/screen/camp_section/camp_detail.dart';
 import 'package:b_camp/service/database/controller/itemCampController.dart';
 import 'package:b_camp/service/database/model/Kamar.dart';
+import 'package:b_camp/screen/routes/app_drawer.dart';
 // import 'package:b_camp/screen/booking_section/input_data.dart';
 
 class DashboardCamp extends StatefulWidget {
@@ -17,7 +18,7 @@ class _DashboardCamp extends State<DashboardCamp> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: '#f2f2f2'.toColor(), // Warna latar belakang abu-abu muda
-      drawer: _buildSideNavigationBar(context), // Side navigation bar
+      drawer: const AppDrawer(), // Side navigation bar
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,77 +102,99 @@ class _DashboardCamp extends State<DashboardCamp> {
   }
 
   // Widget untuk side navigation bar
-  Widget _buildSideNavigationBar(BuildContext context) {
-    return Drawer(
-      child: Column(
-        children: [
-          const SizedBox(
-            width: double.infinity,
-            child: DrawerHeader(
-              decoration: BoxDecoration(color: Colors.black),
-              child: Text(
-                'B-Camp Admin Menu',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Dashboard Camp'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) =>
-                          const DashboardCamp(), // Menggunakan DashboardCamp
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_today, color: Colors.black),
-            title: const Text(
-              'Dashboard Calendar',
-              style: TextStyle(color: Colors.black),
-            ),
-            onTap: () {
-              Navigator.pop(context); // Kembali ke halaman utama
-              Navigator.pushNamed(context, '/dashboard_calender');
-            },
-          ),
-          const Spacer(), // Jarak antara item menu dan bagian bawah
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 50,
-              bottom: 20,
-              left: 16,
-              right: 16,
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/login');
-                },
-                child: const Text(
-                  'Logout',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildSideNavigationBar(BuildContext context) {
+  //   return Drawer(
+  //     child: Column(
+  //       children: [
+  //         const SizedBox(
+  //           width: double.infinity,
+  //           child: DrawerHeader(
+  //             decoration: BoxDecoration(color: Colors.black),
+  //             child: Text(
+  //               'B-Camp Admin Menu',
+  //               style: TextStyle(color: Colors.white, fontSize: 24),
+  //             ),
+  //           ),
+  //         ),
+  //         ListTile(
+  //           leading: const Icon(Icons.home),
+  //           title: const Text('Dashboard Camp'),
+  //           onTap: () {
+  //             Navigator.pushReplacement(
+  //               context,
+  //               MaterialPageRoute(
+  //                 builder:
+  //                     (context) =>
+  //                         const DashboardCamp(), // Menggunakan DashboardCamp
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //         ListTile(
+  //           leading: const Icon(Icons.calendar_today, color: Colors.black),
+  //           title: const Text(
+  //             'Dashboard Calendar',
+  //             style: TextStyle(color: Colors.black),
+  //           ),
+  //           onTap: () {
+  //             Navigator.pop(context); // Kembali ke halaman utama
+  //             Navigator.pushNamed(context, '/dashboard_calender');
+  //           },
+  //         ),
+  //         ListTile(
+  //           leading: const Icon(Icons.add_circle, color: Colors.black),
+  //           title: const Text(
+  //             'Create Camp',
+  //             style: TextStyle(color: Colors.black),
+  //           ),
+  //           onTap: () {
+  //             Navigator.pop(context); // Kembali ke halaman utama
+  //             Navigator.pushNamed(context, '/create_camp');
+  //           },
+  //         ),
+  //         ListTile(
+  //           leading: const Icon(Icons.edit, color: Colors.black),
+  //           title: const Text(
+  //             'Edit Camp',
+  //             style: TextStyle(color: Colors.black),
+  //           ),
+  //           onTap: () {
+  //             Navigator.pop(context); // Kembali ke halaman utama
+  //             Navigator.pushNamed(context, '/edit_camp');
+  //           },
+  //         ),
+  //         const Spacer(), // Jarak antara item menu dan bagian bawah
+  //         Padding(
+  //           padding: const EdgeInsets.only(
+  //             top: 50,
+  //             bottom: 20,
+  //             left: 16,
+  //             right: 16,
+  //           ),
+  //           child: SizedBox(
+  //             width: double.infinity,
+  //             child: ElevatedButton(
+  //               style: ElevatedButton.styleFrom(
+  //                 backgroundColor: Colors.black,
+  //                 padding: const EdgeInsets.symmetric(vertical: 14),
+  //                 shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(30),
+  //                 ),
+  //               ),
+  //               onPressed: () {
+  //                 Navigator.pushNamed(context, '/login');
+  //               },
+  //               child: const Text(
+  //                 'Logout',
+  //                 style: TextStyle(color: Colors.white),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // Widget untuk menampilkan daftar tipe camp dalam bentuk grid
   Widget _itemCamp() {
