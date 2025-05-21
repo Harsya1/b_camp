@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../dashboard_calender.dart' as calender;
 import '../dashboard_camp.dart' as campt;
-import '../booking_section/input_data.dart';
+import '../booking_section/input_data.dart' as inputdata;
 import '../camp_section/create_camp.dart' as create;
 import '../camp_section/edit_camp.dart' as editCamp;
 import '../login_register_section/login_action.dart' as loginAction;
@@ -23,7 +23,7 @@ class RouteGenerator {
           builder: (context) => const registerAction.register_section(),
         );
       case '/input_data':
-        return MaterialPageRoute(builder: (context) => CampVipPage());
+        return MaterialPageRoute(builder: (context) =>const inputdata.InputData());
       case '/create_camp':
         return MaterialPageRoute(
           builder: (context) => const create.CreateCamp(),

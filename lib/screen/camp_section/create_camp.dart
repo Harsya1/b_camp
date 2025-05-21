@@ -77,7 +77,7 @@ class _CreateCampState extends State<CreateCamp> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Data Kamar'),
+        title: const Text('Tambah Data Camp'),
         backgroundColor: monochrome,
       ),
       drawer: const AppDrawer(),
@@ -130,7 +130,7 @@ class _CreateCampState extends State<CreateCamp> {
                 width: double.infinity,
                 child: TextFormField(
                   controller: _namaKamarController,
-                  decoration: _inputDecoration('Nama Kamar'),
+                  decoration: _inputDecoration('Nama Camp'),
                   validator:
                       (value) =>
                           value == null || value.isEmpty ? 'Wajib diisi' : null,
