@@ -189,6 +189,26 @@ class _DashboardCalenderState extends State<DashboardCalender> {
                 ),
                 headerHeight: 50,
                 headerDateFormat: 'MMMM yyyy',
+                monthCellBuilder: (
+                  BuildContext context,
+                  MonthCellDetails details,
+                ) {
+                  final bool iscurrentMonth =
+                      details.date.month == details.visibleDates[10].month;
+                  return Center(
+                    child: Text(
+                      details.date.day.toString(),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight:
+                            iscurrentMonth
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                        color: iscurrentMonth ? Colors.black : Colors.grey[400],
+                      ),
+                    ),
+                  );
+                },
                 onTap: (calendarTapDetails) {
                   // Optional: handle tap on calendar
                 },
