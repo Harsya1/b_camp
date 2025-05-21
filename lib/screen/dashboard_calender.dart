@@ -1,8 +1,8 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'dashboard_camp.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:supercharged/supercharged.dart';
+import 'package:b_camp/screen/routes/app_drawer.dart';
 
 class DashboardCalender extends StatefulWidget {
   const DashboardCalender({super.key});
@@ -19,71 +19,11 @@ class _DashboardCalenderState extends State<DashboardCalender> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Booking Calendar')),
-      drawer: _buildDrawer(),
+      drawer: const AppDrawer(),
       body: Row(
         children: [
           _buildRoomList(),
           Expanded(child: _contentCalendar(selectedRoomIndex)),
-        ],
-      ),
-    );
-  }
-
-  // Drawer menu dengan tombol login di bawah
-  Widget _buildDrawer() {
-    return Drawer(
-      child: Column(
-        children: [
-          const SizedBox(
-            width: double.infinity,
-            child: DrawerHeader(
-              decoration: const BoxDecoration(color: Colors.black),
-              child: const Text(
-                'B-Camp Admin Menu',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Dashboard Camp'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const DashboardCamp()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_today),
-            title: const Text('Dashboard Calendar'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/login');
-                },
-                child: const Text(
-                  'Logout',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
