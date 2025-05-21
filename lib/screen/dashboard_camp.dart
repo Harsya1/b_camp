@@ -3,7 +3,7 @@ import 'package:supercharged/supercharged.dart';
 import 'package:b_camp/screen/camp_section/camp_detail.dart';
 import 'package:b_camp/service/database/controller/itemCampController.dart';
 import 'package:b_camp/service/database/model/Kamar.dart';
-import 'package:b_camp/screen/booking_section/input_data.dart';
+// import 'package:b_camp/screen/booking_section/input_data.dart';
 
 class DashboardCamp extends StatefulWidget {
   const DashboardCamp({super.key});
@@ -49,7 +49,6 @@ class _DashboardCamp extends State<DashboardCamp> {
       child: Stack(
         clipBehavior: Clip.none, // Pastikan widget di luar Stack tetap terlihat
         children: [
-          // Tombol Menu di pojok kiri atas
           // Tombol Menu di pojok kiri atas
           Positioned(
             left: 10,
@@ -110,7 +109,7 @@ class _DashboardCamp extends State<DashboardCamp> {
             width: double.infinity,
             child: DrawerHeader(
               decoration: BoxDecoration(color: Colors.black),
-              child: const Text(
+              child: Text(
                 'B-Camp Admin Menu',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),

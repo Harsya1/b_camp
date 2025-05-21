@@ -14,7 +14,7 @@ class AuthService {
       print('Attempting login with: email=${email.trim()}, passwordLength=${password.length}');
       
       final response = await http.post(
-        Uri.parse('$baseUrl/login'),
+        Uri.parse('$baseUrl/admins'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
