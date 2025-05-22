@@ -18,7 +18,7 @@ class RouteGenerator {
     switch (settings.name) {
       case '/dashboard_calender':
         return MaterialPageRoute(
-          builder: (context) => const calender.DashboardCalender(),
+          builder: (context) => const calender.DashboardCalendar(),
         );
       case '/dashboard_camp':
         return MaterialPageRoute(
