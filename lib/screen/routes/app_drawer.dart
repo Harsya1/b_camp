@@ -20,8 +20,8 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Dashboard Camp'),
+            leading: const Icon(Icons.home, color: Colors.black),
+            title: const Text('Booking Kamar'),
             onTap: () {
               Navigator.pushReplacement(
                 context,
