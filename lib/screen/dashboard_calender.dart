@@ -194,6 +194,28 @@ class _DashboardCalenderState extends State<DashboardCalender> {
                                 color: Colors.black,
                               ),
                             ),
+                            dateButtonsSettings: PickerDateButtonsSettings(
+                              selectedMonthBackgroundColor: const Color(
+                                0xFFFFCA07,
+                              ),
+                              unselectedMonthsTextColor: Colors.black,
+                            ),
+                            actionBarSettings: PickerActionBarSettings(
+                              cancelWidget: Text(
+                                'Batal',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              confirmWidget: Text(
+                                'Pilih',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ),
                         );
                         if (selected != null) {
