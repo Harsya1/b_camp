@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../dashboard_calender.dart' as calender;
 import '../dashboard_camp.dart' as campt;
 import '../booking_section/input_data.dart' as inputdata;
@@ -9,9 +10,9 @@ import '../camp_section/edit_camp.dart' as editCamp;
 import '../camp_section/edit_kamar.dart' as editKamar;
 import '../camp_section/list_kamar.dart' as listKamar;
 import '../camp_section/create_kamar.dart' as createKamar;
+import '../camp_section/detail_kamar.dart' as detailKamar;
 import '../camp_section/crud_camp.dart' as crudCamp;
 import '../login_register_section/login_action.dart' as loginAction;
-import '../login_register_section/register_action.dart' as registerAction;
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -28,10 +29,6 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (context) => const booking.BookingSection(),
         );
-      case '/register':
-        return MaterialPageRoute(
-          builder: (context) => const registerAction.register_section(),
-        );
       case '/input_data':
         return MaterialPageRoute(
           builder: (context) => const inputdata.InputData(),
@@ -41,12 +38,24 @@ class RouteGenerator {
           builder: (context) => const create.CreateCamp(),
         );
       case '/create_kamar':
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null || args['camp_id'] == null) {
+          throw Exception('Camp ID is required');
+        }
         return MaterialPageRoute(
-          builder: (context) => const createKamar.CreateKamar(),
+          builder: (context) => createKamar.CreateKamar(
+            campId: args['camp_id'],
+          ),
         );
       case '/placeholder_camp':
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null || args['id'] == null) {
+          throw Exception('Camp ID is required');
+        }
         return MaterialPageRoute(
-          builder: (context) => const placecamp.PlaceholderCamp(),
+          builder: (context) => placecamp.PlaceholderCamp(
+            campId: args['id'],
+          ),
         );
       case '/crud_camp':
         return MaterialPageRoute(
@@ -65,18 +74,48 @@ class RouteGenerator {
               ),
         );
       case '/list_kamar':
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null || args['camp_id'] == null || args['type'] == null) {
+          throw Exception('Camp ID and type are required');
+        }
         return MaterialPageRoute(
-          builder: (context) => const listKamar.ListKamar(),
+          builder: (context) => listKamar.ListKamar(
+            campId: args['camp_id'],
+            type: args['type'],
+          ),
         );
 
       //ROUTE untuk EDIT DATA
       case '/edit_kamar':
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null || args['kamar_data'] == null || args['camp_id'] == null) {
+          throw Exception('Kamar data and camp ID are required');
+        }
         return MaterialPageRoute(
-          builder: (context) => const editKamar.EditKamar(),
+          builder: (context) => editKamar.EditKamar(
+            kamarData: args['kamar_data'],
+            campId: args['camp_id'],
+          ),
         );
       case '/edit_camp':
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null) {
+          throw Exception('Camp data is required');
+        }
         return MaterialPageRoute(
-          builder: (context) => const editCamp.EditCamp(),
+          builder: (context) => editCamp.EditCamp(
+            campData: args,
+          ),
+        );
+      case '/detail_kamar':
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null || args['kamar_id'] == null) {
+          throw Exception('Kamar ID is required');
+        }
+        return MaterialPageRoute(
+          builder: (context) => detailKamar.DetailKamar(
+            kamarId: args['kamar_id'],
+          ),
         );
       
       default:

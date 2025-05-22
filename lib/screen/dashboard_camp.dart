@@ -198,7 +198,7 @@ class _DashboardCamp extends State<DashboardCamp> {
 
   // Widget untuk menampilkan daftar tipe camp dalam bentuk grid
   Widget _itemCamp() {
-    return FutureBuilder<List<Kamar>>(
+    return FutureBuilder<List<Map<String, dynamic>>>(
       future: ItemCampController.getCamps(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -210,27 +210,25 @@ class _DashboardCamp extends State<DashboardCamp> {
           return const Center(child: Text('Tidak ada data camp tersedia'));
         }
 
-        var kamarList = snapshot.data!;
+        var camps = snapshot.data!;
         return GridView.builder(
-          physics:
-              const NeverScrollableScrollPhysics(), // Non-scrollable jika berada di dalam SingleChildScrollView
-          shrinkWrap: true, // Agar ukuran GridView menyesuaikan konten
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Jumlah kolom
-            crossAxisSpacing: 10, // Jarak horizontal antar item
-            mainAxisSpacing: 10, // Jarak vertikal antar item
-            mainAxisExtent: 250, // Tinggi setiap item
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            mainAxisExtent: 250,
           ),
-          itemCount: kamarList.length,
+          itemCount: camps.length,
           itemBuilder: (context, index) {
-            final kamar = kamarList[index];
+            final camp = camps[index];
             return GestureDetector(
               onTap: () {
-                Navigator.push(
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => CampDetail(kamarId: kamar.id),
-                  ),
+                  '/placeholder_camp',
+                  arguments: {'id': camp['id']},
                 );
               },
               child: Container(
@@ -248,45 +246,38 @@ class _DashboardCamp extends State<DashboardCamp> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Gambar kamar
                     ClipRRect(
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(10),
                         topRight: Radius.circular(10),
                       ),
-                      child:
-                          kamar.gambar != null
-                              ? Image.network(
-                                kamar.gambar!,
-                                height: 150,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    height: 150,
-                                    color: Colors.grey[300],
-                                    child: const Icon(
-                                      Icons.broken_image,
-                                      size: 48,
-                                    ),
-                                  );
-                                },
-                              )
-                              : Container(
-                                height: 150,
-                                width: double.infinity,
-                                color: Colors.grey[300],
-                                child: const Icon(Icons.image, size: 48),
-                              ),
+                      child: camp['gambar_camp'] != null
+                          ? Image.network(
+                              camp['gambar_camp'],
+                              height: 150,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  height: 150,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.broken_image, size: 48),
+                                );
+                              },
+                            )
+                          : Container(
+                              height: 150,
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.image, size: 48),
+                            ),
                     ),
-                    // Detail kamar
                     Padding(
                       padding: const EdgeInsets.all(10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            kamar.namaKamar,
+                            camp['nama_camp'] ?? 'Unnamed Camp',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -296,20 +287,13 @@ class _DashboardCamp extends State<DashboardCamp> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Rp ${kamar.harga.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Gender: ${kamar.gender}',
+                            camp['alamat'] ?? 'No address',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[600],
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),

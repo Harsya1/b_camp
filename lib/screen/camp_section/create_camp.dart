@@ -2,24 +2,59 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:b_camp/screen/routes/app_drawer.dart';
+import 'package:b_camp/service/database/controller/itemCampController.dart';
 // import 'package:dropdown_search/dropdown_search.dart';
 
 class CreateCamp extends StatefulWidget {
-  const CreateCamp({super.key});
+  const CreateCamp({Key? key}) : super(key: key);
 
   @override
   State<CreateCamp> createState() => _CreateCampState();
 }
 
 class _CreateCampState extends State<CreateCamp> {
+  bool _isLoading = false;
   File? _image;
   final picker = ImagePicker();
 
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _namaKamarController = TextEditingController();
-  final TextEditingController _deskripsiController = TextEditingController();
-  final TextEditingController _alamatController = TextEditingController();
-  final TextEditingController _jumlahkamarController = TextEditingController();
+  final _namaCampController = TextEditingController();
+  final _deskripsiController = TextEditingController();
+  final _alamatController = TextEditingController();
+  final _jumlahMaksimalKamarController = TextEditingController();
+
+  Future<void> _saveCamp() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      setState(() => _isLoading = true);
+
+      final success = await ItemCampController.createCamp(
+        namaCamp: _namaCampController.text,
+        deskripsi: _deskripsiController.text,
+        gambarCamp: _image, // Pass the File directly
+        alamat: _alamatController.text,
+        jumlahMaksimalKamar: int.parse(_jumlahMaksimalKamarController.text),
+      );
+
+      if (!mounted) return;
+      
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Camp berhasil dibuat!')),
+        );
+        Navigator.pop(context, true);
+      } else {
+        throw Exception('Failed to create camp');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -54,10 +89,10 @@ class _CreateCampState extends State<CreateCamp> {
 
   @override
   void dispose() {
-    _namaKamarController.dispose();
+    _namaCampController.dispose();
     _deskripsiController.dispose();
     _alamatController.dispose();
-    _jumlahkamarController.dispose();
+    _jumlahMaksimalKamarController.dispose();
     super.dispose();
   }
 
@@ -119,7 +154,7 @@ class _CreateCampState extends State<CreateCamp> {
               SizedBox(
                 width: double.infinity,
                 child: TextFormField(
-                  controller: _namaKamarController,
+                  controller: _namaCampController,
                   decoration: _inputDecoration('Nama Camp'),
                   validator:
                       (value) =>
@@ -153,7 +188,7 @@ class _CreateCampState extends State<CreateCamp> {
               SizedBox(
                 width: double.infinity,
                 child: TextFormField(
-                  controller: _jumlahkamarController,
+                  controller: _jumlahMaksimalKamarController,
                   decoration: _inputDecoration('Jumlah Kamar'),
                   keyboardType: TextInputType.number,
                   style: const TextStyle(color: Colors.black),
@@ -171,20 +206,15 @@ class _CreateCampState extends State<CreateCamp> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Proses tambah data kamar di sini
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Data kamar berhasil ditambahkan!'),
+                  onPressed: _isLoading ? null : _saveCamp,
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                      : const Text(
+                          'Tambah Data Camp',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
-                      );
-                    }
-                  },
-                  child: const Text(
-                    'Tambah Data Camp',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
                 ),
               ),
             ],
