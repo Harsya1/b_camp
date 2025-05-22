@@ -182,7 +182,7 @@ class _CreateCampState extends State<CreateCamp> {
                     }
                   },
                   child: const Text(
-                    'Tambah Data Kamar',
+                    'Tambah Data Camp',
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),

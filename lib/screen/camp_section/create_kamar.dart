@@ -75,6 +75,12 @@ class _CreateKamarState extends State<CreateKamar> {
       appBar: AppBar(
         title: const Text('Tambah Data Kamar'),
         backgroundColor: monochrome,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
       ),
       drawer: const AppDrawer(),
       body: SingleChildScrollView(

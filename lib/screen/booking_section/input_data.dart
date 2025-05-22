@@ -10,7 +10,6 @@ class InputData extends StatefulWidget {
 
 class _InputDataState extends State<InputData> {
   String gender = 'Perempuan';
-  String roomType = 'VIP';
   DateTime checkInDate = DateTime.now();
   DateTime checkOutDate = DateTime.now();
 
@@ -75,7 +74,7 @@ class _InputDataState extends State<InputData> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const Text(
-                            "Camp VIP",
+                            "Nama Camp",
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -88,7 +87,7 @@ class _InputDataState extends State<InputData> {
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) => const CampDetail(kamarId : 1),
+                                      (context) => const CampDetail(kamarId: 1),
                                 ),
                               );
                             },
@@ -118,6 +117,22 @@ class _InputDataState extends State<InputData> {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        "Tipe Camp",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        "Kategori Camp",
+                        style: TextStyle(
+                          fontSize: 14  ,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -173,26 +188,6 @@ class _InputDataState extends State<InputData> {
                                 labelText: "Alamat",
                                 border: OutlineInputBorder(),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            DropdownButtonFormField<String>(
-                              value: roomType,
-                              items:
-                                  ['VIP']
-                                      .map(
-                                        (label) => DropdownMenuItem(
-                                          child: Text(label),
-                                          value: label,
-                                        ),
-                                      )
-                                      .toList(),
-                              decoration: const InputDecoration(
-                                labelText: "Pilih Tipe Kamar",
-                                border: OutlineInputBorder(),
-                              ),
-                              onChanged: (value) {
-                                setState(() => roomType = value!);
-                              },
                             ),
                             const SizedBox(height: 10),
                             ListTile(
