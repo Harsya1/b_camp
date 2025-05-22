@@ -66,6 +66,7 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (context) => const listKamar.ListKamar(),
         );
+      
       default:
         return _errorRoute();
     }
