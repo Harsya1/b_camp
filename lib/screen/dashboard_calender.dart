@@ -109,69 +109,102 @@ class _DashboardCalenderState extends State<DashboardCalender> {
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: SfCalendar(
-                controller: _calendarController,
-                view: CalendarView.month,
-                firstDayOfWeek: 1,
-                dataSource: _getCalendarDataSource(roomIndex),
-                monthViewSettings: const MonthViewSettings(
-                  appointmentDisplayMode:
-                      MonthAppointmentDisplayMode.appointment,
-                  showAgenda: true,
-                ),
-                headerStyle: CalendarHeaderStyle(
-                  textAlign: TextAlign.center,
-                  textStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                  backgroundColor: "FFCA07".toColor(),
-                ),
-                headerHeight: 50,
-                headerDateFormat: 'MMMM yyyy',
-                monthCellBuilder: (
-                  BuildContext context,
-                  MonthCellDetails details,
-                ) {
-                  final bool iscurrentMonth =
-                      details.date.month == details.visibleDates[10].month;
-                  return Center(
-                    child: Text(
-                      details.date.day.toString(),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight:
-                            iscurrentMonth
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                        color: iscurrentMonth ? Colors.black : Colors.grey[400],
-                      ),
+              child: Stack(
+                children: [
+                  SfCalendar(
+                    controller: _calendarController,
+                    view: CalendarView.month,
+                    headerHeight: 50,
+                    firstDayOfWeek: 1,
+                    dataSource: _getCalendarDataSource(roomIndex),
+                    monthViewSettings: const MonthViewSettings(
+                      appointmentDisplayMode:
+                          MonthAppointmentDisplayMode.appointment,
+                      showAgenda: true,
                     ),
-                  );
-                },
-                onTap: (calendarTapDetails) async {
-                  final DateTime? selected = await showMonthPicker(
-                    context: context,
-                    initialDate:
-                        _calendarController.displayDate ?? DateTime.now(),
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(3000),
-                    monthPickerDialogSettings: MonthPickerDialogSettings(
-                      headerSettings: PickerHeaderSettings(
-                        headerBackgroundColor: const Color(0xFFFFCA07),
-                        headerCurrentPageTextStyle: TextStyle(
-                          color: Colors.black,
+                    headerStyle: CalendarHeaderStyle(
+                      textAlign: TextAlign.center,
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      backgroundColor: "FFCA07".toColor(),
+                    ),
+                    headerDateFormat: 'MMMM yyyy',
+                    monthCellBuilder: (
+                      BuildContext context,
+                      MonthCellDetails details,
+                    ) {
+                      final bool iscurrentMonth =
+                          details.date.month == details.visibleDates[10].month;
+                      final bool isToday = DateUtils.isSameDay(
+                        details.date,
+                        DateTime.now(),
+                      );
+                      return Center(
+                        child: Container(
+                          decoration:
+                              isToday
+                                  ? BoxDecoration(
+                                    color: Colors.orange.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  )
+                                  : null,
+                          padding: const EdgeInsets.all(6),
+                          child: Text(
+                            details.date.day.toString(),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight:
+                                  iscurrentMonth
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                              color:
+                                  isToday
+                                      ? Colors.orange
+                                      : (iscurrentMonth
+                                          ? Colors.black
+                                          : Colors.grey[400]),
+                            ),
+                          ),
                         ),
-                      ),
+                      );
+                    },
+                    onTap: (calendarTapDetails) {},
+                  ),
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 50,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () async {
+                        final DateTime? selected = await showMonthPicker(
+                          context: context,
+                          initialDate:
+                              _calendarController.displayDate ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(3000),
+                          monthPickerDialogSettings: MonthPickerDialogSettings(
+                            headerSettings: PickerHeaderSettings(
+                              headerBackgroundColor: const Color(0xFFFFCA07),
+                              headerCurrentPageTextStyle: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        );
+                        if (selected != null) {
+                          setState(() {
+                            _calendarController.displayDate = selected;
+                          });
+                        }
+                      },
                     ),
-                  );
-                  if (selected != null) {
-                    setState(() {
-                      _calendarController.displayDate = selected;
-                    });
-                  }
-                },
+                  ),
+                ],
               ),
             ),
           ),
@@ -182,53 +215,53 @@ class _DashboardCalenderState extends State<DashboardCalender> {
 
   // Data dummy kalender per kamar
   MeetingDataSource _getCalendarDataSource(int roomIndex) {
-    final List<Meeting> meetings = [];
+    final List<StayDuration> inap = [];
     if (roomIndex == 0) {
-      meetings.add(
-        Meeting(
-          eventName: 'Meeting with Team',
-          from: DateTime.now(),
-          to: DateTime.now().add(const Duration(days: 5)),
+      inap.add(
+        StayDuration(
+          eventName: 'Yudo',
+          from: DateTime.now().add(const Duration(days: 0)), //Start Masuk Camp
+          to: DateTime.now().add(const Duration(days: 5)), //Keluar Camp
           background: Colors.blue,
           isAllDay: false,
         ),
       );
-      meetings.add(
-        Meeting(
-          eventName: 'Maintenance',
+      inap.add(
+        StayDuration(
+          eventName: 'Anula',
           from: DateTime.now().add(const Duration(days: 3)),
-          to: DateTime.now().add(const Duration(days: 3, hours: 3)),
+          to: DateTime.now().add(const Duration(days: 3)),
           background: Colors.red,
           isAllDay: true,
         ),
       );
     } else if (roomIndex == 1) {
-      meetings.add(
-        Meeting(
-          eventName: 'Project Deadline',
-          from: DateTime.now().add(const Duration(days: 1)),
-          to: DateTime.now().add(const Duration(days: 1, hours: 3)),
+      inap.add(
+        StayDuration(
+          eventName: 'Baskara',
+          from: DateTime.now().add(const Duration(days: 0)),
+          to: DateTime.now().add(const Duration(days: 1)),
           background: Colors.green,
           isAllDay: true,
         ),
       );
-      meetings.add(
-        Meeting(
-          eventName: 'Client Visit',
-          from: DateTime.now().add(const Duration(days: 5)),
-          to: DateTime.now().add(const Duration(days: 5, hours: 2)),
+      inap.add(
+        StayDuration(
+          eventName: 'Setya Mayang',
+          from: DateTime.now().add(const Duration(days: 0)),
+          to: DateTime.now().add(const Duration(days: 5)),
           background: Colors.orange,
           isAllDay: false,
         ),
       );
     }
-    return MeetingDataSource(meetings);
+    return MeetingDataSource(inap);
   }
 }
 
 // Model data kalender
-class Meeting {
-  Meeting({
+class StayDuration {
+  StayDuration({
     required this.eventName,
     required this.from,
     required this.to,
@@ -245,7 +278,7 @@ class Meeting {
 
 // DataSource untuk Syncfusion Calendar
 class MeetingDataSource extends CalendarDataSource {
-  MeetingDataSource(List<Meeting> source) {
+  MeetingDataSource(List<StayDuration> source) {
     appointments = source;
   }
 
