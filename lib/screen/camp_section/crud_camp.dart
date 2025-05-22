@@ -29,7 +29,7 @@ class _EditCampState extends State<CrudCamp> {
                   const SizedBox(height: 20),
                   Center(
                     child: Text(
-                      'Daftar Camp untuk Diedit',
+                      'Daftar Camp untuk Dikelola',
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.grey[700],

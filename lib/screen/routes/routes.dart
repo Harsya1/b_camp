@@ -3,6 +3,7 @@ import '../dashboard_calender.dart' as calender;
 import '../dashboard_camp.dart' as campt;
 import '../booking_section/input_data.dart' as inputdata;
 import '../camp_section/create_camp.dart' as create;
+import '../camp_section/placeholder_camp.dart' as placecamp;
 import '../camp_section/create_kamar.dart' as createKamar;
 import '../camp_section/crud_camp.dart' as crudCamp;
 import '../login_register_section/login_action.dart' as loginAction;
@@ -34,6 +35,10 @@ class RouteGenerator {
       case '/create_kamar':
         return MaterialPageRoute(
           builder: (context) => const createKamar.CreateKamar(),
+        );
+      case '/placeholder_camp':
+        return MaterialPageRoute(
+          builder: (context) => const placecamp.PlaceholderCamp(),
         );
       case '/crud_camp':
         return MaterialPageRoute(

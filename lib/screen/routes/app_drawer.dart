@@ -43,12 +43,12 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.add_circle, color: Colors.black),
             title: const Text(
-              'Create Camp',
+              'Kelola Camp',
               style: TextStyle(color: Colors.black),
             ),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/create_kamar');
+              Navigator.pushNamed(context, '/crud_camp');
             },
           ),
           ListTile(
@@ -59,7 +59,7 @@ class AppDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context); // Kembali ke halaman utama
-              Navigator.pushNamed(context, '/crud_camp');
+              Navigator.pushNamed(context, '/placeholder_camp');  
             },
           ),
 
