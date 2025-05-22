@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supercharged/supercharged.dart';
+import 'package:b_camp/screen/booking_section/input_data.dart';
 
 class BookingSection extends StatefulWidget {
   const BookingSection({super.key});
@@ -87,6 +88,19 @@ class _BookingSectionPlace extends State<BookingSection> {
                                   Icons.arrow_forward_ios,
                                   size: 16,
                                 ),
+                                onTap:
+                                    index == 0
+                                        ? () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      const InputData(),
+                                            ),
+                                          );
+                                        }
+                                        : null,
                               ),
                         ),
                       ),

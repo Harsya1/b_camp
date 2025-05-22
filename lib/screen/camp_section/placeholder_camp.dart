@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:b_camp/screen/camp_section/list_kamar.dart';
 
 class PlaceholderCamp extends StatelessWidget {
   const PlaceholderCamp({super.key});
@@ -107,6 +108,15 @@ class PlaceholderCamp extends StatelessWidget {
                                   Icons.arrow_forward_ios,
                                   size: 16,
                                 ),
+                                onTap: () {
+                                  // Navigasi ke ListKamar saat item ditekan
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const ListKamar(),
+                                    ),
+                                  );
+                                },
                               ),
                         ),
                       ),
