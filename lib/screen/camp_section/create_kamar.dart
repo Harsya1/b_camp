@@ -3,9 +3,15 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:b_camp/screen/routes/app_drawer.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:b_camp/service/database/controller/itemKamarController.dart';
 
 class CreateKamar extends StatefulWidget {
-  const CreateKamar({super.key});
+  final int campId;
+  
+  const CreateKamar({
+    Key? key,
+    required this.campId,
+  }) : super(key: key);
 
   @override
   State<CreateKamar> createState() => _CreateKamarState();
@@ -25,6 +31,8 @@ class _CreateKamarState extends State<CreateKamar> {
   String? _selectedKategori;
   String? _selectedTipeKamar;
   String? _selectedGender;
+
+  bool _isLoading = false;
 
   Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -65,6 +73,40 @@ class _CreateKamarState extends State<CreateKamar> {
     _peraturanController.dispose();
     _hargaController.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveKamar() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      setState(() => _isLoading = true);
+
+      await ItemKamarController.createKamar(
+        campId: widget.campId,
+        namaKamar: _namaKamarController.text,
+        typeKamar: _selectedTipeKamar!,
+        kategori: _selectedKategori!,
+        gender: _selectedGender!,
+        jumlahKasur: int.parse(_jumlahKasurController.text),
+        fasilitas: _fasilitasController.text,
+        peraturan: _peraturanController.text,
+        gambar: _image, // Pass the File directly
+        harga: double.parse(_hargaController.text),
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kamar berhasil dibuat!')),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -274,20 +316,15 @@ class _CreateKamarState extends State<CreateKamar> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Proses tambah data kamar di sini
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Data kamar berhasil ditambahkan!'),
+                  onPressed: _isLoading ? null : _saveKamar,
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                      : const Text(
+                          'Tambah Data Kamar',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
-                      );
-                    }
-                  },
-                  child: const Text(
-                    'Tambah Data Kamar',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
                 ),
               ),
             ],
