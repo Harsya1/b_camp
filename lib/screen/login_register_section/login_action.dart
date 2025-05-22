@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'register_action.dart'; // Import halaman register
 import 'package:b_camp/service/database/controller/UserAplikasiController.dart';
 
 class LoginPage extends StatefulWidget {
@@ -60,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: 290,
                   alignment: Alignment.centerLeft,
                   child: const Text(
-                    'Silahkan login untuk pengalaman yang lebih baik',
+                    'Silahkan login melakukan pengelolaan data camp',
                     style: TextStyle(fontSize: 12, color: Colors.black),
                   ),
                 ),
@@ -181,7 +180,10 @@ class _LoginPageState extends State<LoginPage> {
                         if (response['status'] == 'success') {
                           // Login successful
                           widget.onLogin(); // Call the callback
-                          Navigator.pushReplacementNamed(context, '/dashboard_calender');
+                          Navigator.pushReplacementNamed(
+                            context,
+                            '/dashboard_calender',
+                          );
                         }
                       } catch (e) {
                         // Hide loading indicator if still showing
@@ -193,9 +195,11 @@ class _LoginPageState extends State<LoginPage> {
                         } else if (e.toString().contains('User not found')) {
                           errorMessage = 'Email belum terdaftar';
                         } else if (e.toString().contains('SocketException')) {
-                          errorMessage = 'Gagal terhubung ke server, cek koneksi internet Anda';
+                          errorMessage =
+                              'Gagal terhubung ke server, cek koneksi internet Anda';
                         } else {
-                          errorMessage = 'Gagal masuk ke aplikasi, silakan coba lagi';
+                          errorMessage =
+                              'Gagal masuk ke aplikasi, silakan coba lagi';
                         }
 
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -213,35 +217,35 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Belum punya akun? Ayo Daftar Sekarang!
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Belum punya akun? ',
-                      style: TextStyle(fontSize: 12, color: Colors.black),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        // Navigasi ke halaman register
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const register_section(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'Ayo Daftar Sekarang!',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     const Text(
+                //       'Belum punya akun? ',
+                //       style: TextStyle(fontSize: 12, color: Colors.black),
+                //     ),
+                //     GestureDetector(
+                //       onTap: () {
+                //         // Navigasi ke halaman register
+                //         Navigator.push(
+                //           context,
+                //           MaterialPageRoute(
+                //             builder: (context) => const register_section(),
+                //           ),
+                //         );
+                //       },
+                //       child: const Text(
+                //         'Ayo Daftar Sekarang!',
+                //         style: TextStyle(
+                //           fontSize: 12,
+                //           fontWeight: FontWeight.bold,
+                //           color: Colors.black,
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),

@@ -48,7 +48,7 @@ class AppDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/create_camp');
+              Navigator.pushNamed(context, '/create_kamar');
             },
           ),
           ListTile(
@@ -59,7 +59,7 @@ class AppDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context); // Kembali ke halaman utama
-              Navigator.pushNamed(context, '/edit_camp');
+              Navigator.pushNamed(context, '/crud_camp');
             },
           ),
 
