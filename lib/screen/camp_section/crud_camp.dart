@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:b_camp/screen/routes/app_drawer.dart';
+import 'package:b_camp/screen/camp_section/create_camp.dart';
 
-class EditCamp extends StatefulWidget {
-  const EditCamp({super.key});
+class CrudCamp extends StatefulWidget {
+  const CrudCamp({super.key});
 
   @override
-  State<EditCamp> createState() => _EditCampState();
+  State<CrudCamp> createState() => _EditCampState();
 }
 
-class _EditCampState extends State<EditCamp> {
+class _EditCampState extends State<CrudCamp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +26,6 @@ class _EditCampState extends State<EditCamp> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // TODO: Tambahkan widget daftar camp yang bisa diedit di sini
                   const SizedBox(height: 20),
                   Center(
                     child: Text(
@@ -44,6 +44,22 @@ class _EditCampState extends State<EditCamp> {
           ],
         ),
       ),
+      floatingActionButton: SizedBox(
+        width: 40,
+        height: 80,
+        child: FloatingActionButton(
+          backgroundColor: Colors.black,
+          shape: const CircleBorder(),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CreateCamp()),
+            );
+          },
+          child: const Icon(Icons.add, color: Colors.white, size: 24),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 

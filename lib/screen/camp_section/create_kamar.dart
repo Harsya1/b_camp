@@ -2,24 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:b_camp/screen/routes/app_drawer.dart';
-// import 'package:dropdown_search/dropdown_search.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
-class CreateCamp extends StatefulWidget {
-  const CreateCamp({super.key});
+class CreateKamar extends StatefulWidget {
+  const CreateKamar({super.key});
 
   @override
-  State<CreateCamp> createState() => _CreateCampState();
+  State<CreateKamar> createState() => _CreateKamarState();
 }
 
-class _CreateCampState extends State<CreateCamp> {
+class _CreateKamarState extends State<CreateKamar> {
   File? _image;
   final picker = ImagePicker();
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _namaKamarController = TextEditingController();
-  final TextEditingController _deskripsiController = TextEditingController();
-  final TextEditingController _alamatController = TextEditingController();
-  final TextEditingController _jumlahkamarController = TextEditingController();
+  final TextEditingController _jumlahKasurController = TextEditingController();
+  final TextEditingController _fasilitasController = TextEditingController();
+  final TextEditingController _peraturanController = TextEditingController();
+  final TextEditingController _hargaController = TextEditingController();
+
+  String? _selectedKategori;
+  String? _selectedTipeKamar;
+  String? _selectedGender;
 
   Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -55,9 +60,10 @@ class _CreateCampState extends State<CreateCamp> {
   @override
   void dispose() {
     _namaKamarController.dispose();
-    _deskripsiController.dispose();
-    _alamatController.dispose();
-    _jumlahkamarController.dispose();
+    _jumlahKasurController.dispose();
+    _fasilitasController.dispose();
+    _peraturanController.dispose();
+    _hargaController.dispose();
     super.dispose();
   }
 
@@ -67,7 +73,7 @@ class _CreateCampState extends State<CreateCamp> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Data Camp'),
+        title: const Text('Tambah Data Kamar'),
         backgroundColor: monochrome,
       ),
       drawer: const AppDrawer(),
@@ -120,7 +126,7 @@ class _CreateCampState extends State<CreateCamp> {
                 width: double.infinity,
                 child: TextFormField(
                   controller: _namaKamarController,
-                  decoration: _inputDecoration('Nama Camp'),
+                  decoration: _inputDecoration('Nama Kamar'),
                   validator:
                       (value) =>
                           value == null || value.isEmpty ? 'Wajib diisi' : null,
@@ -128,24 +134,82 @@ class _CreateCampState extends State<CreateCamp> {
                 ),
               ),
               const SizedBox(height: 12),
+
               // Deskripsi
               SizedBox(
                 width: double.infinity,
-                child: TextFormField(
-                  controller: _deskripsiController,
-                  decoration: _inputDecoration('Deskripsi'),
-                  maxLines: 2,
-                  style: const TextStyle(color: Colors.black),
+                child: DropdownSearch<String>(
+                  mode: Mode.form,
+                  items:
+                      (filter, cs) => [
+                        "Regular",
+                        "Regular+",
+                        "Homestay",
+                        "Homestay+",
+                        "Barrack",
+                        "VIP",
+                        "VVIP",
+                      ],
+                  selectedItem: _selectedTipeKamar,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: _inputDecoration('Tipe Kamar'),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedTipeKamar = value;
+                    });
+                  },
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
               ),
               const SizedBox(height: 12),
-              // Alamat
+              // Kategori (Dropdown)
               SizedBox(
                 width: double.infinity,
-                child: TextFormField(
-                  controller: _alamatController,
-                  decoration: _inputDecoration('Alamat'),
-                  style: const TextStyle(color: Colors.black),
+                child: DropdownSearch<String>(
+                  items: (filter, cs) => ["Brilliant", "Bieplus"],
+                  selectedItem: _selectedKategori,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: _inputDecoration('Kategori'),
+                  ),
+                  popupProps: PopupProps.menu(
+                    fit: FlexFit.loose,
+                    showSearchBox: false,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedKategori = value;
+                    });
+                  },
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty ? 'Wajib diisi' : null,
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Gender (Dropdown)
+              SizedBox(
+                width: double.infinity,
+                child: DropdownSearch<String>(
+                  items: (filter, cs) => ["Perempuan", "Laki-Laki"],
+                  selectedItem: _selectedGender,
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: _inputDecoration('Gender'),
+                  ),
+                  popupProps: PopupProps.menu(
+                    fit: FlexFit.loose,
+                    showSearchBox: false,
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value;
+                    });
+                  },
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
               ),
               const SizedBox(height: 12),
@@ -153,13 +217,46 @@ class _CreateCampState extends State<CreateCamp> {
               SizedBox(
                 width: double.infinity,
                 child: TextFormField(
-                  controller: _jumlahkamarController,
-                  decoration: _inputDecoration('Jumlah Kamar'),
+                  controller: _jumlahKasurController,
+                  decoration: _inputDecoration('Jumlah Kasur'),
                   keyboardType: TextInputType.number,
                   style: const TextStyle(color: Colors.black),
                 ),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 12),
+              // Fasilitas
+              SizedBox(
+                width: double.infinity,
+                child: TextFormField(
+                  controller: _fasilitasController,
+                  decoration: _inputDecoration('Fasilitas'),
+                  maxLines: 2,
+                  style: const TextStyle(color: Colors.black),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Peraturan
+              SizedBox(
+                width: double.infinity,
+                child: TextFormField(
+                  controller: _peraturanController,
+                  decoration: _inputDecoration('Peraturan'),
+                  maxLines: 2,
+                  style: const TextStyle(color: Colors.black),
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Harga
+              SizedBox(
+                width: double.infinity,
+                child: TextFormField(
+                  controller: _hargaController,
+                  decoration: _inputDecoration('Harga'),
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(color: Colors.black),
+                ),
+              ),
+              const SizedBox(height: 24),
               // Tombol Tambah Data Kamar
               SizedBox(
                 width: double.infinity,
