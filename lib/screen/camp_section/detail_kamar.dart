@@ -43,12 +43,38 @@ class DetailKamar extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        namaKamar,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      // Nama kamar di kiri, Edit data di kanan
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            namaKamar,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              // Aksi edit data
+                              Navigator.pushNamed(context, '/edit_kamar');
+                            },
+                            child: Row(
+                              children: const [
+                                Icon(Icons.edit, color: Colors.black, size: 20),
+                                SizedBox(width: 4),
+                                Text(
+                                  "Edit data",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Text(

@@ -59,7 +59,7 @@ class AppDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context); // Kembali ke halaman utama
-              Navigator.pushNamed(context, '/booking_section');
+              Navigator.pushNamed(context, '/placeholder_camp');  
             },
           ),
 

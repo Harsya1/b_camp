@@ -62,30 +62,51 @@ class PlaceholderCamp extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: () {
-                          // Aksi saat tombol ditekan
-                          Navigator.pushNamed(context, '/create_kamar');
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            const Icon(
-                              Icons.add,
-                              color: Colors.black,
-                              size: 18,
+                      // Baris Edit data (kiri) dan Tambah data kamar (kanan)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Edit data (kiri)
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, "/edit_camp");
+                            },
+                            child: Row(
+                              children: const [
+                                Icon(Icons.edit, color: Colors.black, size: 18),
+                                SizedBox(width: 4),
+                                Text(
+                                  "Edit data",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              "Tambah data kamar",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
+                          ),
+                          // Tambah data kamar (kanan)
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, '/create_kamar');
+                            },
+                            child: Row(
+                              children: const [
+                                Icon(Icons.add, color: Colors.black, size: 18),
+                                SizedBox(width: 4),
+                                Text(
+                                  "Tambah data kamar",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 6),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 10),
                       // Container untuk list item yang bisa discroll
