@@ -103,7 +103,10 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
             child: Select2dot1(
               selectDataController: SelectDataController(
                 data: campOptions,
-                isMultiSelect: true,
+                isMultiSelect: false,
+                initSelected: const [
+                  SingleItemCategoryModel(nameSingleItem: ""),
+                ],
               ),
               pillboxTitleSettings: const PillboxTitleSettings(
                 title: 'Pilih Tipe Camp',
@@ -120,14 +123,6 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
                   color: Colors.white,
                 ),
               ),
-              // Jika multi select:
-              // pillboxContentMultiSettings: PillboxContentMultiSettings(
-              //   decoration: BoxDecoration(
-              //     border: Border.all(color: Colors.black, width: 1.5),
-              //     borderRadius: BorderRadius.circular(8),
-              //     color: Colors.white,
-              //   ),
-              // ),
               onChanged: (selectedItems) {
                 if (selectedItems.isNotEmpty) {
                   final selectedItem = selectedItems.first;
