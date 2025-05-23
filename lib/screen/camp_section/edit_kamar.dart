@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:b_camp/service/database/controller/itemKamarController.dart';
 
 class EditKamar extends StatefulWidget {
-  const EditKamar({super.key});
+  final Map<String, dynamic> kamarData;
+  final int campId;
+
+  const EditKamar({
+    Key? key,
+    required this.kamarData,
+    required this.campId,
+  }) : super(key: key);
 
   @override
   State<EditKamar> createState() => _EditKamarState();
@@ -24,6 +32,8 @@ class _EditKamarState extends State<EditKamar> {
   String? _selectedKategori;
   String? _selectedTipeKamar;
   String? _selectedGender;
+
+  bool _isLoading = false;
 
   Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -67,6 +77,57 @@ class _EditKamarState extends State<EditKamar> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadKamarData();
+  }
+
+  void _loadKamarData() {
+    _namaKamarController.text = widget.kamarData['nama_kamar'] ?? '';
+    _selectedTipeKamar = widget.kamarData['type_kamar'];
+    _selectedKategori = widget.kamarData['kategori'];
+    _selectedGender = widget.kamarData['gender'];
+    _jumlahKasurController.text = widget.kamarData['jumlah_kasur']?.toString() ?? '0';
+    _fasilitasController.text = widget.kamarData['fasilitas'] ?? '';
+    _peraturanController.text = widget.kamarData['peraturan'] ?? '';
+    _hargaController.text = widget.kamarData['harga']?.toString() ?? '0';
+  }
+
+  Future<void> _updateKamar() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      setState(() => _isLoading = true);
+
+      await ItemKamarController.updateKamar(
+        id: widget.kamarData['id'],
+        namaKamar: _namaKamarController.text,
+        typeKamar: _selectedTipeKamar,
+        kategori: _selectedKategori,
+        gender: _selectedGender,
+        jumlahKasur: int.parse(_jumlahKasurController.text),
+        fasilitas: _fasilitasController.text,
+        peraturan: _peraturanController.text,
+        gambar: _image, // Pass the File directly
+        harga: double.parse(_hargaController.text),
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Kamar berhasil diupdate!')),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final monochrome = Colors.white;
 
@@ -97,31 +158,46 @@ class _EditKamarState extends State<EditKamar> {
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child:
-                      _image != null
-                          ? ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.file(
-                              _image!,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            ),
-                          )
-                          : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.image,
-                                size: 48,
-                                color: Colors.grey[600],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Pilih Gambar',
-                                style: TextStyle(color: Colors.grey[700]),
-                              ),
-                            ],
+                  child: _image != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.file(
+                            _image!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
                           ),
+                        )
+                      : widget.kamarData['gambar'] != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.network(
+                                '${ItemKamarController.imageBaseUrl}/${widget.kamarData['gambar']}',
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 180,
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.broken_image),
+                                  );
+                                },
+                              ),
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.image,
+                                  size: 48,
+                                  color: Colors.grey[600],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Pilih Gambar',
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
+                              ],
+                            ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -271,20 +347,15 @@ class _EditKamarState extends State<EditKamar> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Proses edit data kamar di sini
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Data kamar berhasil diubah!'),
+                  onPressed: _isLoading ? null : _updateKamar,
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                      : const Text(
+                          'Edit Data Kamar',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
-                      );
-                    }
-                  },
-                  child: const Text(
-                    'Edit Data Kamar',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
                 ),
               ),
             ],

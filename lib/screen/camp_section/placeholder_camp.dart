@@ -1,174 +1,226 @@
 import 'package:flutter/material.dart';
-import 'package:b_camp/screen/camp_section/list_kamar.dart';
+import 'package:b_camp/service/database/controller/itemCampController.dart';
+import 'package:b_camp/service/database/controller/itemKamarController.dart';
 
-class PlaceholderCamp extends StatelessWidget {
-  const PlaceholderCamp({super.key});
+class PlaceholderCamp extends StatefulWidget {
+  final int campId;
+  const PlaceholderCamp({Key? key, required this.campId}) : super(key: key);
+
+  @override
+  State<PlaceholderCamp> createState() => _PlaceholderCampState();
+}
+
+class _PlaceholderCampState extends State<PlaceholderCamp> {
+  bool isLoading = true;
+  Map<String, dynamic>? campData;
+  List<String> kamarTypes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCampData();
+  }
+
+  // Update the _loadCampData method
+  Future<void> _loadCampData() async {
+    try {
+      setState(() => isLoading = true);
+      final camp = await ItemCampController.getCampDetail(widget.campId);
+      final types = await ItemKamarController.getKamarTypesByCamp(widget.campId);
+      
+      setState(() {
+        campData = camp;
+        kamarTypes = types;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() => isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Gambar tanpa padding
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                  child: Image.asset(
-                    'lib/assets/background/background_home_dashboard.jpg',
-                    width: double.infinity,
-                    height: 180,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                // Nama Camp, deskripsi, alamat, dan list
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Nama Camp",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Deskripsi singkat camp ini. Bisa diisi dengan info fasilitas, keunggulan, dsb.",
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: const [
-                          Icon(Icons.location_on, size: 18, color: Colors.grey),
-                          SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              "Jl. Contoh Alamat No. 123, Pare, Kediri",
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      // Baris Edit data (kiri) dan Tambah data kamar (kanan)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : campData == null
+              ? const Center(child: Text('Data tidak ditemukan'))
+              : Stack(
+                  children: [
+                    SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Edit data (kiri)
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(context, "/edit_camp");
-                            },
-                            child: Row(
-                              children: const [
-                                Icon(Icons.edit, color: Colors.black, size: 18),
-                                SizedBox(width: 4),
-                                Text(
-                                  "Edit data",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
+                          // Gambar tanpa padding
+                          ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20),
                             ),
+                            child: campData!['gambar_camp'] != null
+                                ? Image.network(
+                                    '${ItemCampController.imageBaseUrl}/${campData!['gambar_camp']}',
+                                    width: double.infinity,
+                                    height: 200,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: 200,
+                                        color: Colors.grey[300],
+                                        child: const Icon(Icons.broken_image, size: 50),
+                                      );
+                                    },
+                                  )
+                                : Container(
+                                    height: 200,
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.image, size: 50),
+                                  ),
                           ),
-                          // Tambah data kamar (kanan)
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(context, '/create_kamar');
-                            },
-                            child: Row(
-                              children: const [
-                                Icon(Icons.add, color: Colors.black, size: 18),
-                                SizedBox(width: 4),
+                          
+                          Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  "Tambah data kamar",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                                  campData!['nama_camp'] ?? 'Unnamed Camp',
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  campData!['deskripsi'] ?? 'No description',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.location_on, 
+                                      size: 18, 
+                                      color: Colors.grey
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        campData!['alamat'] ?? 'No address',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                
+                                const SizedBox(height: 20),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // Edit Camp Button
+                                    TextButton.icon(
+                                      onPressed: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          '/edit_camp',
+                                          arguments: campData,
+                                        ).then((value) {
+                                          if (value == true) _loadCampData();
+                                        });
+                                      },
+                                      icon: const Icon(Icons.edit),
+                                      label: const Text('Edit Camp'),
+                                    ),
+                                    
+                                    // Add Kamar Button
+                                    TextButton.icon(
+                                      onPressed: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          '/create_kamar',
+                                          arguments: {'camp_id': widget.campId},
+                                        ).then((value) {
+                                          if (value == true) _loadCampData();
+                                        });
+                                      },
+                                      icon: const Icon(Icons.add),
+                                      label: const Text('Tambah Kamar'),
+                                    ),
+                                  ],
+                                ),
+                                
+                                const SizedBox(height: 20),
+                                const Text(
+                                  'Tipe Kamar Tersedia',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                
+                                // Kamar Types List
+                                if (kamarTypes.isEmpty)
+                                  Center(
+                                    child: Text(
+                                      'Belum ada tipe kamar',
+                                      style: TextStyle(color: Colors.grey[600]),
+                                    ),
+                                  )
+                                else
+                                  ListView.separated(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: kamarTypes.length,
+                                    separatorBuilder: (_, __) => const Divider(),
+                                    itemBuilder: (context, index) {
+                                      return ListTile(
+                                        title: Text(kamarTypes[index]),
+                                        trailing: const Icon(Icons.arrow_forward_ios),
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/list_kamar',
+                                            arguments: {
+                                              'camp_id': widget.campId,
+                                              'type': kamarTypes[index],
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      // Container untuk list item yang bisa discroll
-                      Container(
-                        height: 400, // atur tinggi sesuai kebutuhan
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: ListView.separated(
-                          padding: const EdgeInsets.all(12),
-                          itemCount: 3, // jumlah item contoh
-                          separatorBuilder: (context, index) => const Divider(),
-                          itemBuilder:
-                              (context, index) => ListTile(
-                                leading: const Icon(Icons.bed),
-                                title: Text('Tipe Kamar ${index + 1}'),
-                                subtitle: const Text('Deskripsi item'),
-                                trailing: const Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 16,
-                                ),
-                                onTap: () {
-                                  // Navigasi ke ListKamar saat item ditekan
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const ListKamar(),
-                                    ),
-                                  );
-                                },
-                              ),
+                    ),
+                    
+                    // Tombol back di atas gambar, menempel di pojok kiri atas
+                    Positioned(
+                      top: 40,
+                      left: 10,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          // Tombol back di atas gambar, menempel di pojok kiri atas
-          Positioned(
-            top: 32,
-            left: 16,
-            child: Material(
-              color: Colors.transparent,
-              child: Ink(
-                decoration: const ShapeDecoration(
-                  color: Colors.black,
-                  shape: CircleBorder(),
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:b_camp/service/database/controller/itemCampController.dart';
-import 'package:b_camp/service/database/model/Kamar.dart';
 
 class CampDetail extends StatelessWidget {
   final int kamarId;
@@ -12,7 +11,7 @@ class CampDetail extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          FutureBuilder<Kamar>(
+          FutureBuilder<Map<String, dynamic>>(
             future: ItemCampController.getCampDetail(kamarId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -23,15 +22,15 @@ class CampDetail extends StatelessWidget {
                 return const Center(child: Text('Data tidak ditemukan'));
               }
 
-              final kamar = snapshot.data!;
+              final camp = snapshot.data!;
               return SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Gambar kamar
-                    kamar.gambar != null
+                    // Gambar camp
+                    camp['gambar_camp'] != null
                         ? Image.network(
-                          kamar.gambar!,
+                          camp['gambar_camp'],
                           width: double.infinity,
                           height: 250,
                           fit: BoxFit.cover,
@@ -55,18 +54,9 @@ class CampDetail extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            kamar.namaKamar,
+                            camp['nama_camp'] ?? 'Unnamed Camp',
                             style: const TextStyle(
                               fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Rp ${kamar.harga.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              color: Colors.green,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -80,16 +70,16 @@ class CampDetail extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            kamar.deskripsi ?? 'Tidak ada deskripsi',
+                            camp['deskripsi'] ?? 'Tidak ada deskripsi',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[600],
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _buildDetailRow('Gender', kamar.gender),
-                          _buildDetailRow('Tipe Kamar', kamar.typeKamar),
-                          _buildDetailRow('Kategori', kamar.kategori),
+                          _buildDetailRow('Alamat', camp['alamat'] ?? 'No address'),
+                          _buildDetailRow('Jumlah Maksimal Kamar', 
+                            camp['jumlah_maksimal_kamar']?.toString() ?? '0'),
                         ],
                       ),
                     ),
@@ -98,16 +88,14 @@ class CampDetail extends StatelessWidget {
               );
             },
           ),
-          // Tombol kembali melayang di pojok kiri atas
+          // Back button
           Positioned(
             top: 20,
             left: 20,
             child: FloatingActionButton(
-              mini: true, // Ukuran kecil untuk tombol
+              mini: true,
               backgroundColor: Colors.black,
-              onPressed: () {
-                Navigator.pop(context); // Kembali ke halaman sebelumnya
-              },
+              onPressed: () => Navigator.pop(context),
               child: const Icon(Icons.arrow_back, color: Colors.white),
             ),
           ),

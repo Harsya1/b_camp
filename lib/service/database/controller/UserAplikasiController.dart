@@ -12,7 +12,7 @@ class AuthService {
   }) async {
     try {
       print('Requesting token for: $email');
-      
+
       // Request token only
       final tokenResponse = await http.post(
         Uri.parse('$baseUrl/token'),
@@ -20,10 +20,7 @@ class AuthService {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({
-          'email': email.trim(),
-          'password': password,
-        }),
+        body: jsonEncode({'email': email.trim(), 'password': password}),
       );
 
       print('Token Status Code: ${tokenResponse.statusCode}');
@@ -49,51 +46,11 @@ class AuthService {
       return {
         'status': 'success',
         'message': 'Login successful',
-        'data': {
-          'token': token
-        }
+        'data': {'token': token},
       };
     } catch (e) {
       print('Login error: $e');
       rethrow;
-    }
-  }
-
-  static Future<Map<String, dynamic>> register({
-    required String name,
-    required String email,
-    required String password,
-    String? phoneNumber,
-    String? address,
-  }) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/register'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode({
-          'name': name,
-          'email': email,
-          'password': password,
-          'phone_number': phoneNumber,
-          'address': address,
-        }),
-      );
-
-      // Print response for debugging
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
-      if (response.statusCode == 201) {
-        return jsonDecode(response.body);
-      } else {
-        throw Exception('Failed to register: ${response.body}');
-      }
-    } catch (e) {
-      print('Registration error: $e'); // Debug error
-      throw Exception('Registration error: $e');
     }
   }
 }

@@ -1,74 +1,186 @@
 import 'package:flutter/material.dart';
+import 'package:b_camp/service/database/controller/itemKamarController.dart';
 
-class DetailKamar extends StatelessWidget {
-  const DetailKamar({super.key});
+class DetailKamar extends StatefulWidget {
+  final int kamarId;
+
+  const DetailKamar({
+    Key? key,
+    required this.kamarId,
+  }) : super(key: key);
+
+  @override
+  State<DetailKamar> createState() => _DetailKamarState();
+}
+
+class _DetailKamarState extends State<DetailKamar> {
+  bool isLoading = true;
+  Map<String, dynamic>? kamarData;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadKamarDetail();
+  }
+
+  Future<void> _loadKamarDetail() async {
+    try {
+      setState(() => isLoading = true);
+      final data = await ItemKamarController.getKamarDetail(widget.kamarId);
+      setState(() {
+        kamarData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() => isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Data dummy, bisa diganti dengan data dinamis jika diperlukan
-    final String namaKamar = "Kamar VIP 1";
-    final String tipeKamar = "VIP";
-    final String kategori = "Brilliant";
-    final String gender = "Laki-Laki";
-    final String jumlahKasur = "2";
-    final String fasilitas = "AC, Lemari, Meja, Kamar Mandi Dalam";
-    final String peraturan = "Tidak boleh merokok, Tidak boleh membawa hewan";
-    final String harga = "350000";
-    final String deskripsi =
-        "Kamar luas dengan fasilitas lengkap dan nyaman untuk istirahat.";
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Gambar header
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                  child: Image.asset(
-                    'lib/assets/background/background_home_dashboard.jpg',
-                    width: double.infinity,
-                    height: 180,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Nama kamar di kiri, Edit data di kanan
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : kamarData == null
+              ? const Center(child: Text('Data tidak ditemukan'))
+              : Stack(
+                  children: [
+                    SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            namaKamar,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                          // Kamar Image
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(20),
                             ),
+                            child: kamarData!['gambar'] != null
+                                ? Image.network(
+                                    '${ItemKamarController.imageBaseUrl}/${kamarData!['gambar']}',
+                                    width: double.infinity,
+                                    height: 200,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: 200,
+                                        color: Colors.grey[300],
+                                        child: const Icon(Icons.broken_image, size: 50),
+                                      );
+                                    },
+                                  )
+                                : Container(
+                                    height: 200,
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.image, size: 50),
+                                  ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              // Aksi edit data
-                              Navigator.pushNamed(context, '/edit_kamar');
-                            },
-                            child: Row(
-                              children: const [
-                                Icon(Icons.edit, color: Colors.black, size: 20),
-                                SizedBox(width: 4),
-                                Text(
-                                  "Edit data",
+                          Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        kamarData!['nama_kamar'] ?? 'Unnamed',
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      'Rp ${kamarData!['harga']?.toString() ?? '0'}',
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                _buildInfoSection('Tipe Kamar', kamarData!['type_kamar']),
+                                _buildInfoSection('Kategori', kamarData!['kategori']),
+                                _buildInfoSection('Gender', kamarData!['gender']),
+                                _buildInfoSection('Jumlah Kasur', kamarData!['jumlah_kasur']?.toString()),
+                                const SizedBox(height: 20),
+                                const Text(
+                                  'Fasilitas',
                                   style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  kamarData!['fasilitas'] ?? 'Tidak ada fasilitas',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                const Text(
+                                  'Peraturan',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  kamarData!['peraturan'] ?? 'Tidak ada peraturan',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                if (kamarData!['catatan_tambahan'] != null) ...[
+                                  const SizedBox(height: 20),
+                                  const Text(
+                                    'Catatan Tambahan',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    kamarData!['catatan_tambahan'],
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: 30),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        '/edit_kamar',
+                                        arguments: {
+                                          'kamar_data': kamarData,
+                                          'camp_id': kamarData!['camp_id'],
+                                        },
+                                      ).then((value) {
+                                        if (value == true) _loadKamarDetail();
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 15),
+                                    ),
+                                    child: const Text('Edit Kamar'),
                                   ),
                                 ),
                               ],
@@ -76,67 +188,41 @@ class DetailKamar extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        deskripsi,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
+                    ),
+                    // Back Button
+                    Positioned(
+                      top: 40,
+                      left: 10,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      _buildDetailRow("Tipe Kamar", tipeKamar),
-                      _buildDetailRow("Kategori", kategori),
-                      _buildDetailRow("Gender", gender),
-                      _buildDetailRow("Jumlah Kasur", jumlahKasur),
-                      _buildDetailRow("Fasilitas", fasilitas),
-                      _buildDetailRow("Peraturan", peraturan),
-                      _buildDetailRow("Harga", "Rp $harga / bulan"),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          // Tombol back di atas gambar, menempel di pojok kiri atas
-          Positioned(
-            top: 32,
-            left: 16,
-            child: Material(
-              color: Colors.transparent,
-              child: Ink(
-                decoration: const ShapeDecoration(
-                  color: Colors.black,
-                  shape: CircleBorder(),
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildInfoSection(String label, String? value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "$label: ",
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            '$label: ',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
+          Text(
+            value ?? '-',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
             ),
           ),
         ],
