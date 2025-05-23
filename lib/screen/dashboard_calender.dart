@@ -19,16 +19,17 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
     SingleCategoryModel(
       nameCategory: 'Camp Nomor 15',
       singleItemCategoryList: [
-        SingleItemCategoryModel(nameSingleItem: "VVIP"),
-        SingleItemCategoryModel(nameSingleItem: 'VIP'),
-        SingleItemCategoryModel(nameSingleItem: 'Barrack'),
+        // contoh value: 15-1. 15 adalah id camp, 1 adalah id tipe kamar
+        SingleItemCategoryModel(nameSingleItem: "VVIP", value: '15-1'), //contoh value, bisa menggunakan gabungan id. Antara id camp dan id tipe kamar. Contoh bisa dilihat di kode
+        SingleItemCategoryModel(nameSingleItem: 'VIP', value: '15-2'),
+        SingleItemCategoryModel(nameSingleItem: 'Barrack', value: '15-3'),
       ],
     ),
     SingleCategoryModel(
       nameCategory: 'Camp Nomor 16',
       singleItemCategoryList: [
-        SingleItemCategoryModel(nameSingleItem: 'VIP'),
-        SingleItemCategoryModel(nameSingleItem: 'Barrack'),
+        SingleItemCategoryModel(nameSingleItem: 'VIP', value: '16-2'),
+        SingleItemCategoryModel(nameSingleItem: 'Barrack', value: '16-3'),
       ],
     ),
   ];

@@ -31,9 +31,9 @@ class _CrudCampState extends State<CrudCamp> {
     } catch (e) {
       setState(() => isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -44,11 +44,15 @@ class _CrudCampState extends State<CrudCamp> {
       backgroundColor: '#f2f2f2'.toColor(),
       drawer: const AppDrawer(),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         onPressed: () {
-          Navigator.pushNamed(context, '/create_camp')
-              .then((value) => _loadCamps());
+          Navigator.pushNamed(
+            context,
+            '/create_camp',
+          ).then((value) => _loadCamps());
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -76,21 +80,21 @@ class _CrudCampState extends State<CrudCamp> {
                     if (isLoading)
                       const Center(child: CircularProgressIndicator())
                     else if (camps.isEmpty)
-                      const Center(
-                        child: Text('Tidak ada data camp'),
-                      )
+                      const Center(child: Text('Tidak ada data camp'))
                     else
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 15,
-                          mainAxisSpacing: 15,
-                          childAspectRatio: 0.75,
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 15,
+                              mainAxisSpacing: 15,
+                              childAspectRatio: 0.75,
+                            ),
                         itemCount: camps.length,
-                        itemBuilder: (context, index) => _buildCampCard(camps[index]),
+                        itemBuilder:
+                            (context, index) => _buildCampCard(camps[index]),
                       ),
                   ],
                 ),
@@ -118,26 +122,29 @@ class _CrudCampState extends State<CrudCamp> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              child: camp['gambar_camp'] != null
-                  ? Image.network(
-                      '${ItemCampController.imageBaseUrl}/${camp['gambar_camp']}',
-                      height: 120,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 120,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.broken_image),
-                        );
-                      },
-                    )
-                  : Container(
-                      height: 120,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image),
-                    ),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(10),
+              ),
+              child:
+                  camp['gambar_camp'] != null
+                      ? Image.network(
+                        '${ItemCampController.imageBaseUrl}/${camp['gambar_camp']}',
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 120,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.broken_image),
+                          );
+                        },
+                      )
+                      : Container(
+                        height: 120,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image),
+                      ),
             ),
             Padding(
               padding: const EdgeInsets.all(12),
@@ -156,20 +163,14 @@ class _CrudCampState extends State<CrudCamp> {
                   const SizedBox(height: 4),
                   Text(
                     camp['alamat'] ?? 'No address',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Max Kamar: ${camp['jumlah_maksimal_kamar']?.toString() ?? '0'}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[800],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[800]),
                   ),
                 ],
               ),
@@ -186,18 +187,16 @@ class _CrudCampState extends State<CrudCamp> {
       child: Row(
         children: [
           Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
+            builder:
+                (context) => IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () => Scaffold.of(context).openDrawer(),
+                ),
           ),
           const SizedBox(width: 8),
           const Text(
             'Kelola Camp',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
       ),
