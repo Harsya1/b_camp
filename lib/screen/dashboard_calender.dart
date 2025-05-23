@@ -1,20 +1,38 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:supercharged/supercharged.dart';
-import 'package:b_camp/screen/routes/app_drawer.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:select2dot1/select2dot1.dart';
+import 'package:b_camp/screen/routes/app_drawer.dart';
 
-class DashboardCalender extends StatefulWidget {
-  const DashboardCalender({super.key});
+class DashboardCalendar extends StatefulWidget {
+  const DashboardCalendar({super.key});
 
   @override
-  State<DashboardCalender> createState() => _DashboardCalenderState();
+  State<DashboardCalendar> createState() => _DashboardCalendarState();
 }
 
-class _DashboardCalenderState extends State<DashboardCalender> {
+class _DashboardCalendarState extends State<DashboardCalendar> {
   int selectedRoomIndex = 0;
   final CalendarController _calendarController = CalendarController();
+
+  static const List<SingleCategoryModel> campOptions = [
+    SingleCategoryModel(
+      nameCategory: 'Camp Nomor 15',
+      singleItemCategoryList: [
+        // contoh value: 15-1. 15 adalah id camp, 1 adalah id tipe kamar
+        SingleItemCategoryModel(nameSingleItem: "VVIP", value: '15-1'), //contoh value, bisa menggunakan gabungan id. Antara id camp dan id tipe kamar. Contoh bisa dilihat di kode
+        SingleItemCategoryModel(nameSingleItem: 'VIP', value: '15-2'),
+        SingleItemCategoryModel(nameSingleItem: 'Barrack', value: '15-3'),
+      ],
+    ),
+    SingleCategoryModel(
+      nameCategory: 'Camp Nomor 16',
+      singleItemCategoryList: [
+        SingleItemCategoryModel(nameSingleItem: 'VIP', value: '16-2'),
+        SingleItemCategoryModel(nameSingleItem: 'Barrack', value: '16-3'),
+      ],
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +48,6 @@ class _DashboardCalenderState extends State<DashboardCalender> {
     );
   }
 
-  // Daftar kamar di kiri
   Widget _buildRoomList() {
     return Container(
       width: MediaQuery.of(context).size.width * 0.2,
@@ -46,7 +63,7 @@ class _DashboardCalenderState extends State<DashboardCalender> {
               decoration: BoxDecoration(
                 color:
                     selectedRoomIndex == index
-                        ? "FFCA07".toColor()
+                        ? Color(0xFFFFCA07)
                         : Colors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -75,35 +92,45 @@ class _DashboardCalenderState extends State<DashboardCalender> {
     );
   }
 
-  // Konten utama: dropdown + kalender
   Widget _contentCalendar(int roomIndex) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DropdownSearch<String>(
-            mode: Mode.form,
-            items: (filter, cs) => ['VVIP', 'VIP', 'Barack'],
-            selectedItem: 'VVIP',
-            decoratorProps: DropDownDecoratorProps(
-              decoration: InputDecoration(
-                labelText: 'Pilih Camp',
-                hintText: 'Pilih tipe',
+          // Select2dot1 sesuai contoh website
+          SizedBox(
+            width: 300,
+            child: Select2dot1(
+              selectDataController: SelectDataController(
+                data: campOptions,
+                isMultiSelect: false,
+                initSelected: const [
+                  SingleItemCategoryModel(nameSingleItem: ""),
+                ],
               ),
-            ),
-            popupProps: PopupProps.menu(
-              showSearchBox: true,
-              searchFieldProps: TextFieldProps(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black),
-                  ),
+              pillboxTitleSettings: const PillboxTitleSettings(
+                title: 'Pilih Tipe Camp',
+                titleStyleDefault: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
+              pillboxSettings: PillboxSettings(
+                defaultDecoration: BoxDecoration(
+                  border: Border.all(color: Colors.black, width: 1.5),
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                ),
+              ),
+              onChanged: (selectedItems) {
+                if (selectedItems.isNotEmpty) {
+                  final selectedItem = selectedItems.first;
+                  print("Tipe Camp Terpilih: ${selectedItem.nameSingleItem}");
+                }
+              },
             ),
-            onChanged: (value) {},
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -125,11 +152,11 @@ class _DashboardCalenderState extends State<DashboardCalender> {
                     headerStyle: CalendarHeaderStyle(
                       textAlign: TextAlign.center,
                       textStyle: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
-                      backgroundColor: "FFCA07".toColor(),
+                      backgroundColor: Color(0xFFFFCA07),
                     ),
                     headerDateFormat: 'MMMM yyyy',
                     monthCellBuilder: (
@@ -173,6 +200,7 @@ class _DashboardCalenderState extends State<DashboardCalender> {
                     },
                     onTap: (calendarTapDetails) {},
                   ),
+                  // Custom header overlay for month picker
                   Positioned(
                     top: 0,
                     left: 0,
@@ -190,8 +218,30 @@ class _DashboardCalenderState extends State<DashboardCalender> {
                           monthPickerDialogSettings: MonthPickerDialogSettings(
                             headerSettings: PickerHeaderSettings(
                               headerBackgroundColor: const Color(0xFFFFCA07),
-                              headerCurrentPageTextStyle: TextStyle(
+                              headerCurrentPageTextStyle: const TextStyle(
                                 color: Colors.black,
+                              ),
+                            ),
+                            dateButtonsSettings: PickerDateButtonsSettings(
+                              selectedMonthBackgroundColor: const Color(
+                                0xFFFFCA07,
+                              ),
+                              unselectedMonthsTextColor: Colors.black,
+                            ),
+                            actionBarSettings: PickerActionBarSettings(
+                              confirmWidget: const Text(
+                                'Pilih',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              cancelWidget: const Text(
+                                'Batal',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -202,6 +252,21 @@ class _DashboardCalenderState extends State<DashboardCalender> {
                           });
                         }
                       },
+                      child: Container(
+                        alignment: Alignment.center,
+                        color: Colors.transparent,
+                        // child: Text(
+                        //   // Tampilkan bulan dan tahun aktif
+                        //   _calendarController.displayDate != null
+                        //       ? "${_calendarController.displayDate!.month.toString().padLeft(2, '0')}-${_calendarController.displayDate!.year}"
+                        //       : "${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().year}",
+                        //   style: const TextStyle(
+                        //     fontSize: 16,
+                        //     fontWeight: FontWeight.bold,
+                        //     color: Colors.black,
+                        //   ),
+                        // ),
+                      ),
                     ),
                   ),
                 ],
@@ -220,8 +285,8 @@ class _DashboardCalenderState extends State<DashboardCalender> {
       inap.add(
         StayDuration(
           eventName: 'Yudo',
-          from: DateTime.now().add(const Duration(days: 0)), //Start Masuk Camp
-          to: DateTime.now().add(const Duration(days: 5)), //Keluar Camp
+          from: DateTime.now().add(const Duration(days: 0)),
+          to: DateTime.now().add(const Duration(days: 5)),
           background: Colors.blue,
           isAllDay: false,
         ),
@@ -268,7 +333,6 @@ class StayDuration {
     required this.background,
     this.isAllDay = false,
   });
-
   final String eventName;
   final DateTime from;
   final DateTime to;
@@ -281,19 +345,14 @@ class MeetingDataSource extends CalendarDataSource {
   MeetingDataSource(List<StayDuration> source) {
     appointments = source;
   }
-
   @override
   DateTime getStartTime(int index) => appointments![index].from;
-
   @override
   DateTime getEndTime(int index) => appointments![index].to;
-
   @override
   String getSubject(int index) => appointments![index].eventName;
-
   @override
   Color getColor(int index) => appointments![index].background;
-
   @override
   bool isAllDay(int index) => appointments![index].isAllDay;
 }

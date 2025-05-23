@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../dashboard_calender.dart' as calender;
-import '../dashboard_camp.dart' as campt;
+import '../crud_booking.dart' as campt;
 import '../booking_section/input_data.dart' as inputdata;
 import '../camp_section/create_camp.dart' as create;
 import '../booking_section/placeholder_booking.dart' as booking;
@@ -19,7 +19,7 @@ class RouteGenerator {
     switch (settings.name) {
       case '/dashboard_calender':
         return MaterialPageRoute(
-          builder: (context) => const calender.DashboardCalender(),
+          builder: (context) => const calender.DashboardCalendar(),
         );
       case '/dashboard_camp':
         return MaterialPageRoute(
@@ -43,9 +43,8 @@ class RouteGenerator {
           throw Exception('Camp ID is required');
         }
         return MaterialPageRoute(
-          builder: (context) => createKamar.CreateKamar(
-            campId: args['camp_id'],
-          ),
+          builder:
+              (context) => createKamar.CreateKamar(campId: args['camp_id']),
         );
       case '/placeholder_camp':
         final args = settings.arguments as Map<String, dynamic>?;
@@ -53,9 +52,7 @@ class RouteGenerator {
           throw Exception('Camp ID is required');
         }
         return MaterialPageRoute(
-          builder: (context) => placecamp.PlaceholderCamp(
-            campId: args['id'],
-          ),
+          builder: (context) => placecamp.PlaceholderCamp(campId: args['id']),
         );
       case '/crud_camp':
         return MaterialPageRoute(
@@ -79,23 +76,27 @@ class RouteGenerator {
           throw Exception('Camp ID and type are required');
         }
         return MaterialPageRoute(
-          builder: (context) => listKamar.ListKamar(
-            campId: args['camp_id'],
-            type: args['type'],
-          ),
+          builder:
+              (context) => listKamar.ListKamar(
+                campId: args['camp_id'],
+                type: args['type'],
+              ),
         );
 
       //ROUTE untuk EDIT DATA
       case '/edit_kamar':
         final args = settings.arguments as Map<String, dynamic>?;
-        if (args == null || args['kamar_data'] == null || args['camp_id'] == null) {
+        if (args == null ||
+            args['kamar_data'] == null ||
+            args['camp_id'] == null) {
           throw Exception('Kamar data and camp ID are required');
         }
         return MaterialPageRoute(
-          builder: (context) => editKamar.EditKamar(
-            kamarData: args['kamar_data'],
-            campId: args['camp_id'],
-          ),
+          builder:
+              (context) => editKamar.EditKamar(
+                kamarData: args['kamar_data'],
+                campId: args['camp_id'],
+              ),
         );
       case '/edit_camp':
         final args = settings.arguments as Map<String, dynamic>?;
@@ -103,9 +104,7 @@ class RouteGenerator {
           throw Exception('Camp data is required');
         }
         return MaterialPageRoute(
-          builder: (context) => editCamp.EditCamp(
-            campData: args,
-          ),
+          builder: (context) => editCamp.EditCamp(campData: args),
         );
       case '/detail_kamar':
         final args = settings.arguments as Map<String, dynamic>?;
@@ -113,11 +112,10 @@ class RouteGenerator {
           throw Exception('Kamar ID is required');
         }
         return MaterialPageRoute(
-          builder: (context) => detailKamar.DetailKamar(
-            kamarId: args['kamar_id'],
-          ),
+          builder:
+              (context) => detailKamar.DetailKamar(kamarId: args['kamar_id']),
         );
-      
+
       default:
         return _errorRoute();
     }

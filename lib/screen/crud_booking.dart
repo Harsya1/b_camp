@@ -66,6 +66,21 @@ class _DashboardCamp extends State<DashboardCamp> {
                   ),
             ),
           ),
+          Positioned(
+            top: 24,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                "Booking Camp",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
 
           // TextField pencarian di bawah header
           Positioned(
@@ -251,25 +266,31 @@ class _DashboardCamp extends State<DashboardCamp> {
                         topLeft: Radius.circular(10),
                         topRight: Radius.circular(10),
                       ),
-                      child: camp['gambar_camp'] != null
-                          ? Image.network(
-                              camp['gambar_camp'],
-                              height: 150,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  height: 150,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.broken_image, size: 48),
-                                );
-                              },
-                            )
-                          : Container(
-                              height: 150,
-                              color: Colors.grey[300],
-                              child: const Icon(Icons.image, size: 48),
-                            ),
+                      child:
+                          camp['gambar_camp'] != null
+                              ? Image.network(
+                                camp['gambar_camp'],
+                                height: 150,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 150,
+                                    width: double.infinity,
+                                    color: Colors.grey[300],
+                                    child: const Icon(
+                                      Icons.broken_image,
+                                      size: 48,
+                                    ),
+                                  );
+                                },
+                              )
+                              : Container(
+                                height: 150,
+                                width: double.infinity,
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.image, size: 48),
+                              ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(10),

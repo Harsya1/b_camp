@@ -25,13 +25,13 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(242, 242, 242, 242),
-      body: SingleChildScrollView(
-        // Agar konten bisa bergulir saat keyboard muncul
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Center(
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center, // Tambahkan ini
               children: [
                 // Logo
                 Image.asset(

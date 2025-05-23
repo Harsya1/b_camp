@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../dashboard_camp.dart';
+import '../crud_booking.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -59,7 +59,7 @@ class AppDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context); // Kembali ke halaman utama
-              Navigator.pushNamed(context, '/placeholder_camp');  
+              Navigator.pushNamed(context, '/placeholder_booking');
             },
           ),
 
