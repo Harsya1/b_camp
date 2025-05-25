@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../dashboard_calender.dart' as calender;
-import '../crud_booking.dart' as campt;
+import '../booking_section/crud_booking.dart' as campt;
 import '../booking_section/input_data.dart' as inputdata;
 import '../camp_section/create_camp.dart' as create;
 import '../booking_section/placeholder_booking.dart' as booking;
@@ -13,6 +13,9 @@ import '../camp_section/create_kamar.dart' as createKamar;
 import '../camp_section/detail_kamar.dart' as detailKamar;
 import '../camp_section/crud_camp.dart' as crudCamp;
 import '../login_register_section/login_action.dart' as loginAction;
+import '../booking_section/crud_booking.dart' as crudBooking;
+import '../booking_section/placeholder_booking.dart' as placeholderBooking;
+import '../booking_section/input_data.dart' as inputData;
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -23,15 +26,33 @@ class RouteGenerator {
         );
       case '/dashboard_camp':
         return MaterialPageRoute(
-          builder: (context) => const campt.DashboardCamp(),
+          builder: (context) => const campt.CrudBooking(),
+        );
+      case '/crud_booking':
+        return MaterialPageRoute(
+          builder: (context) => const crudBooking.CrudBooking(),
         );
       case '/booking_section':
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null || args['camp_id'] == null || args['camp_data'] == null) {
+          throw Exception('Camp ID and camp data are required');
+        }
         return MaterialPageRoute(
-          builder: (context) => const booking.BookingSection(),
+          builder: (context) => placeholderBooking.PlaceholderBooking(
+            campId: args['camp_id'],
+            campData: args['camp_data'],
+          ),
         );
       case '/input_data':
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null || args['kamar_id'] == null || args['kamar_detail'] == null) {
+          throw Exception('Kamar ID and kamar detail are required');
+        }
         return MaterialPageRoute(
-          builder: (context) => const inputdata.InputData(),
+          builder: (context) => inputData.InputData(
+            kamarId: args['kamar_id'],
+            kamarDetail: args['kamar_detail'],
+          ),
         );
       case '/create_camp':
         return MaterialPageRoute(

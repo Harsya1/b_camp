@@ -1,27 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:b_camp/service/database/controller/itemBookingController.dart';
 import 'package:b_camp/screen/camp_section/camp_detail.dart';
 
 class InputData extends StatefulWidget {
-  const InputData({super.key});
+  final int kamarId;
+  final Map<String, dynamic> kamarDetail;
+
+  const InputData({
+    Key? key,
+    required this.kamarId,
+    required this.kamarDetail,
+  }) : super(key: key);
 
   @override
   State<InputData> createState() => _InputDataState();
 }
 
 class _InputDataState extends State<InputData> {
-  String gender = 'Perempuan';
-  DateTime checkInDate = DateTime.now();
-  DateTime checkOutDate = DateTime.now();
-
   final nameController = TextEditingController();
   final addressController = TextEditingController();
+  String gender = 'Perempuan';
+  DateTime checkInDate = DateTime.now();
+  DateTime checkOutDate = DateTime.now().add(const Duration(days: 1));
+  final quantityController = TextEditingController(text: '1');
+  bool isLoading = false;
 
   Future<void> _selectDate(BuildContext context, bool isCheckIn) async {
     final DateTime now = DateTime.now();
     final DateTime firstDate = DateTime(now.year, now.month, now.day);
     final DateTime initial = isCheckIn ? checkInDate : checkOutDate;
-    final DateTime safeInitialDate =
-        initial.isBefore(firstDate) ? firstDate : initial;
+    final DateTime safeInitialDate = initial.isBefore(firstDate) ? firstDate : initial;
 
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -33,10 +41,70 @@ class _InputDataState extends State<InputData> {
       setState(() {
         if (isCheckIn) {
           checkInDate = picked;
+          if (checkOutDate.isBefore(checkInDate)) {
+            checkOutDate = checkInDate.add(const Duration(days: 1));
+          }
         } else {
           checkOutDate = picked;
         }
       });
+    }
+  }
+
+  Future<void> _submitBooking() async {
+    if (nameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a name')),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      final success = await ItemBookingController.createBooking(
+        kamarId: widget.kamarId,
+        nama: nameController.text,
+        gender: gender,
+        startDate: checkInDate,
+        endDate: checkOutDate,
+        quantity: int.parse(quantityController.text),
+      );
+
+      if (mounted) {
+        if (success) {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text("Berhasil!"),
+              content: const Text("Kamar berhasil dipesan."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to create booking')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
@@ -50,20 +118,34 @@ class _InputDataState extends State<InputData> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Gambar tanpa padding
+                // Gambar kamar
                 ClipRRect(
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(20),
                     bottomRight: Radius.circular(20),
                   ),
-                  child: Image.asset(
-                    'lib/assets/background/background_home_dashboard.jpg',
-                    width: double.infinity,
-                    height: 120,
-                    fit: BoxFit.cover,
-                  ),
+                  child: widget.kamarDetail['gambar'] != null
+                      ? Image.network(
+                          '${ItemBookingController.imageBaseUrl}/${widget.kamarDetail['gambar']}',  // Removed 'storage/'
+                          width: double.infinity,
+                          height: 120,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('Error loading image: $error');
+                            return Container(
+                              height: 120,
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.image),
+                            );
+                          },
+                        )
+                      : Container(
+                          height: 120,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image),
+                        ),
                 ),
-                // Konten lain dengan padding
+                
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
@@ -73,21 +155,169 @@ class _InputDataState extends State<InputData> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Nama Camp",
-                            style: TextStyle(
+                          Text(
+                            widget.kamarDetail['nama_kamar'] ?? 'Nama Kamar',
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           GestureDetector(
                             onTap: () {
-                              // Navigasi ke halaman detail
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder:
-                                      (context) => const CampDetail(kamarId: 1),
+                                  builder: (context) => Scaffold(
+                                    body: Stack(
+                                      children: [
+                                        SingleChildScrollView(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              // Kamar Image
+                                              ClipRRect(
+                                                borderRadius: const BorderRadius.vertical(
+                                                  bottom: Radius.circular(20),
+                                                ),
+                                                child: widget.kamarDetail['gambar'] != null
+                                                    ? Image.network(
+                                                        '${ItemBookingController.imageBaseUrl}/${widget.kamarDetail['gambar']}',
+                                                        width: double.infinity,
+                                                        height: 200,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder: (context, error, stackTrace) {
+                                                          return Container(
+                                                            height: 200,
+                                                            color: Colors.grey[300],
+                                                            child: const Icon(
+                                                              Icons.broken_image,
+                                                              size: 50,
+                                                            ),
+                                                          );
+                                                        },
+                                                      )
+                                                    : Container(
+                                                        height: 200,
+                                                        color: Colors.grey[300],
+                                                        child: const Icon(Icons.image, size: 50),
+                                                      ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.all(20),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        Expanded(
+                                                          child: Text(
+                                                            widget.kamarDetail['nama_kamar'] ?? 'Unnamed',
+                                                            style: const TextStyle(
+                                                              fontSize: 24,
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          'Rp ${widget.kamarDetail['harga']?.toString() ?? '0'}',
+                                                          style: const TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.green,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 16),
+                                                    _buildInfoSection(
+                                                      'Tipe Kamar',
+                                                      widget.kamarDetail['type_kamar'],
+                                                    ),
+                                                    _buildInfoSection(
+                                                      'Kategori',
+                                                      widget.kamarDetail['kategori'],
+                                                    ),
+                                                    _buildInfoSection(
+                                                      'Gender',
+                                                      widget.kamarDetail['gender'],
+                                                    ),
+                                                    _buildInfoSection(
+                                                      'Jumlah Kasur',
+                                                      widget.kamarDetail['jumlah_kasur']?.toString(),
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    const Text(
+                                                      'Fasilitas',
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      widget.kamarDetail['fasilitas'] ?? 'Tidak ada fasilitas',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Colors.grey[600],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    const Text(
+                                                      'Peraturan',
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      widget.kamarDetail['peraturan'] ?? 'Tidak ada peraturan',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Colors.grey[600],
+                                                      ),
+                                                    ),
+                                                    if (widget.kamarDetail['catatan_tambahan'] != null) ...[
+                                                      const SizedBox(height: 20),
+                                                      const Text(
+                                                        'Catatan Tambahan',
+                                                        style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 8),
+                                                      Text(
+                                                        widget.kamarDetail['catatan_tambahan'],
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          color: Colors.grey[600],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        // Back Button
+                                        Positioned(
+                                          top: 40,
+                                          left: 10,
+                                          child: Material(
+                                            color: Colors.black,
+                                            borderRadius: BorderRadius.circular(30),
+                                            child: IconButton(
+                                              icon: const Icon(Icons.arrow_back, color: Colors.white),
+                                              onPressed: () => Navigator.pop(context),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               );
                             },
@@ -97,10 +327,7 @@ class _InputDataState extends State<InputData> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: 1,
-                                ),
+                                border: Border.all(color: Colors.black, width: 1),
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               child: Row(
@@ -119,25 +346,20 @@ class _InputDataState extends State<InputData> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        "Tipe Camp",
-                        style: TextStyle(
+                      Text(
+                        widget.kamarDetail['type_kamar'] ?? 'Tipe Kamar',
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        "Kategori Camp",
-                        style: TextStyle(
-                          fontSize: 14  ,
+                      Text(
+                        widget.kamarDetail['kategori'] ?? 'Kategori Kamar',
+                        style: const TextStyle(
+                          fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Mulyoasri, Tulungrejo, Kec. Pare, Kediri, Jawa Timur 64212",
-                        style: TextStyle(color: Colors.grey[700]),
                       ),
                       const Divider(height: 30),
                       const Text(
@@ -163,15 +385,12 @@ class _InputDataState extends State<InputData> {
                             const SizedBox(height: 10),
                             DropdownButtonFormField<String>(
                               value: gender,
-                              items:
-                                  ['Perempuan', 'Laki-laki']
-                                      .map(
-                                        (label) => DropdownMenuItem(
-                                          child: Text(label),
-                                          value: label,
-                                        ),
-                                      )
-                                      .toList(),
+                              items: ['Perempuan', 'Laki-laki']
+                                  .map((label) => DropdownMenuItem(
+                                        value: label,
+                                        child: Text(label),
+                                      ))
+                                  .toList(),
                               decoration: const InputDecoration(
                                 labelText: "Jenis Kelamin",
                                 border: OutlineInputBorder(),
@@ -182,10 +401,10 @@ class _InputDataState extends State<InputData> {
                             ),
                             const SizedBox(height: 10),
                             TextField(
-                              controller: addressController,
-                              maxLines: 2,
+                              controller: quantityController,
+                              keyboardType: TextInputType.number,
                               decoration: const InputDecoration(
-                                labelText: "Alamat",
+                                labelText: "Jumlah",
                                 border: OutlineInputBorder(),
                               ),
                             ),
@@ -210,26 +429,7 @@ class _InputDataState extends State<InputData> {
                       const SizedBox(height: 20),
                       Center(
                         child: ElevatedButton(
-                          onPressed: () {
-                            // Logika pemesanan kamar di sini
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (ctx) => AlertDialog(
-                                    title: const Text("Berhasil!"),
-                                    content: const Text(
-                                      "Kamar berhasil dipesan.",
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed:
-                                            () => Navigator.of(ctx).pop(),
-                                        child: const Text("OK"),
-                                      ),
-                                    ],
-                                  ),
-                            );
-                          },
+                          onPressed: isLoading ? null : _submitBooking,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
                             shape: const StadiumBorder(),
@@ -238,10 +438,12 @@ class _InputDataState extends State<InputData> {
                               vertical: 15,
                             ),
                           ),
-                          child: const Text(
-                            "Input Data",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
+                          child: isLoading
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text(
+                                  "Input Data",
+                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                ),
                         ),
                       ),
                     ],
@@ -250,9 +452,8 @@ class _InputDataState extends State<InputData> {
               ],
             ),
           ),
-          // Tombol back di atas gambar, menempel di pojok kiri atas
           Positioned(
-            top: 32, // atur agar berada di dalam area gambar (misal 16-32)
+            top: 32,
             left: 16,
             child: Material(
               color: Colors.transparent,
@@ -263,12 +464,36 @@ class _InputDataState extends State<InputData> {
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    addressController.dispose();
+    quantityController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildInfoSection(String label, String? value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Text(
+            '$label: ',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            value ?? '-',
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
         ],
       ),

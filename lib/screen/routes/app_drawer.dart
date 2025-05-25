@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../crud_booking.dart';
+import '../booking_section/crud_booking.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -25,7 +25,7 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const DashboardCamp()),
+                MaterialPageRoute(builder: (context) => const CrudBooking()),
               );
             },
           ),
