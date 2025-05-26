@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:b_camp/service/database/controller/itemBookingController.dart';
 import 'package:b_camp/screen/booking_section/input_data.dart';
+import 'package:b_camp/screen/booking_section/list_booking_kamar.dart';
 
 class PlaceholderBooking extends StatefulWidget {
   final int campId;
@@ -64,49 +65,16 @@ class _PlaceholderBookingState extends State<PlaceholderBooking> {
             leading: const Icon(Icons.bed),
             title: Text(kamarType),
             trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () async {
-              try {
-                // Get kamar list for this type
-                final kamarList = await ItemBookingController.getKamarByType(
-                  widget.campId,
-                  kamarType,
-                );
-
-                if (kamarList.isEmpty) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'No rooms available for type: $kamarType',
-                        ),
-                      ),
-                    );
-                  }
-                  return;
-                }
-
-                // Use the first kamar from the list
-                final kamar = kamarList.first;
-
-                if (mounted) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => InputData(
-                            kamarId: kamar['id'],
-                            kamarDetail: kamar,
-                          ),
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                }
-              }
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ListBookingKamar(
+                    campId: widget.campId,
+                    kamarType: kamarType,
+                  ),
+                ),
+              );
             },
           ),
         );
