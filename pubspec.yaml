@@ -77,6 +77,7 @@ flutter:
     - lib/assets/picture/sapiens_login.png
     - lib/assets/picture/sapiens_dump_notlogin.png
     - lib/assets/picture/img_dump_booking.png
+    - lib/assets/picture/data_not_load.png
 
   fonts:
     - family: Roboto
