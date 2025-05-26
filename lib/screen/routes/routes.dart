@@ -26,8 +26,15 @@ class RouteGenerator {
           builder: (context) => const calender.DashboardCalendar(),
         );
       case '/list_booking_kamar':
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null || args['camp_id'] == null || args['type'] == null) {
+          throw Exception('Camp ID and type are required');
+        }
         return MaterialPageRoute(
-          builder: (context) => const listBookingKamar.ListBookingKamar(),
+          builder: (context) => listBookingKamar.ListBookingKamar(
+            campId: args['camp_id'],
+            kamarType: args['type'],
+          ),
         );
       case '/dashboard_camp':
         return MaterialPageRoute(

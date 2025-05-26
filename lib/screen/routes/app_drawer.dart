@@ -51,17 +51,6 @@ class AppDrawer extends StatelessWidget {
               Navigator.pushNamed(context, '/crud_camp');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.edit, color: Colors.black),
-            title: const Text(
-              'Edit Camp',
-              style: TextStyle(color: Colors.black),
-            ),
-            onTap: () {
-              Navigator.pop(context); // Kembali ke halaman utama
-              Navigator.pushNamed(context, '/list_booking_kamar');
-            },
-          ),
 
           const Spacer(),
 
