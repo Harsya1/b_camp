@@ -20,7 +20,10 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
       nameCategory: 'Camp Nomor 15',
       singleItemCategoryList: [
         // contoh value: 15-1. 15 adalah id camp, 1 adalah id tipe kamar
-        SingleItemCategoryModel(nameSingleItem: "VVIP", value: '15-1'), //contoh value, bisa menggunakan gabungan id. Antara id camp dan id tipe kamar. Contoh bisa dilihat di kode
+        SingleItemCategoryModel(
+          nameSingleItem: "VVIP",
+          value: '15-1',
+        ), //contoh value, bisa menggunakan gabungan id. Antara id camp dan id tipe kamar. Contoh bisa dilihat di kode
         SingleItemCategoryModel(nameSingleItem: 'VIP', value: '15-2'),
         SingleItemCategoryModel(nameSingleItem: 'Barrack', value: '15-3'),
       ],
@@ -281,31 +284,89 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
   // Data dummy kalender per kamar
   MeetingDataSource _getCalendarDataSource(int roomIndex) {
     final List<StayDuration> inap = [];
+
     if (roomIndex == 0) {
+      // Data tetap seperti Yudo
       inap.add(
         StayDuration(
           eventName: 'Yudo',
-          from: DateTime.now().add(const Duration(days: 0)),
-          to: DateTime.now().add(const Duration(days: 5)),
+          from: DateTime.utc(2025, 5, 26),
+          to: DateTime.utc(2025, 6, 5),
           background: Colors.blue,
           isAllDay: false,
         ),
       );
       inap.add(
         StayDuration(
-          eventName: 'Anula',
-          from: DateTime.now().add(const Duration(days: 3)),
-          to: DateTime.now().add(const Duration(days: 3)),
-          background: Colors.red,
+          eventName: "Bili peng peng peng",
+          from: DateTime.utc(2025, 5, 26),
+          to: DateTime.utc(2025, 6, 5),
+          background: Colors.pink,
           isAllDay: true,
         ),
       );
+      // Data tambahan dengan tanggal acak di berbagai bulan 2025
+      inap.add(
+        StayDuration(
+          eventName: 'Satria',
+          from: DateTime.utc(2025, 2, 14), // Februari
+          to: DateTime.utc(2025, 2, 20),
+          background: Colors.purple,
+          isAllDay: false,
+        ),
+      );
+      inap.add(
+        StayDuration(
+          eventName: 'Jayadarma',
+          from: DateTime.utc(2025, 4, 5), // April
+          to: DateTime.utc(2025, 4, 12),
+          background: Colors.indigo,
+          isAllDay: false,
+        ),
+      );
+      inap.add(
+        StayDuration(
+          eventName: 'Mahendra',
+          from: DateTime.utc(2025, 7, 10), // Juli
+          to: DateTime.utc(2025, 7, 18),
+          background: Colors.cyan,
+          isAllDay: false,
+        ),
+      );
+      inap.add(
+        StayDuration(
+          eventName: 'Ananda',
+          from: DateTime.utc(2025, 9, 1), // September
+          to: DateTime.utc(2025, 9, 7),
+          background: Colors.orange,
+          isAllDay: false,
+        ),
+      );
+      inap.add(
+        StayDuration(
+          eventName: 'Praditha',
+          from: DateTime.utc(2025, 11, 20), // November
+          to: DateTime.utc(2025, 11, 25),
+          background: Colors.green,
+          isAllDay: false,
+        ),
+      );
+      inap.add(
+        StayDuration(
+          eventName: 'Arya Sena',
+          from: DateTime.utc(2025, 12, 24), // Desember
+          to: DateTime.utc(2025, 12, 31),
+          background: Colors.red,
+          isAllDay: false,
+        ),
+      );
     } else if (roomIndex == 1) {
+      // Data Baskara (Contoh Asli)
       inap.add(
         StayDuration(
           eventName: 'Baskara',
-          from: DateTime.now().add(const Duration(days: 0)),
-          to: DateTime.now().add(const Duration(days: 1)),
+          from: DateTime.utc(2025, 1, 1), // Januari
+          to: DateTime.utc(2025, 1, 3),
           background: Colors.green,
           isAllDay: true,
         ),
@@ -313,13 +374,14 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
       inap.add(
         StayDuration(
           eventName: 'Setya Mayang',
-          from: DateTime.now().add(const Duration(days: 0)),
-          to: DateTime.now().add(const Duration(days: 5)),
+          from: DateTime.utc(2025, 3, 10), // Maret
+          to: DateTime.utc(2025, 3, 15),
           background: Colors.orange,
-          isAllDay: false,
+          isAllDay: true,
         ),
       );
     }
+
     return MeetingDataSource(inap);
   }
 }
