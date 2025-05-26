@@ -33,7 +33,7 @@ class _ListBookingKamarState extends State<ListBookingKamar> {
         widget.campId,
         widget.kamarType,
       );
-      
+
       if (mounted) {
         setState(() {
           kamarList = data;
@@ -43,9 +43,9 @@ class _ListBookingKamarState extends State<ListBookingKamar> {
     } catch (e) {
       if (mounted) {
         setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -55,28 +55,30 @@ class _ListBookingKamarState extends State<ListBookingKamar> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Kamar ${widget.kamarType}'),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.white,
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : kamarList.isEmpty
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : kamarList.isEmpty
               ? Center(
-                  child: Text(
-                    'Belum ada kamar tersedia',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                )
-              : GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    mainAxisExtent: 250,
-                  ),
-                  itemCount: kamarList.length,
-                  itemBuilder: (context, index) => _buildKamarCard(kamarList[index]),
+                child: Text(
+                  'Belum ada kamar tersedia',
+                  style: TextStyle(color: Colors.grey[600]),
                 ),
+              )
+              : GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  mainAxisExtent: 250,
+                ),
+                itemCount: kamarList.length,
+                itemBuilder:
+                    (context, index) => _buildKamarCard(kamarList[index]),
+              ),
     );
   }
 
@@ -86,10 +88,9 @@ class _ListBookingKamarState extends State<ListBookingKamar> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => InputData(
-              kamarId: kamar['id'],
-              kamarDetail: kamar,
-            ),
+            builder:
+                (context) =>
+                    InputData(kamarId: kamar['id'], kamarDetail: kamar),
           ),
         );
       },
@@ -100,27 +101,30 @@ class _ListBookingKamarState extends State<ListBookingKamar> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              child: kamar['gambar'] != null
-                  ? Image.network(
-                      '${ItemBookingController.imageBaseUrl}/${kamar['gambar']}',
-                      height: 120,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 120,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.broken_image),
-                        );
-                      },
-                    )
-                  : Container(
-                      height: 120,
-                      width: double.infinity,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image),
-                    ),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(10),
+              ),
+              child:
+                  kamar['gambar'] != null
+                      ? Image.network(
+                        '${ItemBookingController.imageBaseUrl}/${kamar['gambar']}',
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 120,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.broken_image),
+                          );
+                        },
+                      )
+                      : Container(
+                        height: 120,
+                        width: double.infinity,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image),
+                      ),
             ),
             Padding(
               padding: const EdgeInsets.all(12),
