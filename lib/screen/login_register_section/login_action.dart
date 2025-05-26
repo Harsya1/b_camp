@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'register_action.dart'; // Import halaman register
 import 'package:b_camp/service/database/controller/UserAplikasiController.dart';
 
 class LoginPage extends StatefulWidget {
@@ -26,13 +25,13 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(242, 242, 242, 242),
-      body: SingleChildScrollView(
-        // Agar konten bisa bergulir saat keyboard muncul
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Center(
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center, // Tambahkan ini
               children: [
                 // Logo
                 Image.asset(
@@ -60,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: 290,
                   alignment: Alignment.centerLeft,
                   child: const Text(
-                    'Silahkan login untuk pengalaman yang lebih baik',
+                    'Silahkan login melakukan pengelolaan data camp',
                     style: TextStyle(fontSize: 12, color: Colors.black),
                   ),
                 ),
@@ -159,51 +158,48 @@ class _LoginPageState extends State<LoginPage> {
                           return;
                         }
 
+                        // Show loading indicator
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },
+                        );
+
                         final response = await AuthService.login(
                           email: _emailController.text.trim(),
                           password: _passwordController.text,
                         );
 
+                        // Hide loading indicator
+                        Navigator.pop(context);
+
                         if (response['status'] == 'success') {
-                          // Saat login sukses
+                          // Login successful
+                          widget.onLogin(); // Call the callback
                           Navigator.pushReplacementNamed(
                             context,
                             '/dashboard_calender',
                           );
-                        } else {
-                          String errorMessage;
-
-                          // Simplified error handling
-                          switch (response['message']) {
-                            case 'Invalid credentials':
-                              errorMessage = 'Email atau password salah';
-                              break;
-                            case 'User not found':
-                              errorMessage = 'Email belum terdaftar';
-                              break;
-                            default:
-                              errorMessage = 'Gagal masuk ke aplikasi';
-                          }
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(errorMessage),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
                         }
                       } catch (e) {
-                        String errorMessage;
+                        // Hide loading indicator if still showing
+                        Navigator.of(context).pop();
 
-                        if (e is Exception) {
-                          if (e.toString().contains('SocketException')) {
-                            errorMessage =
-                                'Gagal terhubung ke server, cek koneksi internet anda';
-                          } else {
-                            errorMessage = 'Gagal masuk ke aplikasi';
-                          }
+                        String errorMessage;
+                        if (e.toString().contains('Invalid credentials')) {
+                          errorMessage = 'Email atau password salah';
+                        } else if (e.toString().contains('User not found')) {
+                          errorMessage = 'Email belum terdaftar';
+                        } else if (e.toString().contains('SocketException')) {
+                          errorMessage =
+                              'Gagal terhubung ke server, cek koneksi internet Anda';
                         } else {
-                          errorMessage = 'Terjadi kesalahan, silakan coba lagi';
+                          errorMessage =
+                              'Gagal masuk ke aplikasi, silakan coba lagi';
                         }
 
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -221,35 +217,35 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Belum punya akun? Ayo Daftar Sekarang!
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Belum punya akun? ',
-                      style: TextStyle(fontSize: 12, color: Colors.black),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        // Navigasi ke halaman register
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const register_section(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'Ayo Daftar Sekarang!',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     const Text(
+                //       'Belum punya akun? ',
+                //       style: TextStyle(fontSize: 12, color: Colors.black),
+                //     ),
+                //     GestureDetector(
+                //       onTap: () {
+                //         // Navigasi ke halaman register
+                //         Navigator.push(
+                //           context,
+                //           MaterialPageRoute(
+                //             builder: (context) => const register_section(),
+                //           ),
+                //         );
+                //       },
+                //       child: const Text(
+                //         'Ayo Daftar Sekarang!',
+                //         style: TextStyle(
+                //           fontSize: 12,
+                //           fontWeight: FontWeight.bold,
+                //           color: Colors.black,
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),

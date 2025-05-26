@@ -38,10 +38,12 @@ dependencies:
   http: ^1.3.0
   dio: ^5.8.0+1
   shared_preferences: ^2.5.3
-  syncfusion_flutter_calendar: ^29.1.41
+  syncfusion_flutter_calendar: ^29.2.5
   dropdown_search: ^6.0.2
+  select2dot1: ^2.0.9
   intl: ^0.20.2
-  month_picker_dialog: ^6.0.2
+  month_picker_dialog: ^6.2.1
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:
@@ -75,6 +77,7 @@ flutter:
     - lib/assets/picture/sapiens_login.png
     - lib/assets/picture/sapiens_dump_notlogin.png
     - lib/assets/picture/img_dump_booking.png
+    - lib/assets/picture/data_not_load.png
 
   fonts:
     - family: Roboto

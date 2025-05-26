@@ -1,25 +1,47 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'dashboard_camp.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:supercharged/supercharged.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:select2dot1/select2dot1.dart';
+import 'package:b_camp/screen/routes/app_drawer.dart';
 
-class DashboardCalender extends StatefulWidget {
-  const DashboardCalender({super.key});
+class DashboardCalendar extends StatefulWidget {
+  const DashboardCalendar({super.key});
 
   @override
-  State<DashboardCalender> createState() => _DashboardCalenderState();
+  State<DashboardCalendar> createState() => _DashboardCalendarState();
 }
 
-class _DashboardCalenderState extends State<DashboardCalender> {
+class _DashboardCalendarState extends State<DashboardCalendar> {
   int selectedRoomIndex = 0;
   final CalendarController _calendarController = CalendarController();
+
+  static const List<SingleCategoryModel> campOptions = [
+    SingleCategoryModel(
+      nameCategory: 'Camp Nomor 15',
+      singleItemCategoryList: [
+        // contoh value: 15-1. 15 adalah id camp, 1 adalah id tipe kamar
+        SingleItemCategoryModel(
+          nameSingleItem: "VVIP",
+          value: '15-1',
+        ), //contoh value, bisa menggunakan gabungan id. Antara id camp dan id tipe kamar. Contoh bisa dilihat di kode
+        SingleItemCategoryModel(nameSingleItem: 'VIP', value: '15-2'),
+        SingleItemCategoryModel(nameSingleItem: 'Barrack', value: '15-3'),
+      ],
+    ),
+    SingleCategoryModel(
+      nameCategory: 'Camp Nomor 16',
+      singleItemCategoryList: [
+        SingleItemCategoryModel(nameSingleItem: 'VIP', value: '16-2'),
+        SingleItemCategoryModel(nameSingleItem: 'Barrack', value: '16-3'),
+      ],
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Booking Calendar')),
-      drawer: _buildDrawer(),
+      drawer: const AppDrawer(),
       body: Row(
         children: [
           _buildRoomList(),
@@ -29,67 +51,6 @@ class _DashboardCalenderState extends State<DashboardCalender> {
     );
   }
 
-  // Drawer menu dengan tombol login di bawah
-  Widget _buildDrawer() {
-    return Drawer(
-      child: Column(
-        children: [
-          const SizedBox(
-            width: double.infinity,
-            child: DrawerHeader(
-              decoration: const BoxDecoration(color: Colors.black),
-              child: const Text(
-                'B-Camp Admin Menu',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Dashboard Camp'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const DashboardCamp()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_today),
-            title: const Text('Dashboard Calendar'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/login');
-                },
-                child: const Text(
-                  'Logout',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Daftar kamar di kiri
   Widget _buildRoomList() {
     return Container(
       width: MediaQuery.of(context).size.width * 0.2,
@@ -105,7 +66,7 @@ class _DashboardCalenderState extends State<DashboardCalender> {
               decoration: BoxDecoration(
                 color:
                     selectedRoomIndex == index
-                        ? "FFCA07".toColor()
+                        ? Color(0xFFFFCA07)
                         : Colors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -134,64 +95,184 @@ class _DashboardCalenderState extends State<DashboardCalender> {
     );
   }
 
-  // Konten utama: dropdown + kalender
   Widget _contentCalendar(int roomIndex) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DropdownSearch<String>(
-            mode: Mode.form,
-            items: (filter, cs) => ['VVIP', 'VIP', 'Barack'],
-            selectedItem: 'VVIP',
-            decoratorProps: DropDownDecoratorProps(
-              decoration: InputDecoration(
-                labelText: 'Pilih Camp',
-                hintText: 'Pilih tipe',
+          // Select2dot1 sesuai contoh website
+          SizedBox(
+            width: 300,
+            child: Select2dot1(
+              selectDataController: SelectDataController(
+                data: campOptions,
+                isMultiSelect: false,
+                initSelected: const [
+                  SingleItemCategoryModel(nameSingleItem: ""),
+                ],
               ),
-            ),
-            popupProps: PopupProps.menu(
-              showSearchBox: true,
-              searchFieldProps: TextFieldProps(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black),
-                  ),
+              pillboxTitleSettings: const PillboxTitleSettings(
+                title: 'Pilih Tipe Camp',
+                titleStyleDefault: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
+              pillboxSettings: PillboxSettings(
+                defaultDecoration: BoxDecoration(
+                  border: Border.all(color: Colors.black, width: 1.5),
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                ),
+              ),
+              onChanged: (selectedItems) {
+                if (selectedItems.isNotEmpty) {
+                  final selectedItem = selectedItems.first;
+                  print("Tipe Camp Terpilih: ${selectedItem.nameSingleItem}");
+                }
+              },
             ),
-            onChanged: (value) {},
           ),
           const SizedBox(height: 16),
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: SfCalendar(
-                controller: _calendarController,
-                view: CalendarView.month,
-                firstDayOfWeek: 1,
-                dataSource: _getCalendarDataSource(roomIndex),
-                monthViewSettings: const MonthViewSettings(
-                  appointmentDisplayMode:
-                      MonthAppointmentDisplayMode.appointment,
-                  showAgenda: true,
-                ),
-                headerStyle: CalendarHeaderStyle(
-                  textAlign: TextAlign.center,
-                  textStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+              child: Stack(
+                children: [
+                  SfCalendar(
+                    controller: _calendarController,
+                    view: CalendarView.month,
+                    headerHeight: 50,
+                    firstDayOfWeek: 1,
+                    dataSource: _getCalendarDataSource(roomIndex),
+                    monthViewSettings: const MonthViewSettings(
+                      appointmentDisplayMode:
+                          MonthAppointmentDisplayMode.appointment,
+                      showAgenda: true,
+                    ),
+                    headerStyle: CalendarHeaderStyle(
+                      textAlign: TextAlign.center,
+                      textStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      backgroundColor: Color(0xFFFFCA07),
+                    ),
+                    headerDateFormat: 'MMMM yyyy',
+                    monthCellBuilder: (
+                      BuildContext context,
+                      MonthCellDetails details,
+                    ) {
+                      final bool iscurrentMonth =
+                          details.date.month == details.visibleDates[10].month;
+                      final bool isToday = DateUtils.isSameDay(
+                        details.date,
+                        DateTime.now(),
+                      );
+                      return Center(
+                        child: Container(
+                          decoration:
+                              isToday
+                                  ? BoxDecoration(
+                                    color: Colors.orange.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  )
+                                  : null,
+                          padding: const EdgeInsets.all(6),
+                          child: Text(
+                            details.date.day.toString(),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight:
+                                  iscurrentMonth
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                              color:
+                                  isToday
+                                      ? Colors.orange
+                                      : (iscurrentMonth
+                                          ? Colors.black
+                                          : Colors.grey[400]),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    onTap: (calendarTapDetails) {},
                   ),
-                  backgroundColor: "FFCA07".toColor(),
-                ),
-                headerHeight: 50,
-                headerDateFormat: 'MMMM yyyy',
-                onTap: (calendarTapDetails) {
-                  // Optional: handle tap on calendar
-                },
+                  // Custom header overlay for month picker
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 50,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () async {
+                        final DateTime? selected = await showMonthPicker(
+                          context: context,
+                          initialDate:
+                              _calendarController.displayDate ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(3000),
+                          monthPickerDialogSettings: MonthPickerDialogSettings(
+                            headerSettings: PickerHeaderSettings(
+                              headerBackgroundColor: const Color(0xFFFFCA07),
+                              headerCurrentPageTextStyle: const TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                            dateButtonsSettings: PickerDateButtonsSettings(
+                              selectedMonthBackgroundColor: const Color(
+                                0xFFFFCA07,
+                              ),
+                              unselectedMonthsTextColor: Colors.black,
+                            ),
+                            actionBarSettings: PickerActionBarSettings(
+                              confirmWidget: const Text(
+                                'Pilih',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              cancelWidget: const Text(
+                                'Batal',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                        if (selected != null) {
+                          setState(() {
+                            _calendarController.displayDate = selected;
+                          });
+                        }
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        color: Colors.transparent,
+                        // child: Text(
+                        //   // Tampilkan bulan dan tahun aktif
+                        //   _calendarController.displayDate != null
+                        //       ? "${_calendarController.displayDate!.month.toString().padLeft(2, '0')}-${_calendarController.displayDate!.year}"
+                        //       : "${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().year}",
+                        //   style: const TextStyle(
+                        //     fontSize: 16,
+                        //     fontWeight: FontWeight.bold,
+                        //     color: Colors.black,
+                        //   ),
+                        // ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -202,60 +283,118 @@ class _DashboardCalenderState extends State<DashboardCalender> {
 
   // Data dummy kalender per kamar
   MeetingDataSource _getCalendarDataSource(int roomIndex) {
-    final List<Meeting> meetings = [];
+    final List<StayDuration> inap = [];
+
     if (roomIndex == 0) {
-      meetings.add(
-        Meeting(
-          eventName: 'Meeting with Team',
-          from: DateTime.now(),
-          to: DateTime.now().add(const Duration(days: 5)),
+      // Data tetap seperti Yudo
+      inap.add(
+        StayDuration(
+          eventName: 'Yudo',
+          from: DateTime.utc(2025, 5, 26),
+          to: DateTime.utc(2025, 6, 5),
           background: Colors.blue,
           isAllDay: false,
         ),
       );
-      meetings.add(
-        Meeting(
-          eventName: 'Maintenance',
-          from: DateTime.now().add(const Duration(days: 3)),
-          to: DateTime.now().add(const Duration(days: 3, hours: 3)),
-          background: Colors.red,
+      inap.add(
+        StayDuration(
+          eventName: "Bili peng peng peng",
+          from: DateTime.utc(2025, 5, 26),
+          to: DateTime.utc(2025, 6, 5),
+          background: Colors.pink,
           isAllDay: true,
         ),
       );
-    } else if (roomIndex == 1) {
-      meetings.add(
-        Meeting(
-          eventName: 'Project Deadline',
-          from: DateTime.now().add(const Duration(days: 1)),
-          to: DateTime.now().add(const Duration(days: 1, hours: 3)),
-          background: Colors.green,
-          isAllDay: true,
+      // Data tambahan dengan tanggal acak di berbagai bulan 2025
+      inap.add(
+        StayDuration(
+          eventName: 'Satria',
+          from: DateTime.utc(2025, 2, 14), // Februari
+          to: DateTime.utc(2025, 2, 20),
+          background: Colors.purple,
+          isAllDay: false,
         ),
       );
-      meetings.add(
-        Meeting(
-          eventName: 'Client Visit',
-          from: DateTime.now().add(const Duration(days: 5)),
-          to: DateTime.now().add(const Duration(days: 5, hours: 2)),
+      inap.add(
+        StayDuration(
+          eventName: 'Jayadarma',
+          from: DateTime.utc(2025, 4, 5), // April
+          to: DateTime.utc(2025, 4, 12),
+          background: Colors.indigo,
+          isAllDay: false,
+        ),
+      );
+      inap.add(
+        StayDuration(
+          eventName: 'Mahendra',
+          from: DateTime.utc(2025, 7, 10), // Juli
+          to: DateTime.utc(2025, 7, 18),
+          background: Colors.cyan,
+          isAllDay: false,
+        ),
+      );
+      inap.add(
+        StayDuration(
+          eventName: 'Ananda',
+          from: DateTime.utc(2025, 9, 1), // September
+          to: DateTime.utc(2025, 9, 7),
           background: Colors.orange,
           isAllDay: false,
         ),
       );
+      inap.add(
+        StayDuration(
+          eventName: 'Praditha',
+          from: DateTime.utc(2025, 11, 20), // November
+          to: DateTime.utc(2025, 11, 25),
+          background: Colors.green,
+          isAllDay: false,
+        ),
+      );
+      inap.add(
+        StayDuration(
+          eventName: 'Arya Sena',
+          from: DateTime.utc(2025, 12, 24), // Desember
+          to: DateTime.utc(2025, 12, 31),
+          background: Colors.red,
+          isAllDay: false,
+        ),
+      );
+    } else if (roomIndex == 1) {
+      // Data Baskara (Contoh Asli)
+      inap.add(
+        StayDuration(
+          eventName: 'Baskara',
+          from: DateTime.utc(2025, 1, 1), // Januari
+          to: DateTime.utc(2025, 1, 3),
+          background: Colors.green,
+          isAllDay: true,
+        ),
+      );
+      inap.add(
+        StayDuration(
+          eventName: 'Setya Mayang',
+          from: DateTime.utc(2025, 3, 10), // Maret
+          to: DateTime.utc(2025, 3, 15),
+          background: Colors.orange,
+          isAllDay: true,
+        ),
+      );
     }
-    return MeetingDataSource(meetings);
+
+    return MeetingDataSource(inap);
   }
 }
 
 // Model data kalender
-class Meeting {
-  Meeting({
+class StayDuration {
+  StayDuration({
     required this.eventName,
     required this.from,
     required this.to,
     required this.background,
     this.isAllDay = false,
   });
-
   final String eventName;
   final DateTime from;
   final DateTime to;
@@ -265,22 +404,17 @@ class Meeting {
 
 // DataSource untuk Syncfusion Calendar
 class MeetingDataSource extends CalendarDataSource {
-  MeetingDataSource(List<Meeting> source) {
+  MeetingDataSource(List<StayDuration> source) {
     appointments = source;
   }
-
   @override
   DateTime getStartTime(int index) => appointments![index].from;
-
   @override
   DateTime getEndTime(int index) => appointments![index].to;
-
   @override
   String getSubject(int index) => appointments![index].eventName;
-
   @override
   Color getColor(int index) => appointments![index].background;
-
   @override
   bool isAllDay(int index) => appointments![index].isAllDay;
 }
