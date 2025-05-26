@@ -4,12 +4,9 @@ import 'package:b_camp/service/database/controller/itemKamarController.dart';
 class ListKamar extends StatefulWidget {
   final int campId;
   final String type;
-  
-  const ListKamar({
-    Key? key, 
-    required this.campId,
-    required this.type,
-  }) : super(key: key);
+
+  const ListKamar({Key? key, required this.campId, required this.type})
+    : super(key: key);
 
   @override
   State<ListKamar> createState() => _ListKamarState();
@@ -40,9 +37,9 @@ class _ListKamarState extends State<ListKamar> {
     } catch (e) {
       setState(() => isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -59,10 +56,7 @@ class _ListKamarState extends State<ListKamar> {
               Navigator.pushNamed(
                 context,
                 '/create_kamar',
-                arguments: {
-                  'camp_id': widget.campId,
-                  'type': widget.type,
-                },
+                arguments: {'camp_id': widget.campId, 'type': widget.type},
               ).then((value) {
                 if (value == true) _loadKamarList();
               });
@@ -70,47 +64,49 @@ class _ListKamarState extends State<ListKamar> {
           ),
         ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : kamarList.isEmpty
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : kamarList.isEmpty
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Belum ada kamar untuk tipe ${widget.type}',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/create_kamar',
-                            arguments: {
-                              'camp_id': widget.campId,
-                              'type': widget.type,
-                            },
-                          ).then((value) {
-                            if (value == true) _loadKamarList();
-                          });
-                        },
-                        child: const Text('Tambah Kamar Baru'),
-                      ),
-                    ],
-                  ),
-                )
-              : GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.75,
-                  ),
-                  itemCount: kamarList.length,
-                  itemBuilder: (context, index) => _buildKamarCard(kamarList[index]),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Belum ada kamar untuk tipe ${widget.type}',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/create_kamar',
+                          arguments: {
+                            'camp_id': widget.campId,
+                            'type': widget.type,
+                          },
+                        ).then((value) {
+                          if (value == true) _loadKamarList();
+                        });
+                      },
+                      child: const Text('Tambah Kamar Baru'),
+                    ),
+                  ],
                 ),
+              )
+              : GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  mainAxisExtent: 250,
+                ),
+                itemCount: kamarList.length,
+                itemBuilder:
+                    (context, index) => _buildKamarCard(kamarList[index]),
+              ),
     );
   }
 
@@ -132,26 +128,29 @@ class _ListKamarState extends State<ListKamar> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              child: kamar['gambar'] != null
-                  ? Image.network(
-                      '${ItemKamarController.imageBaseUrl}/${kamar['gambar']}',
-                      height: 120,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 120,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.broken_image),
-                        );
-                      },
-                    )
-                  : Container(
-                      height: 120,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image),
-                    ),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(10),
+              ),
+              child:
+                  kamar['gambar'] != null
+                      ? Image.network(
+                        '${ItemKamarController.imageBaseUrl}/${kamar['gambar']}',
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 120,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.broken_image),
+                          );
+                        },
+                      )
+                      : Container(
+                        height: 120,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image),
+                      ),
             ),
             Padding(
               padding: const EdgeInsets.all(12),
@@ -170,10 +169,7 @@ class _ListKamarState extends State<ListKamar> {
                   const SizedBox(height: 4),
                   Text(
                     'Gender: ${kamar['gender'] ?? '-'}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 4),
                   Text(

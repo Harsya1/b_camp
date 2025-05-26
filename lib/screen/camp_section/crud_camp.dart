@@ -88,9 +88,9 @@ class _CrudCampState extends State<CrudCamp> {
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
-                              crossAxisSpacing: 15,
-                              mainAxisSpacing: 15,
-                              childAspectRatio: 0.75,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              mainAxisExtent: 250,
                             ),
                         itemCount: camps.length,
                         itemBuilder:
