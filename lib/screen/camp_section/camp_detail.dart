@@ -29,18 +29,22 @@ class CampDetail extends StatelessWidget {
                   children: [
                     // Gambar camp
                     camp['gambar_camp'] != null
-                        ? Image.network(
-                          camp['gambar_camp'],
-                          width: double.infinity,
-                          height: 250,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 250,
-                              color: Colors.grey[300],
-                              child: const Icon(Icons.broken_image, size: 48),
-                            );
-                          },
+                        ? InteractiveViewer(
+                          minScale: 1.0,
+                          maxScale: 5.0,
+                          child: Image.network(
+                            camp['gambar_camp'],
+                            width: double.infinity,
+                            height: 250,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 250,
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.broken_image, size: 48),
+                              );
+                            },
+                          ),
                         )
                         : Container(
                           height: 250,
@@ -77,9 +81,14 @@ class CampDetail extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _buildDetailRow('Alamat', camp['alamat'] ?? 'No address'),
-                          _buildDetailRow('Jumlah Maksimal Kamar', 
-                            camp['jumlah_maksimal_kamar']?.toString() ?? '0'),
+                          _buildDetailRow(
+                            'Alamat',
+                            camp['alamat'] ?? 'No address',
+                          ),
+                          _buildDetailRow(
+                            'Jumlah Maksimal Kamar',
+                            camp['jumlah_maksimal_kamar']?.toString() ?? '0',
+                          ),
                         ],
                       ),
                     ),
