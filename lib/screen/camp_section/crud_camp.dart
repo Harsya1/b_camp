@@ -80,7 +80,15 @@ class _CrudCampState extends State<CrudCamp> {
                     if (isLoading)
                       const Center(child: CircularProgressIndicator())
                     else if (camps.isEmpty)
-                      const Center(child: Text('Tidak ada data camp'))
+                      const Center(
+                        child: Image(
+                          height: 160,
+                          width: 160,
+                          image: AssetImage(
+                            'lib/assets/picture/data_not_load.png',
+                          ),
+                        ),
+                      )
                     else
                       GridView.builder(
                         shrinkWrap: true,
