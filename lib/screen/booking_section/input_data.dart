@@ -6,11 +6,8 @@ class InputData extends StatefulWidget {
   final int kamarId;
   final Map<String, dynamic> kamarDetail;
 
-  const InputData({
-    Key? key,
-    required this.kamarId,
-    required this.kamarDetail,
-  }) : super(key: key);
+  const InputData({Key? key, required this.kamarId, required this.kamarDetail})
+    : super(key: key);
 
   @override
   State<InputData> createState() => _InputDataState();
@@ -29,7 +26,8 @@ class _InputDataState extends State<InputData> {
     final DateTime now = DateTime.now();
     final DateTime firstDate = DateTime(now.year, now.month, now.day);
     final DateTime initial = isCheckIn ? checkInDate : checkOutDate;
-    final DateTime safeInitialDate = initial.isBefore(firstDate) ? firstDate : initial;
+    final DateTime safeInitialDate =
+        initial.isBefore(firstDate) ? firstDate : initial;
 
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -53,9 +51,9 @@ class _InputDataState extends State<InputData> {
 
   Future<void> _submitBooking() async {
     if (nameController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a name')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a name')));
       return;
     }
 
@@ -75,19 +73,20 @@ class _InputDataState extends State<InputData> {
         if (success) {
           showDialog(
             context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text("Berhasil!"),
-              content: const Text("Kamar berhasil dipesan."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("OK"),
+            builder:
+                (ctx) => AlertDialog(
+                  title: const Text("Berhasil!"),
+                  content: const Text("Kamar berhasil dipesan."),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("OK"),
+                    ),
+                  ],
                 ),
-              ],
-            ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -97,9 +96,9 @@ class _InputDataState extends State<InputData> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) {
@@ -124,28 +123,33 @@ class _InputDataState extends State<InputData> {
                     bottomLeft: Radius.circular(20),
                     bottomRight: Radius.circular(20),
                   ),
-                  child: widget.kamarDetail['gambar'] != null
-                      ? Image.network(
-                          '${ItemBookingController.imageBaseUrl}/${widget.kamarDetail['gambar']}',  // Removed 'storage/'
-                          width: double.infinity,
-                          height: 120,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            print('Error loading image: $error');
-                            return Container(
+                  child:
+                      widget.kamarDetail['gambar'] != null
+                          ? InteractiveViewer(
+                            minScale: 1.0,
+                            maxScale: 5.0,
+                            child: Image.network(
+                              '${ItemBookingController.imageBaseUrl}/${widget.kamarDetail['gambar']}', // Removed 'storage/'
+                              width: double.infinity,
                               height: 120,
-                              color: Colors.grey[300],
-                              child: const Icon(Icons.image),
-                            );
-                          },
-                        )
-                      : Container(
-                          height: 120,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.image),
-                        ),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                print('Error loading image: $error');
+                                return Container(
+                                  height: 120,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.image),
+                                );
+                              },
+                            ),
+                          )
+                          : Container(
+                            height: 120,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.image),
+                          ),
                 ),
-                
+
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
@@ -167,157 +171,240 @@ class _InputDataState extends State<InputData> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Scaffold(
-                                    body: Stack(
-                                      children: [
-                                        SingleChildScrollView(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              // Kamar Image
-                                              ClipRRect(
-                                                borderRadius: const BorderRadius.vertical(
-                                                  bottom: Radius.circular(20),
-                                                ),
-                                                child: widget.kamarDetail['gambar'] != null
-                                                    ? Image.network(
-                                                        '${ItemBookingController.imageBaseUrl}/${widget.kamarDetail['gambar']}',
-                                                        width: double.infinity,
-                                                        height: 200,
-                                                        fit: BoxFit.cover,
-                                                        errorBuilder: (context, error, stackTrace) {
-                                                          return Container(
-                                                            height: 200,
-                                                            color: Colors.grey[300],
-                                                            child: const Icon(
-                                                              Icons.broken_image,
-                                                              size: 50,
+                                  builder:
+                                      (context) => Scaffold(
+                                        body: Stack(
+                                          children: [
+                                            SingleChildScrollView(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  // Kamar Image
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        const BorderRadius.vertical(
+                                                          bottom:
+                                                              Radius.circular(
+                                                                20,
+                                                              ),
+                                                        ),
+                                                    child:
+                                                        widget.kamarDetail['gambar'] !=
+                                                                null
+                                                            ? InteractiveViewer(
+                                                              minScale: 1.0,
+                                                              maxScale: 5.0,
+                                                              child: Image.network(
+                                                                '${ItemBookingController.imageBaseUrl}/${widget.kamarDetail['gambar']}',
+                                                                width:
+                                                                    double
+                                                                        .infinity,
+                                                                height: 200,
+                                                                fit:
+                                                                    BoxFit
+                                                                        .cover,
+                                                                errorBuilder: (
+                                                                  context,
+                                                                  error,
+                                                                  stackTrace,
+                                                                ) {
+                                                                  return Container(
+                                                                    height: 200,
+                                                                    color:
+                                                                        Colors
+                                                                            .grey[300],
+                                                                    child: const Icon(
+                                                                      Icons
+                                                                          .broken_image,
+                                                                      size: 50,
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              ),
+                                                            )
+                                                            : Container(
+                                                              height: 200,
+                                                              color:
+                                                                  Colors
+                                                                      .grey[300],
+                                                              child: const Icon(
+                                                                Icons.image,
+                                                                size: 50,
+                                                              ),
                                                             ),
-                                                          );
-                                                        },
-                                                      )
-                                                    : Container(
-                                                        height: 200,
-                                                        color: Colors.grey[300],
-                                                        child: const Icon(Icons.image, size: 50),
-                                                      ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.all(20),
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                          20,
+                                                        ),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
-                                                        Expanded(
-                                                          child: Text(
-                                                            widget.kamarDetail['nama_kamar'] ?? 'Unnamed',
-                                                            style: const TextStyle(
-                                                              fontSize: 24,
-                                                              fontWeight: FontWeight.bold,
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Expanded(
+                                                              child: Text(
+                                                                widget.kamarDetail['nama_kamar'] ??
+                                                                    'Unnamed',
+                                                                style: const TextStyle(
+                                                                  fontSize: 24,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
                                                             ),
+                                                            Text(
+                                                              'Rp ${widget.kamarDetail['harga']?.toString() ?? '0'}',
+                                                              style: const TextStyle(
+                                                                fontSize: 20,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color:
+                                                                    Colors
+                                                                        .green,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 16,
+                                                        ),
+                                                        _buildInfoSection(
+                                                          'Tipe Kamar',
+                                                          widget
+                                                              .kamarDetail['type_kamar'],
+                                                        ),
+                                                        _buildInfoSection(
+                                                          'Kategori',
+                                                          widget
+                                                              .kamarDetail['kategori'],
+                                                        ),
+                                                        _buildInfoSection(
+                                                          'Gender',
+                                                          widget
+                                                              .kamarDetail['gender'],
+                                                        ),
+                                                        _buildInfoSection(
+                                                          'Jumlah Kasur',
+                                                          widget
+                                                              .kamarDetail['jumlah_kasur']
+                                                              ?.toString(),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 20,
+                                                        ),
+                                                        const Text(
+                                                          'Fasilitas',
+                                                          style: TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.bold,
                                                           ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 8,
                                                         ),
                                                         Text(
-                                                          'Rp ${widget.kamarDetail['harga']?.toString() ?? '0'}',
-                                                          style: const TextStyle(
-                                                            fontSize: 20,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: Colors.green,
+                                                          widget.kamarDetail['fasilitas'] ??
+                                                              'Tidak ada fasilitas',
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            color:
+                                                                Colors
+                                                                    .grey[600],
                                                           ),
                                                         ),
+                                                        const SizedBox(
+                                                          height: 20,
+                                                        ),
+                                                        const Text(
+                                                          'Peraturan',
+                                                          style: TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 8,
+                                                        ),
+                                                        Text(
+                                                          widget.kamarDetail['peraturan'] ??
+                                                              'Tidak ada peraturan',
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            color:
+                                                                Colors
+                                                                    .grey[600],
+                                                          ),
+                                                        ),
+                                                        if (widget
+                                                                .kamarDetail['catatan_tambahan'] !=
+                                                            null) ...[
+                                                          const SizedBox(
+                                                            height: 20,
+                                                          ),
+                                                          const Text(
+                                                            'Catatan Tambahan',
+                                                            style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 8,
+                                                          ),
+                                                          Text(
+                                                            widget
+                                                                .kamarDetail['catatan_tambahan'],
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                              color:
+                                                                  Colors
+                                                                      .grey[600],
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ],
                                                     ),
-                                                    const SizedBox(height: 16),
-                                                    _buildInfoSection(
-                                                      'Tipe Kamar',
-                                                      widget.kamarDetail['type_kamar'],
-                                                    ),
-                                                    _buildInfoSection(
-                                                      'Kategori',
-                                                      widget.kamarDetail['kategori'],
-                                                    ),
-                                                    _buildInfoSection(
-                                                      'Gender',
-                                                      widget.kamarDetail['gender'],
-                                                    ),
-                                                    _buildInfoSection(
-                                                      'Jumlah Kasur',
-                                                      widget.kamarDetail['jumlah_kasur']?.toString(),
-                                                    ),
-                                                    const SizedBox(height: 20),
-                                                    const Text(
-                                                      'Fasilitas',
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            // Back Button
+                                            Positioned(
+                                              top: 40,
+                                              left: 10,
+                                              child: Material(
+                                                color: Colors.black,
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
+                                                child: IconButton(
+                                                  icon: const Icon(
+                                                    Icons.arrow_back,
+                                                    color: Colors.white,
+                                                  ),
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
                                                       ),
-                                                    ),
-                                                    const SizedBox(height: 8),
-                                                    Text(
-                                                      widget.kamarDetail['fasilitas'] ?? 'Tidak ada fasilitas',
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors.grey[600],
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 20),
-                                                    const Text(
-                                                      'Peraturan',
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 8),
-                                                    Text(
-                                                      widget.kamarDetail['peraturan'] ?? 'Tidak ada peraturan',
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors.grey[600],
-                                                      ),
-                                                    ),
-                                                    if (widget.kamarDetail['catatan_tambahan'] != null) ...[
-                                                      const SizedBox(height: 20),
-                                                      const Text(
-                                                        'Catatan Tambahan',
-                                                        style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        widget.kamarDetail['catatan_tambahan'],
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                          color: Colors.grey[600],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ],
                                                 ),
                                               ),
-                                            ],
-                                          ),
-                                        ),
-                                        // Back Button
-                                        Positioned(
-                                          top: 40,
-                                          left: 10,
-                                          child: Material(
-                                            color: Colors.black,
-                                            borderRadius: BorderRadius.circular(30),
-                                            child: IconButton(
-                                              icon: const Icon(Icons.arrow_back, color: Colors.white),
-                                              onPressed: () => Navigator.pop(context),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
+                                      ),
                                 ),
                               );
                             },
@@ -327,7 +414,10 @@ class _InputDataState extends State<InputData> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                border: Border.all(color: Colors.black, width: 1),
+                                border: Border.all(
+                                  color: Colors.black,
+                                  width: 1,
+                                ),
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               child: Row(
@@ -385,12 +475,15 @@ class _InputDataState extends State<InputData> {
                             const SizedBox(height: 10),
                             DropdownButtonFormField<String>(
                               value: gender,
-                              items: ['Perempuan', 'Laki-laki']
-                                  .map((label) => DropdownMenuItem(
-                                        value: label,
-                                        child: Text(label),
-                                      ))
-                                  .toList(),
+                              items:
+                                  ['Perempuan', 'Laki-laki']
+                                      .map(
+                                        (label) => DropdownMenuItem(
+                                          value: label,
+                                          child: Text(label),
+                                        ),
+                                      )
+                                      .toList(),
                               decoration: const InputDecoration(
                                 labelText: "Jenis Kelamin",
                                 border: OutlineInputBorder(),
@@ -438,12 +531,18 @@ class _InputDataState extends State<InputData> {
                               vertical: 15,
                             ),
                           ),
-                          child: isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text(
-                                  "Input Data",
-                                  style: TextStyle(color: Colors.white, fontSize: 16),
-                                ),
+                          child:
+                              isLoading
+                                  ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                  : const Text(
+                                    "Input Data",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                         ),
                       ),
                     ],
