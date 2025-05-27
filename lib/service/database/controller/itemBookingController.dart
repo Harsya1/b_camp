@@ -208,4 +208,123 @@ class ItemBookingController {
       rethrow;
     }
   }
+
+  // Get all camp types with rooms for calendar view
+  static Future<List<Map<String, dynamic>>> getAllCampTypesForCalendar() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) throw Exception('Authentication required');
+
+      // Get all camps first
+      final camps = await getAllCamps();
+      List<Map<String, dynamic>> result = [];
+
+      // For each camp, get its types
+      for (var camp in camps) {
+        final types = await getKamarTypesByCamp(camp['id']);
+        if (types.isNotEmpty) {
+          result.add({
+            'camp_id': camp['id'],
+            'camp_name': camp['nama_camp'],
+            'types': types
+          });
+        }
+      }
+
+      print('Loaded calendar data: ${result.length} camps');
+      return result;
+    } catch (e) {
+      print('Error getting camp types for calendar: $e');
+      rethrow;
+    }
+  }
+
+  // Get bookings for calendar view by room ID
+  static Future<List<Map<String, dynamic>>> getBookingsForCalendar(int kamarId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) throw Exception('Authentication required');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/booking-calendar/kamar/$kamarId'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Get Calendar Bookings Status: ${response.statusCode}');
+      print('Bookings Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        // Access the bookings array from the nested structure
+        final bookings = responseData['data']['bookings'];
+        if (bookings == null) return [];
+        
+        return List<Map<String, dynamic>>.from(bookings);
+      } else {
+        throw Exception('Failed to get bookings');
+      }
+    } catch (e) {
+      print('Error getting calendar bookings: $e');
+      return []; // Return empty list instead of rethrowing
+    }
+  }
+
+  // Get rooms by camp ID and type with availability check
+  static Future<List<Map<String, dynamic>>> getRoomsForType(int campId, String type) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) throw Exception('Authentication required');
+
+      // First get all rooms of this type
+      final response = await http.get(
+        Uri.parse('$baseUrl/kamar/by-type/$campId/$type'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Get Rooms Status: ${response.statusCode}');
+      print('Rooms Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final roomsData = jsonDecode(response.body)['data'];
+        final List<Map<String, dynamic>> rooms = List<Map<String, dynamic>>.from(roomsData);
+
+        // For each room, check its bookings
+        final List<Map<String, dynamic>> roomsWithStatus = [];
+        for (var room in rooms) {
+          final bookingsResponse = await http.get(
+            Uri.parse('$baseUrl/booking-calendar/check/${room['id']}'),
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          );
+
+          if (bookingsResponse.statusCode == 200) {
+            final bookingData = jsonDecode(bookingsResponse.body)['data'];
+            room['bookings'] = bookingData;
+            roomsWithStatus.add(room);
+          }
+        }
+
+        return roomsWithStatus;
+      } else {
+        throw Exception('Failed to get rooms');
+      }
+    } catch (e) {
+      print('Error getting rooms with availability: $e');
+      rethrow;
+    }
+  }
 }
