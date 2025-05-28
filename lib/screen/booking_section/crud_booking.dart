@@ -15,12 +15,22 @@ class CrudBooking extends StatefulWidget {
 
 class _CrudBooking extends State<CrudBooking> {
   List<Map<String, dynamic>> camps = [];
+  List<Map<String, dynamic>> filteredCamps = []; // New filtered list
   bool isLoading = true;
+  TextEditingController searchController =
+      TextEditingController(); // Controller for search
 
   @override
   void initState() {
     super.initState();
+    searchController.addListener(_filterCamps); // Add listener for search input
     _loadCamps();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose(); // Clean up controller
+    super.dispose();
   }
 
   Future<void> _loadCamps() async {
@@ -30,17 +40,30 @@ class _CrudBooking extends State<CrudBooking> {
       if (mounted) {
         setState(() {
           camps = campData;
+          filteredCamps = campData; // Initially show all camps
           isLoading = false;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
+  }
+
+  // Filter camps based on search query
+  void _filterCamps() {
+    final query = searchController.text.toLowerCase();
+    setState(() {
+      filteredCamps =
+          camps.where((camp) {
+            final name = camp['nama_camp']?.toLowerCase() ?? '';
+            return name.contains(query);
+          }).toList();
+    });
   }
 
   Widget _buildCampCard(Map<String, dynamic> camp) {
@@ -51,17 +74,12 @@ class _CrudBooking extends State<CrudBooking> {
         Navigator.pushNamed(
           context,
           '/booking_section',
-          arguments: {
-            'camp_id': camp['id'],
-            'camp_data': camp,
-          },
+          arguments: {'camp_id': camp['id'], 'camp_data': camp},
         );
       },
       child: Card(
         clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -94,10 +112,7 @@ class _CrudBooking extends State<CrudBooking> {
                   ),
                   Text(
                     camp['alamat'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -113,13 +128,12 @@ class _CrudBooking extends State<CrudBooking> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: '#f2f2f2'.toColor(), // Warna latar belakang abu-abu muda
-      drawer: const AppDrawer(), // Side navigation bar
+      backgroundColor: '#f2f2f2'.toColor(),
+      drawer: const AppDrawer(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header dengan hanya sidebar navigasi dan textfield cari camp
             _buildHeader(),
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20),
@@ -128,25 +142,20 @@ class _CrudBooking extends State<CrudBooking> {
                 children: [_itemCamp()],
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ), // Jarak antara _itemCamp() dan section event
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  // Widget untuk membangun header dengan hanya sidebar navigasi dan textfield cari camp
   Widget _buildHeader() {
     return Container(
-      height:
-          150, // Tetapkan tinggi untuk header agar tidak menyebabkan error layout
-      color: '#f2f2f2'.toColor(), // Warna latar belakang abu-abu muda
+      height: 150,
+      color: '#f2f2f2'.toColor(),
       child: Stack(
-        clipBehavior: Clip.none, // Pastikan widget di luar Stack tetap terlihat
+        clipBehavior: Clip.none,
         children: [
-          // Tombol Menu di pojok kiri atas
           Positioned(
             left: 10,
             top: 20,
@@ -155,9 +164,7 @@ class _CrudBooking extends State<CrudBooking> {
                   (context) => IconButton(
                     icon: const Icon(Icons.menu, color: Colors.black),
                     onPressed: () {
-                      Scaffold.of(
-                        context,
-                      ).openDrawer(); // Buka side navigation bar
+                      Scaffold.of(context).openDrawer();
                     },
                   ),
             ),
@@ -177,13 +184,12 @@ class _CrudBooking extends State<CrudBooking> {
               ),
             ),
           ),
-
-          // TextField pencarian di bawah header
           Positioned(
             bottom: 10,
             left: 25,
             right: 25,
             child: TextField(
+              controller: searchController, // Attach controller
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
                 filled: true,
@@ -212,151 +218,53 @@ class _CrudBooking extends State<CrudBooking> {
     );
   }
 
-  // Widget untuk side navigation bar
-  // Widget _buildSideNavigationBar(BuildContext context) {
-  //   return Drawer(
-  //     child: Column(
-  //       children: [
-  //         const SizedBox(
-  //           width: double.infinity,
-  //           child: DrawerHeader(
-  //             decoration: BoxDecoration(color: Colors.black),
-  //             child: Text(
-  //               'B-Camp Admin Menu',
-  //               style: TextStyle(color: Colors.white, fontSize: 24),
-  //             ),
-  //           ),
-  //         ),
-  //         ListTile(
-  //           leading: const Icon(Icons.home),
-  //           title: const Text('Dashboard Camp'),
-  //           onTap: () {
-  //             Navigator.pushReplacement(
-  //               context,
-  //               MaterialPageRoute(
-  //                 builder:
-  //                     (context) =>
-  //                         const DashboardCamp(), // Menggunakan DashboardCamp
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //         ListTile(
-  //           leading: const Icon(Icons.calendar_today, color: Colors.black),
-  //           title: const Text(
-  //             'Dashboard Calendar',
-  //             style: TextStyle(color: Colors.black),
-  //           ),
-  //           onTap: () {
-  //             Navigator.pop(context); // Kembali ke halaman utama
-  //             Navigator.pushNamed(context, '/dashboard_calender');
-  //           },
-  //         ),
-  //         ListTile(
-  //           leading: const Icon(Icons.add_circle, color: Colors.black),
-  //           title: const Text(
-  //             'Create Camp',
-  //             style: TextStyle(color: Colors.black),
-  //           ),
-  //           onTap: () {
-  //             Navigator.pop(context); // Kembali ke halaman utama
-  //             Navigator.pushNamed(context, '/create_camp');
-  //           },
-  //         ),
-  //         ListTile(
-  //           leading: const Icon(Icons.edit, color: Colors.black),
-  //           title: const Text(
-  //             'Edit Camp',
-  //             style: TextStyle(color: Colors.black),
-  //           ),
-  //           onTap: () {
-  //             Navigator.pop(context); // Kembali ke halaman utama
-  //             Navigator.pushNamed(context, '/edit_camp');
-  //           },
-  //         ),
-  //         const Spacer(), // Jarak antara item menu dan bagian bawah
-  //         Padding(
-  //           padding: const EdgeInsets.only(
-  //             top: 50,
-  //             bottom: 20,
-  //             left: 16,
-  //             right: 16,
-  //           ),
-  //           child: SizedBox(
-  //             width: double.infinity,
-  //             child: ElevatedButton(
-  //               style: ElevatedButton.styleFrom(
-  //                 backgroundColor: Colors.black,
-  //                 padding: const EdgeInsets.symmetric(vertical: 14),
-  //                 shape: RoundedRectangleBorder(
-  //                   borderRadius: BorderRadius.circular(30),
-  //                 ),
-  //               ),
-  //               onPressed: () {
-  //                 Navigator.pushNamed(context, '/login');
-  //               },
-  //               child: const Text(
-  //                 'Logout',
-  //                 style: TextStyle(color: Colors.white),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget untuk menampilkan daftar tipe camp dalam bentuk grid
   Widget _itemCamp() {
     return isLoading
         ? const Center(child: CircularProgressIndicator())
         : GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              mainAxisExtent: 250,
-            ),
-            itemCount: camps.length,
-            itemBuilder: (context, index) {
-              final camp = camps[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/booking_section',
-                    arguments: {
-                      'camp_id': camp['id'],
-                      'camp_data': camp,
-                    },
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            mainAxisExtent: 250,
+          ),
+          itemCount: filteredCamps.length, // Use filteredCamps
+          itemBuilder: (context, index) {
+            final camp = filteredCamps[index]; // Use filteredCamps
+            return GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  '/booking_section',
+                  arguments: {'camp_id': camp['id'], 'camp_data': camp},
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                        ),
-                        child: camp['gambar_camp'] != null
-                            ? Image.network(
-                                '${ItemBookingController.imageBaseUrl}/${camp['gambar_camp']}',  // Removed extra 'storage/'
+                      child:
+                          camp['gambar_camp'] != null
+                              ? Image.network(
+                                '${ItemBookingController.imageBaseUrl}/${camp['gambar_camp']}',
                                 height: 150,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
@@ -372,45 +280,45 @@ class _CrudBooking extends State<CrudBooking> {
                                   );
                                 },
                               )
-                            : Container(
+                              : Container(
                                 height: 150,
                                 width: double.infinity,
                                 color: Colors.grey[300],
                                 child: const Icon(Icons.image, size: 48),
                               ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              camp['nama_camp'] ?? 'Unnamed Camp',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            camp['nama_camp'] ?? 'Unnamed Camp',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              camp['alamat'] ?? 'No address',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            camp['alamat'] ?? 'No address',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
                             ),
-                          ],
-                        ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              );
-            },
-          );
+              ),
+            );
+          },
+        );
   }
 }
