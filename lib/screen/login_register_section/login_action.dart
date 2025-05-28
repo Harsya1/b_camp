@@ -13,6 +13,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isPasswordVisible =
+      false; // Variabel untuk melacak visibilitas password
 
   @override
   void dispose() {
@@ -31,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center, // Tambahkan ini
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Logo
                 Image.asset(
@@ -104,7 +106,8 @@ class _LoginPageState extends State<LoginPage> {
                   width: 290,
                   child: TextField(
                     controller: _passwordController,
-                    obscureText: true,
+                    obscureText:
+                        !_isPasswordVisible, // Kontrol visibilitas password
                     decoration: InputDecoration(
                       hintText: 'Password',
                       filled: true,
@@ -129,6 +132,20 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       hintStyle: TextStyle(color: Colors.grey[500]),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible =
+                                !_isPasswordVisible; // Toggle status
+                          });
+                        },
+                      ),
                     ),
                     style: const TextStyle(color: Colors.black),
                   ),
@@ -217,35 +234,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                //   children: [
-                //     const Text(
-                //       'Belum punya akun? ',
-                //       style: TextStyle(fontSize: 12, color: Colors.black),
-                //     ),
-                //     GestureDetector(
-                //       onTap: () {
-                //         // Navigasi ke halaman register
-                //         Navigator.push(
-                //           context,
-                //           MaterialPageRoute(
-                //             builder: (context) => const register_section(),
-                //           ),
-                //         );
-                //       },
-                //       child: const Text(
-                //         'Ayo Daftar Sekarang!',
-                //         style: TextStyle(
-                //           fontSize: 12,
-                //           fontWeight: FontWeight.bold,
-                //           color: Colors.black,
-                //         ),
-                //       ),
-                //     ),
-                //   ],
-                // ),
               ],
             ),
           ),
