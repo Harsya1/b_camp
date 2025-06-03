@@ -11,14 +11,14 @@ class Booking {
   Booking({required this.name, required this.checkIn, required this.checkOut});
 }
 
-class DumpBooking extends StatefulWidget {
-  const DumpBooking({super.key});
+class ScreenBooking extends StatefulWidget {
+  const ScreenBooking({super.key});
 
   @override
-  State<DumpBooking> createState() => _DumpBookingState();
+  State<ScreenBooking> createState() => _ScreenBookingState();
 }
 
-class _DumpBookingState extends State<DumpBooking> {
+class _ScreenBookingState extends State<ScreenBooking> {
   List<Booking> dummyBookings = List.generate(
     10,
     (index) => Booking(
