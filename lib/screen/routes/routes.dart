@@ -44,7 +44,7 @@ class RouteGenerator {
         );
       case '/bookingdata':
         return MaterialPageRoute(
-          builder: (context) => const bookingdata.DumpBooking(),
+          builder: (context) => const bookingdata.ScreenBooking(),
         );
       case '/crud_booking':
         return MaterialPageRoute(
