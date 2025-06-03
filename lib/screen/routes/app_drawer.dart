@@ -51,6 +51,17 @@ class AppDrawer extends StatelessWidget {
               Navigator.pushNamed(context, '/crud_camp');
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.book, color: Colors.black),
+            title: const Text(
+              "Data Booking",
+              style: TextStyle(color: Colors.black),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, "/bookingdata");
+            },
+          ),
 
           const Spacer(),
 
