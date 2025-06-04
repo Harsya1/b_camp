@@ -7,11 +7,8 @@ import 'package:b_camp/service/database/controller/itemKamarController.dart';
 
 class CreateKamar extends StatefulWidget {
   final int campId;
-  
-  const CreateKamar({
-    Key? key,
-    required this.campId,
-  }) : super(key: key);
+
+  const CreateKamar({Key? key, required this.campId}) : super(key: key);
 
   @override
   State<CreateKamar> createState() => _CreateKamarState();
@@ -96,14 +93,14 @@ class _CreateKamarState extends State<CreateKamar> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kamar berhasil dibuat!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Kamar berhasil dibuat!')));
       Navigator.pop(context, true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -136,7 +133,7 @@ class _CreateKamarState extends State<CreateKamar> {
                 onTap: _pickImage,
                 child: Container(
                   width: double.infinity,
-                  height: 180,
+                  height: 300,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(16),
@@ -317,14 +314,17 @@ class _CreateKamarState extends State<CreateKamar> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: _isLoading ? null : _saveKamar,
-                  child: _isLoading
-                      ? const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
-                      : const Text(
-                          'Tambah Data Kamar',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          )
+                          : const Text(
+                            'Tambah Data Kamar',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
                 ),
               ),
             ],

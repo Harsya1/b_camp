@@ -76,13 +76,14 @@ class _PlaceholderBookingState extends State<PlaceholderBooking> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ListBookingKamar(
-                    campId: widget.campId,
-                    kamarType: kamarType,
-                  ),
+                  builder:
+                      (context) => ListBookingKamar(
+                        campId: widget.campId,
+                        kamarType: kamarType,
+                      ),
                 ),
               );
-              
+
               // If result indicates data was modified, refresh
               if (result == true) {
                 _refreshData();
@@ -105,34 +106,40 @@ class _PlaceholderBookingState extends State<PlaceholderBooking> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Camp Image
-                    Stack(
-                      children: [
-                        InteractiveViewer(
-                          minScale: 1.0,
-                          maxScale: 5.0,
-                          child: Image.network(
-                            '${ItemBookingController.imageBaseUrl}/${widget.campData['gambar_camp']}',
-                            width: double.infinity,
-                            height: 200,
-                            fit: BoxFit.cover,
+                    ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                      child: Stack(
+                        children: [
+                          InteractiveViewer(
+                            minScale: 1.0,
+                            maxScale: 5.0,
+                            child: Image.network(
+                              '${ItemBookingController.imageBaseUrl}/${widget.campData['gambar_camp']}',
+                              width: double.infinity,
+                              height: 300,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        ),
-                        SafeArea(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CircleAvatar(
-                              backgroundColor: Colors.black54,
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.arrow_back,
-                                  color: Colors.white,
+                          SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                backgroundColor: Colors.black54,
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.arrow_back,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: () => Navigator.pop(context),
                                 ),
-                                onPressed: () => Navigator.pop(context),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
 
                     // Camp Details
