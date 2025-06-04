@@ -191,9 +191,7 @@ class _CreateKamarState extends State<CreateKamar> {
                         "Regular+",
                         "Homestay",
                         "Homestay+",
-                        "Barrack",
                         "VIP",
-                        "VVIP",
                       ],
                   selectedItem: _selectedTipeKamar,
                   decoratorProps: DropDownDecoratorProps(
@@ -214,7 +212,7 @@ class _CreateKamarState extends State<CreateKamar> {
               SizedBox(
                 width: double.infinity,
                 child: DropdownSearch<String>(
-                  items: (filter, cs) => ["Brilliant", "Bieplus"],
+                  items: (filter, cs) => ["Brilliant"],
                   selectedItem: _selectedKategori,
                   decoratorProps: DropDownDecoratorProps(
                     decoration: _inputDecoration('Kategori'),
