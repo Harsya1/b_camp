@@ -26,19 +26,23 @@ class _DetailBookingState extends State<DetailBooking> {
 
   Future<void> _loadBookingInfo() async {
     try {
-      final bookingDetail = await ItemBookingController.getBookingDetail(booking.id);
+      final bookingDetail = await ItemBookingController.getBookingDetail(
+        booking.id,
+      );
       if (mounted) {
         setState(() {
           // Set kamar info
           if (bookingDetail['kamar_info'] != null) {
-            kamarInfo = bookingDetail['kamar_info']['nama_kamar'] ?? 'Unknown Room';
+            kamarInfo =
+                bookingDetail['kamar_info']['nama_kamar'] ?? 'Unknown Room';
           } else {
             kamarInfo = 'Room ID: ${booking.kamarId}';
           }
-          
+
           // Set camp info
           if (bookingDetail['camp_info'] != null) {
-            campInfo = bookingDetail['camp_info']['nama_camp'] ?? 'Unknown Camp';
+            campInfo =
+                bookingDetail['camp_info']['nama_camp'] ?? 'Unknown Camp';
           } else {
             campInfo = 'Unknown Camp';
           }
@@ -60,7 +64,7 @@ class _DetailBookingState extends State<DetailBooking> {
       await ItemBookingController.deleteBooking(booking.id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Booking berhasil dihapus')),
+          const SnackBar(content: Text('Data Booking berhasil dihapus')),
         );
         Navigator.pop(context, true); // Return true to indicate deletion
       }
@@ -118,19 +122,25 @@ class _DetailBookingState extends State<DetailBooking> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: isLoading ? null : () async {
-                      final result = await Navigator.pushNamed(
-                        context,
-                        '/edit_booking',
-                        arguments: booking,
-                      );
-                      
-                      if (result == true) {
-                        // Refresh detail booking jika diperlukan
-                        _loadBookingInfo();
-                        Navigator.pop(context, true); // Pass result to parent
-                      }
-                    },
+                    onPressed:
+                        isLoading
+                            ? null
+                            : () async {
+                              final result = await Navigator.pushNamed(
+                                context,
+                                '/edit_booking',
+                                arguments: booking,
+                              );
+
+                              if (result == true) {
+                                // Refresh detail booking jika diperlukan
+                                _loadBookingInfo();
+                                Navigator.pop(
+                                  context,
+                                  true,
+                                ); // Pass result to parent
+                              }
+                            },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,

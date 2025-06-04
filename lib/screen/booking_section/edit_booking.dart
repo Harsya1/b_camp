@@ -23,7 +23,7 @@ class _EditBookingState extends State<EditBooking> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    
+
     // Only initialize once
     if (!_isInitialized) {
       booking = ModalRoute.of(context)!.settings.arguments as Booking;
@@ -39,19 +39,23 @@ class _EditBookingState extends State<EditBooking> {
 
   Future<void> _loadBookingInfo() async {
     try {
-      final bookingDetail = await ItemBookingController.getBookingDetail(booking!.id);
+      final bookingDetail = await ItemBookingController.getBookingDetail(
+        booking!.id,
+      );
       if (mounted) {
         setState(() {
           // Set kamar info
           if (bookingDetail['kamar_info'] != null) {
-            kamarInfo = bookingDetail['kamar_info']['nama_kamar'] ?? 'Unknown Room';
+            kamarInfo =
+                bookingDetail['kamar_info']['nama_kamar'] ?? 'Unknown Room';
           } else {
             kamarInfo = 'Room ID: ${booking!.kamarId}';
           }
-          
+
           // Set camp info
           if (bookingDetail['camp_info'] != null) {
-            campInfo = bookingDetail['camp_info']['nama_camp'] ?? 'Unknown Camp';
+            campInfo =
+                bookingDetail['camp_info']['nama_camp'] ?? 'Unknown Camp';
           } else {
             campInfo = 'Unknown Camp';
           }
@@ -71,20 +75,21 @@ class _EditBookingState extends State<EditBooking> {
     print('=== DATE PICKER OPENED ===');
     print('Current selectedCheckIn: $selectedCheckIn');
     print('Current selectedCheckOut: $selectedCheckOut');
-    
-    final DateTime initialDate = isCheckIn ? selectedCheckIn! : selectedCheckOut!;
-    
+
+    final DateTime initialDate =
+        isCheckIn ? selectedCheckIn! : selectedCheckOut!;
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    
+
     if (picked != null) {
       print('=== DATE PICKED ===');
       print('Picked date: $picked for ${isCheckIn ? "check-in" : "check-out"}');
-      
+
       setState(() {
         if (isCheckIn) {
           selectedCheckIn = picked;
@@ -99,7 +104,7 @@ class _EditBookingState extends State<EditBooking> {
           print('NEW selectedCheckOut: $selectedCheckOut');
         }
       });
-      
+
       print('=== AFTER setState ===');
       print('Final selectedCheckIn: $selectedCheckIn');
       print('Final selectedCheckOut: $selectedCheckOut');
@@ -138,19 +143,19 @@ class _EditBookingState extends State<EditBooking> {
 
     try {
       setState(() => isLoading = true);
-      
+
       final updateData = {
         'start_date': DateFormat('yyyy-MM-dd').format(selectedCheckIn!),
         'end_date': DateFormat('yyyy-MM-dd').format(selectedCheckOut!),
       };
-      
+
       print('Update data to send: $updateData');
       print('Booking ID: ${booking!.id}');
-      
+
       await ItemBookingController.updateBooking(booking!.id, updateData);
-      
+
       print('Update request completed successfully');
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Booking berhasil diupdate')),
@@ -170,10 +175,10 @@ class _EditBookingState extends State<EditBooking> {
 
   @override
   Widget build(BuildContext context) {
-    if (booking == null || selectedCheckIn == null || selectedCheckOut == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+    if (booking == null ||
+        selectedCheckIn == null ||
+        selectedCheckOut == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -204,7 +209,7 @@ class _EditBookingState extends State<EditBooking> {
             const SizedBox(height: 30),
             _buildInfoRow('Nomor kamar', kamarInfo),
             const SizedBox(height: 30),
-            
+
             // Check-in date selector
             GestureDetector(
               onTap: () {
@@ -212,7 +217,10 @@ class _EditBookingState extends State<EditBooking> {
                 _selectDate(context, true);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(30),
@@ -221,10 +229,7 @@ class _EditBookingState extends State<EditBooking> {
                   children: [
                     Text(
                       'Tanggal Masuk: ${DateFormat('dd/MM/yyyy').format(selectedCheckIn!)}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
                     ),
                     const Spacer(),
                     const Icon(Icons.calendar_today, color: Colors.black),
@@ -233,7 +238,7 @@ class _EditBookingState extends State<EditBooking> {
               ),
             ),
             const SizedBox(height: 30),
-            
+
             // Check-out date selector
             GestureDetector(
               onTap: () {
@@ -241,7 +246,10 @@ class _EditBookingState extends State<EditBooking> {
                 _selectDate(context, false);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(30),
@@ -250,10 +258,7 @@ class _EditBookingState extends State<EditBooking> {
                   children: [
                     Text(
                       'Tanggal Keluar: ${DateFormat('dd/MM/yyyy').format(selectedCheckOut!)}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
                     ),
                     const Spacer(),
                     const Icon(Icons.calendar_today, color: Colors.black),
@@ -261,7 +266,7 @@ class _EditBookingState extends State<EditBooking> {
                 ),
               ),
             ),
-            
+
             const Spacer(),
             SizedBox(
               width: double.infinity,
@@ -311,3 +316,4 @@ class _EditBookingState extends State<EditBooking> {
       ],
     );
   }
+}

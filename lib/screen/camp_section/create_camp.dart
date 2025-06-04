@@ -38,19 +38,19 @@ class _CreateCampState extends State<CreateCamp> {
       );
 
       if (!mounted) return;
-      
+
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Camp berhasil dibuat!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Camp berhasil dibuat!')));
         Navigator.pop(context, true);
       } else {
         throw Exception('Failed to create camp');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -117,7 +117,7 @@ class _CreateCampState extends State<CreateCamp> {
                 onTap: _pickImage,
                 child: Container(
                   width: double.infinity,
-                  height: 180,
+                  height: 300,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(16),
@@ -207,14 +207,17 @@ class _CreateCampState extends State<CreateCamp> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: _isLoading ? null : _saveCamp,
-                  child: _isLoading
-                      ? const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
-                      : const Text(
-                          'Tambah Data Camp',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          )
+                          : const Text(
+                            'Tambah Data Camp',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
                 ),
               ),
             ],

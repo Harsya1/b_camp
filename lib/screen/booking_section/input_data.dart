@@ -131,7 +131,7 @@ class _InputDataState extends State<InputData> {
                             child: Image.network(
                               '${ItemBookingController.imageBaseUrl}/${widget.kamarDetail['gambar']}', // Removed 'storage/'
                               width: double.infinity,
-                              height: 120,
+                              height: 300,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 print('Error loading image: $error');
@@ -200,7 +200,7 @@ class _InputDataState extends State<InputData> {
                                                                 width:
                                                                     double
                                                                         .infinity,
-                                                                height: 200,
+                                                                height: 300,
                                                                 fit:
                                                                     BoxFit
                                                                         .cover,

@@ -43,7 +43,7 @@ class _DetailKamarState extends State<DetailKamar> {
     try {
       setState(() => isDeleting = true);
       final success = await ItemKamarController.deleteKamar(widget.kamarId);
-      
+
       if (mounted) {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -57,9 +57,9 @@ class _DetailKamarState extends State<DetailKamar> {
     } catch (e) {
       if (mounted) {
         setState(() => isDeleting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error menghapus kamar: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error menghapus kamar: $e')));
       }
     }
   }
@@ -85,21 +85,29 @@ class _DetailKamarState extends State<DetailKamar> {
                           ),
                           child:
                               kamarData!['gambar'] != null
-                                  ? Image.network(
-                                    '${ItemKamarController.imageBaseUrl}/${kamarData!['gambar']}',
-                                    width: double.infinity,
-                                    height: 200,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 200,
-                                        color: Colors.grey[300],
-                                        child: const Icon(
-                                          Icons.broken_image,
-                                          size: 50,
-                                        ),
-                                      );
-                                    },
+                                  ? InteractiveViewer(
+                                    minScale: 1.0,
+                                    maxScale: 5.0,
+                                    child: Image.network(
+                                      '${ItemKamarController.imageBaseUrl}/${kamarData!['gambar']}',
+                                      width: double.infinity,
+                                      height: 300,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Container(
+                                          height: 200,
+                                          color: Colors.grey[300],
+                                          child: const Icon(
+                                            Icons.broken_image,
+                                            size: 50,
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   )
                                   : Container(
                                     height: 200,
@@ -201,7 +209,7 @@ class _DetailKamarState extends State<DetailKamar> {
                                   ),
                                 ),
                               ],
-                              
+
                               // Add bottom padding to prevent overlap with bottom buttons
                               const SizedBox(height: 150),
                             ],
@@ -262,35 +270,41 @@ class _DetailKamarState extends State<DetailKamar> {
               ),
             ),
             const SizedBox(height: 10),
-            
+
             // Delete Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isDeleting ? null : () async {
-                  final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Konfirmasi'),
-                      content: const Text(
-                        'Apakah anda yakin ingin menghapus data kamar ini ?'
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Batal'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Hapus'),
-                        ),
-                      ],
-                    ),
-                  );
-                  if (confirm == true) {
-                    _deleteKamar();
-                  }
-                },
+                onPressed:
+                    isDeleting
+                        ? null
+                        : () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: const Text('Konfirmasi'),
+                                  content: const Text(
+                                    'Apakah anda yakin ingin menghapus data kamar ini ?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, false),
+                                      child: const Text('Batal'),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, true),
+                                      child: const Text('Hapus'),
+                                    ),
+                                  ],
+                                ),
+                          );
+                          if (confirm == true) {
+                            _deleteKamar();
+                          }
+                        },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
@@ -299,12 +313,16 @@ class _DetailKamarState extends State<DetailKamar> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: isDeleting 
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                      'Hapus Kamar',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                child:
+                    isDeleting
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          'Hapus Kamar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
               ),
             ),
           ],
