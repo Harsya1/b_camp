@@ -29,9 +29,9 @@ class _EditKamarState extends State<EditKamar> {
   final TextEditingController _peraturanController = TextEditingController();
   final TextEditingController _hargaController = TextEditingController();
 
-  String? _selectedKategori;
   String? _selectedTipeKamar;
   String? _selectedGender;
+  String _kategori = "Brilliant"; // Default value
 
   bool _isLoading = false;
 
@@ -85,7 +85,7 @@ class _EditKamarState extends State<EditKamar> {
   void _loadKamarData() {
     _namaKamarController.text = widget.kamarData['nama_kamar'] ?? '';
     _selectedTipeKamar = widget.kamarData['type_kamar'];
-    _selectedKategori = widget.kamarData['kategori'];
+    _kategori = widget.kamarData['kategori'] ?? 'Brilliant'; 
     _selectedGender = widget.kamarData['gender'];
     _jumlahKasurController.text = widget.kamarData['jumlah_kasur']?.toString() ?? '0';
     _fasilitasController.text = widget.kamarData['fasilitas'] ?? '';
@@ -103,12 +103,12 @@ class _EditKamarState extends State<EditKamar> {
         id: widget.kamarData['id'],
         namaKamar: _namaKamarController.text,
         typeKamar: _selectedTipeKamar,
-        kategori: _selectedKategori,
+        kategori: _kategori, // Use the fixed kategori value
         gender: _selectedGender,
         jumlahKasur: int.parse(_jumlahKasurController.text),
         fasilitas: _fasilitasController.text,
         peraturan: _peraturanController.text,
-        gambar: _image, // Pass the File directly
+        gambar: _image,
         harga: double.parse(_hargaController.text),
       );
 
@@ -208,8 +208,7 @@ class _EditKamarState extends State<EditKamar> {
                   controller: _namaKamarController,
                   decoration: _inputDecoration('Nama Kamar'),
                   validator:
-                      (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
+                      (value) => value == null || value.isEmpty ? 'Wajib diisi' : null,
                   style: const TextStyle(color: Colors.black),
                 ),
               ),
@@ -237,35 +236,36 @@ class _EditKamarState extends State<EditKamar> {
                     });
                   },
                   validator:
-                      (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
+                      (value) => value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
               ),
               const SizedBox(height: 12),
-              // Kategori (Dropdown)
-              SizedBox(
-                width: double.infinity,
-                child: DropdownSearch<String>(
-                  items: (filter, cs) => ["Brilliant"],
-                  selectedItem: _selectedKategori,
-                  decoratorProps: DropDownDecoratorProps(
-                    decoration: _inputDecoration('Kategori'),
-                  ),
-                  popupProps: PopupProps.menu(
-                    fit: FlexFit.loose,
-                    showSearchBox: false,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedKategori = value;
-                    });
-                  },
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
+              
+              // Kategori (Aligned with other inputs)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Text(
+                      'Kategori: ',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      _kategori,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold, // Only this part is bold
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 12),
+              
               // Gender (Dropdown)
               SizedBox(
                 width: double.infinity,
@@ -285,8 +285,7 @@ class _EditKamarState extends State<EditKamar> {
                     });
                   },
                   validator:
-                      (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
+                      (value) => value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
               ),
               const SizedBox(height: 12),
