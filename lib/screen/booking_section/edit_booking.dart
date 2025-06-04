@@ -29,7 +29,9 @@ class _EditBookingState extends State<EditBooking> {
 
   Future<void> _loadKamarInfo() async {
     try {
-      final kamarData = await ItemBookingController.getKamarDetail(booking.kamarId);
+      final kamarData = await ItemBookingController.getKamarDetail(
+        booking.kamarId,
+      );
       if (mounted) {
         setState(() {
           kamarInfo = kamarData['nama_kamar'] ?? 'Unknown Room';
@@ -69,15 +71,19 @@ class _EditBookingState extends State<EditBooking> {
   Future<void> _updateBooking() async {
     if (selectedCheckIn == null || selectedCheckOut == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select both check-in and check-out dates')),
+        const SnackBar(
+          content: Text('Please select both check-in and check-out dates'),
+        ),
       );
       return;
     }
 
-    if (selectedCheckOut!.isBefore(selectedCheckIn!) || 
+    if (selectedCheckOut!.isBefore(selectedCheckIn!) ||
         selectedCheckOut!.isAtSameMomentAs(selectedCheckIn!)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Check-out date must be after check-in date')),
+        const SnackBar(
+          content: Text('Check-out date must be after check-in date'),
+        ),
       );
       return;
     }
@@ -97,9 +103,9 @@ class _EditBookingState extends State<EditBooking> {
     } catch (e) {
       if (mounted) {
         setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -130,7 +136,7 @@ class _EditBookingState extends State<EditBooking> {
             const SizedBox(height: 30),
             _buildInfoRow('Gender', booking.gender),
             const SizedBox(height: 30),
-            _buildInfoRow('Masuk kamar apa', kamarInfo),
+            _buildInfoRow('Nomor kamar', kamarInfo),
             const SizedBox(height: 30),
             _buildDateSelector(
               'Tanggal Masuk: ${DateFormat('dd/MM/yyyy').format(selectedCheckIn!)}',
@@ -154,12 +160,16 @@ class _EditBookingState extends State<EditBooking> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: isLoading 
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                      'Simpan Data',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                child:
+                    isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          'Simpan Data',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
               ),
             ),
             const SizedBox(height: 30),
@@ -182,13 +192,7 @@ class _EditBookingState extends State<EditBooking> {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
-        ),
+        Text(value, style: const TextStyle(fontSize: 16, color: Colors.grey)),
       ],
     );
   }
@@ -206,10 +210,7 @@ class _EditBookingState extends State<EditBooking> {
           children: [
             Text(
               text,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black,
-              ),
+              style: const TextStyle(fontSize: 16, color: Colors.black),
             ),
             const Spacer(),
             const Icon(Icons.calendar_today, color: Colors.black),
