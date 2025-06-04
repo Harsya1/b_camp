@@ -25,7 +25,9 @@ class _DetailBookingState extends State<DetailBooking> {
 
   Future<void> _loadKamarInfo() async {
     try {
-      final kamarData = await ItemBookingController.getKamarDetail(booking.kamarId);
+      final kamarData = await ItemBookingController.getKamarDetail(
+        booking.kamarId,
+      );
       if (mounted) {
         setState(() {
           kamarInfo = kamarData['nama_kamar'] ?? 'Unknown Room';
@@ -53,9 +55,9 @@ class _DetailBookingState extends State<DetailBooking> {
     } catch (e) {
       if (mounted) {
         setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -86,23 +88,32 @@ class _DetailBookingState extends State<DetailBooking> {
             const SizedBox(height: 30),
             _buildInfoRow('Gender', booking.gender),
             const SizedBox(height: 30),
-            _buildInfoRow('Masuk kamar apa', kamarInfo),
+            _buildInfoRow('Nomor kamar', kamarInfo),
             const SizedBox(height: 30),
-            _buildInfoRow('Tanggal Masuk', DateFormat('dd/MM/yyyy').format(booking.checkIn)),
+            _buildInfoRow(
+              'Tanggal Masuk',
+              DateFormat('dd/MM/yyyy').format(booking.checkIn),
+            ),
             const SizedBox(height: 30),
-            _buildInfoRow('Tanggal Keluar', DateFormat('dd/MM/yyyy').format(booking.checkOut)),
+            _buildInfoRow(
+              'Tanggal Keluar',
+              DateFormat('dd/MM/yyyy').format(booking.checkOut),
+            ),
             const Spacer(),
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: isLoading ? null : () {
-                      Navigator.pushNamed(
-                        context,
-                        '/edit_booking',
-                        arguments: booking,
-                      );
-                    },
+                    onPressed:
+                        isLoading
+                            ? null
+                            : () {
+                              Navigator.pushNamed(
+                                context,
+                                '/edit_booking',
+                                arguments: booking,
+                              );
+                            },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
@@ -113,35 +124,48 @@ class _DetailBookingState extends State<DetailBooking> {
                     ),
                     child: const Text(
                       'Edit data',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: isLoading ? null : () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Konfirmasi'),
-                          content: const Text('Apakah Anda yakin ingin menghapus data booking ini?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Batal'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Hapus'),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (confirm == true) {
-                        _deleteBooking();
-                      }
-                    },
+                    onPressed:
+                        isLoading
+                            ? null
+                            : () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: const Text('Konfirmasi'),
+                                      content: const Text(
+                                        'Apakah Anda yakin ingin menghapus data booking ini?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, false),
+                                          child: const Text('Batal'),
+                                        ),
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, true),
+                                          child: const Text('Hapus'),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                              if (confirm == true) {
+                                _deleteBooking();
+                              }
+                            },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
@@ -150,12 +174,18 @@ class _DetailBookingState extends State<DetailBooking> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: isLoading 
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          'Hapus Data',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
+                    child:
+                        isLoading
+                            ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                            : const Text(
+                              'Hapus Data',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                   ),
                 ),
               ],
@@ -180,13 +210,7 @@ class _DetailBookingState extends State<DetailBooking> {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
-        ),
+        Text(value, style: const TextStyle(fontSize: 16, color: Colors.grey)),
       ],
     );
   }
