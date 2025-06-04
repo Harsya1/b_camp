@@ -18,6 +18,8 @@ import '../login_register_section/login_action.dart' as loginAction;
 import '../booking_section/crud_booking.dart' as crudBooking;
 import '../booking_section/placeholder_booking.dart' as placeholderBooking;
 import '../booking_section/input_data.dart' as inputData;
+import '../booking_section/detail_booking.dart' as detailBooking;
+import '../booking_section/edit_booking.dart' as editBooking;
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -159,6 +161,26 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder:
               (context) => detailKamar.DetailKamar(kamarId: args['kamar_id']),
+        );
+
+      // ROUTE untuk BOOKING SECTION
+      case '/detail_booking':
+        final booking = settings.arguments;
+        if (booking == null) {
+          throw Exception('Booking data is required');
+        }
+        return MaterialPageRoute(
+          builder: (context) => detailBooking.DetailBooking(),
+          settings: settings,
+        );
+      case '/edit_booking':
+        final booking = settings.arguments;
+        if (booking == null) {
+          throw Exception('Booking data is required');
+        }
+        return MaterialPageRoute(
+          builder: (context) => editBooking.EditBooking(),
+          settings: settings,
         );
 
       default:

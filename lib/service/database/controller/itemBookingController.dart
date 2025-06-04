@@ -106,33 +106,74 @@ class ItemBookingController {
     }
   }
 
+  // Get all bookings
+  static Future<List<Map<String, dynamic>>> getAllBookings() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/booking-calendar'),
+        headers: await _getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return List<Map<String, dynamic>>.from(data['data']);
+      } else {
+        throw Exception('Failed to load bookings');
+      }
+    } catch (e) {
+      throw Exception('Error fetching bookings: $e');
+    }
+  }
+
   // Get kamar detail for booking
   static Future<Map<String, dynamic>> getKamarDetail(int kamarId) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-
-      if (token == null) throw Exception('Authentication required');
-
       final response = await http.get(
-        Uri.parse('$baseUrl/booking-calendar/kamar/$kamarId'),
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        Uri.parse('$baseUrl/kamar/$kamarId'),
+        headers: await _getHeaders(),
       );
 
-      print('Get Kamar Detail Status: ${response.statusCode}');
-      print('Get Kamar Detail Response: ${response.body}');
-
       if (response.statusCode == 200) {
-        return jsonDecode(response.body)['data'];
+        final data = json.decode(response.body);
+        return data['data'];
       } else {
-        throw Exception('Failed to get kamar detail');
+        throw Exception('Failed to load kamar detail');
       }
     } catch (e) {
-      print('Error getting kamar detail: $e');
-      rethrow;
+      throw Exception('Error fetching kamar detail: $e');
+    }
+  }
+
+  // Update booking
+  static Future<void> updateBooking(int bookingId, Map<String, dynamic> data) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/booking-calendar/$bookingId'),
+        headers: await _getHeaders(),
+        body: json.encode(data),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update booking');
+      }
+    } catch (e) {
+      throw Exception('Error updating booking: $e');
+    }
+  }
+
+  // Delete booking
+  static Future<void> deleteBooking(int bookingId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/booking-calendar/$bookingId'),
+        headers: await _getHeaders(),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to delete booking');
+      }
+    } catch (e) {
+      throw Exception('Error deleting booking: $e');
     }
   }
 
@@ -326,5 +367,15 @@ class ItemBookingController {
       print('Error getting rooms with availability: $e');
       rethrow;
     }
+  }
+
+  static Future<Map<String, String>> _getHeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    return {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
   }
 }
