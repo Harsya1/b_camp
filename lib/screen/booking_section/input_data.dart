@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:b_camp/service/database/controller/itemBookingController.dart';
 import 'package:b_camp/screen/camp_section/camp_detail.dart';
+import 'package:intl/intl.dart';
 
 class InputData extends StatefulWidget {
   final int kamarId;
@@ -21,6 +22,11 @@ class _InputDataState extends State<InputData> {
   DateTime checkOutDate = DateTime.now().add(const Duration(days: 1));
   final quantityController = TextEditingController(text: '1');
   bool isLoading = false;
+  final _currencyFormatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  );
 
   Future<void> _selectDate(BuildContext context, bool isCheckIn) async {
     final DateTime now = DateTime.now();
@@ -262,7 +268,13 @@ class _InputDataState extends State<InputData> {
                                                               ),
                                                             ),
                                                             Text(
-                                                              'Rp ${widget.kamarDetail['harga']?.toString() ?? '0'}',
+                                                              _currencyFormatter.format(
+                                                                double.tryParse(
+                                                                      widget.kamarDetail['harga'] ??
+                                                                          '0',
+                                                                    ) ??
+                                                                    0,
+                                                              ),
                                                               style: const TextStyle(
                                                                 fontSize: 20,
                                                                 fontWeight:

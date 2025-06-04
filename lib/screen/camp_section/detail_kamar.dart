@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:b_camp/service/database/controller/itemKamarController.dart';
+import 'package:intl/intl.dart';
 
 class DetailKamar extends StatefulWidget {
   final int kamarId;
@@ -14,6 +15,11 @@ class _DetailKamarState extends State<DetailKamar> {
   bool isLoading = true;
   bool isDeleting = false;
   Map<String, dynamic>? kamarData;
+  final _currencyFormatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  );
 
   @override
   void initState() {
@@ -134,7 +140,7 @@ class _DetailKamarState extends State<DetailKamar> {
                                     ),
                                   ),
                                   Text(
-                                    'Rp ${kamarData!['harga']?.toString() ?? '0'}',
+                                    _currencyFormatter.format(double.tryParse( kamarData!['harga'] ?? '0') ?? 0,),
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -209,7 +215,6 @@ class _DetailKamarState extends State<DetailKamar> {
                                   ),
                                 ),
                               ],
-
                               // Add bottom padding to prevent overlap with bottom buttons
                               const SizedBox(height: 150),
                             ],
@@ -233,7 +238,6 @@ class _DetailKamarState extends State<DetailKamar> {
                   ),
                 ],
               ),
-      // Bottom buttons positioned at the bottom
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -270,7 +274,6 @@ class _DetailKamarState extends State<DetailKamar> {
               ),
             ),
             const SizedBox(height: 10),
-
             // Delete Button
             SizedBox(
               width: double.infinity,

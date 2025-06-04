@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:b_camp/service/database/controller/itemKamarController.dart';
+import 'package:intl/intl.dart';
 
 class ListKamar extends StatefulWidget {
   final int campId;
@@ -15,6 +16,11 @@ class ListKamar extends StatefulWidget {
 class _ListKamarState extends State<ListKamar> {
   bool isLoading = true;
   List<Map<String, dynamic>> kamarList = [];
+  final _currencyFormatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  );
 
   @override
   void initState() {
@@ -173,7 +179,9 @@ class _ListKamarState extends State<ListKamar> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Rp ${kamar['harga']?.toString() ?? '0'}',
+                    _currencyFormatter.format(
+                      double.tryParse(kamar['harga'] ?? '0') ?? 0,
+                    ),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
