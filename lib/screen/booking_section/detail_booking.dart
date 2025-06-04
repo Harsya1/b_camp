@@ -14,29 +14,41 @@ class DetailBooking extends StatefulWidget {
 class _DetailBookingState extends State<DetailBooking> {
   late Booking booking;
   String kamarInfo = 'Loading...';
+  String campInfo = 'Loading...';
   bool isLoading = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     booking = ModalRoute.of(context)!.settings.arguments as Booking;
-    _loadKamarInfo();
+    _loadBookingInfo();
   }
 
-  Future<void> _loadKamarInfo() async {
+  Future<void> _loadBookingInfo() async {
     try {
-      final kamarData = await ItemBookingController.getKamarDetail(
-        booking.kamarId,
-      );
+      final bookingDetail = await ItemBookingController.getBookingDetail(booking.id);
       if (mounted) {
         setState(() {
-          kamarInfo = kamarData['nama_kamar'] ?? 'Unknown Room';
+          // Set kamar info
+          if (bookingDetail['kamar_info'] != null) {
+            kamarInfo = bookingDetail['kamar_info']['nama_kamar'] ?? 'Unknown Room';
+          } else {
+            kamarInfo = 'Room ID: ${booking.kamarId}';
+          }
+          
+          // Set camp info
+          if (bookingDetail['camp_info'] != null) {
+            campInfo = bookingDetail['camp_info']['nama_camp'] ?? 'Unknown Camp';
+          } else {
+            campInfo = 'Unknown Camp';
+          }
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           kamarInfo = 'Room ID: ${booking.kamarId}';
+          campInfo = 'Unknown Camp';
         });
       }
     }
@@ -50,7 +62,7 @@ class _DetailBookingState extends State<DetailBooking> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Booking berhasil dihapus')),
         );
-        Navigator.pop(context);
+        Navigator.pop(context, true); // Return true to indicate deletion
       }
     } catch (e) {
       if (mounted) {
@@ -88,7 +100,9 @@ class _DetailBookingState extends State<DetailBooking> {
             const SizedBox(height: 30),
             _buildInfoRow('Gender', booking.gender),
             const SizedBox(height: 30),
-            _buildInfoRow('Nomor kamar', kamarInfo),
+            _buildInfoRow('Nama camp', campInfo),
+            const SizedBox(height: 30),
+            _buildInfoRow('Nama kamar', kamarInfo),
             const SizedBox(height: 30),
             _buildInfoRow(
               'Tanggal Masuk',
@@ -104,16 +118,19 @@ class _DetailBookingState extends State<DetailBooking> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed:
-                        isLoading
-                            ? null
-                            : () {
-                              Navigator.pushNamed(
-                                context,
-                                '/edit_booking',
-                                arguments: booking,
-                              );
-                            },
+                    onPressed: isLoading ? null : () async {
+                      final result = await Navigator.pushNamed(
+                        context,
+                        '/edit_booking',
+                        arguments: booking,
+                      );
+                      
+                      if (result == true) {
+                        // Refresh detail booking jika diperlukan
+                        _loadBookingInfo();
+                        Navigator.pop(context, true); // Pass result to parent
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,

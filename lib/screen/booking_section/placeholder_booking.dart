@@ -53,6 +53,12 @@ class _PlaceholderBookingState extends State<PlaceholderBooking> {
     }
   }
 
+  // Method to refresh data when returning from other screens
+  Future<void> _refreshData() async {
+    print('Refreshing placeholder booking data...');
+    await _loadData();
+  }
+
   Widget _buildKamarTypeList() {
     return ListView.builder(
       shrinkWrap: true,
@@ -65,8 +71,9 @@ class _PlaceholderBookingState extends State<PlaceholderBooking> {
             leading: const Icon(Icons.bed),
             title: Text(kamarType),
             trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(
+            onTap: () async {
+              // Navigate and wait for result
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => ListBookingKamar(
@@ -75,6 +82,11 @@ class _PlaceholderBookingState extends State<PlaceholderBooking> {
                   ),
                 ),
               );
+              
+              // If result indicates data was modified, refresh
+              if (result == true) {
+                _refreshData();
+              }
             },
           ),
         );

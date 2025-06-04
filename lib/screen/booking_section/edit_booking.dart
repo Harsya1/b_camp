@@ -12,64 +12,111 @@ class EditBooking extends StatefulWidget {
 }
 
 class _EditBookingState extends State<EditBooking> {
-  late Booking booking;
+  Booking? booking;
   DateTime? selectedCheckIn;
   DateTime? selectedCheckOut;
   String kamarInfo = 'Loading...';
+  String campInfo = 'Loading...';
   bool isLoading = false;
+  bool _isInitialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    booking = ModalRoute.of(context)!.settings.arguments as Booking;
-    selectedCheckIn = booking.checkIn;
-    selectedCheckOut = booking.checkOut;
-    _loadKamarInfo();
+    
+    // Only initialize once
+    if (!_isInitialized) {
+      booking = ModalRoute.of(context)!.settings.arguments as Booking;
+      selectedCheckIn = booking!.checkIn;
+      selectedCheckOut = booking!.checkOut;
+      print('=== INITIAL SETUP ===');
+      print('Initial selectedCheckIn: $selectedCheckIn');
+      print('Initial selectedCheckOut: $selectedCheckOut');
+      _loadBookingInfo();
+      _isInitialized = true;
+    }
   }
 
-  Future<void> _loadKamarInfo() async {
+  Future<void> _loadBookingInfo() async {
     try {
-      final kamarData = await ItemBookingController.getKamarDetail(
-        booking.kamarId,
-      );
+      final bookingDetail = await ItemBookingController.getBookingDetail(booking!.id);
       if (mounted) {
         setState(() {
-          kamarInfo = kamarData['nama_kamar'] ?? 'Unknown Room';
+          // Set kamar info
+          if (bookingDetail['kamar_info'] != null) {
+            kamarInfo = bookingDetail['kamar_info']['nama_kamar'] ?? 'Unknown Room';
+          } else {
+            kamarInfo = 'Room ID: ${booking!.kamarId}';
+          }
+          
+          // Set camp info
+          if (bookingDetail['camp_info'] != null) {
+            campInfo = bookingDetail['camp_info']['nama_camp'] ?? 'Unknown Camp';
+          } else {
+            campInfo = 'Unknown Camp';
+          }
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          kamarInfo = 'Room ID: ${booking.kamarId}';
+          kamarInfo = 'Room ID: ${booking!.kamarId}';
+          campInfo = 'Unknown Camp';
         });
       }
     }
   }
 
   Future<void> _selectDate(BuildContext context, bool isCheckIn) async {
+    print('=== DATE PICKER OPENED ===');
+    print('Current selectedCheckIn: $selectedCheckIn');
+    print('Current selectedCheckOut: $selectedCheckOut');
+    
+    final DateTime initialDate = isCheckIn ? selectedCheckIn! : selectedCheckOut!;
+    
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isCheckIn ? selectedCheckIn! : selectedCheckOut!,
+      initialDate: initialDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
+    
     if (picked != null) {
+      print('=== DATE PICKED ===');
+      print('Picked date: $picked for ${isCheckIn ? "check-in" : "check-out"}');
+      
       setState(() {
         if (isCheckIn) {
           selectedCheckIn = picked;
+          print('NEW selectedCheckIn: $selectedCheckIn');
           // If check-in is after check-out, update check-out
           if (selectedCheckOut!.isBefore(picked)) {
             selectedCheckOut = picked.add(const Duration(days: 1));
+            print('Auto-updated selectedCheckOut: $selectedCheckOut');
           }
         } else {
           selectedCheckOut = picked;
+          print('NEW selectedCheckOut: $selectedCheckOut');
         }
       });
+      
+      print('=== AFTER setState ===');
+      print('Final selectedCheckIn: $selectedCheckIn');
+      print('Final selectedCheckOut: $selectedCheckOut');
+    } else {
+      print('No date was picked');
     }
   }
 
   Future<void> _updateBooking() async {
+    print('=== UPDATE BOOKING DEBUG ===');
+    print('selectedCheckIn: $selectedCheckIn');
+    print('selectedCheckOut: $selectedCheckOut');
+    print('booking.checkIn (original): ${booking!.checkIn}');
+    print('booking.checkOut (original): ${booking!.checkOut}');
+
     if (selectedCheckIn == null || selectedCheckOut == null) {
+      print('ERROR: One of the dates is null');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select both check-in and check-out dates'),
@@ -80,6 +127,7 @@ class _EditBookingState extends State<EditBooking> {
 
     if (selectedCheckOut!.isBefore(selectedCheckIn!) ||
         selectedCheckOut!.isAtSameMomentAs(selectedCheckIn!)) {
+      print('ERROR: Invalid date range');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Check-out date must be after check-in date'),
@@ -90,17 +138,27 @@ class _EditBookingState extends State<EditBooking> {
 
     try {
       setState(() => isLoading = true);
-      await ItemBookingController.updateBooking(booking.id, {
+      
+      final updateData = {
         'start_date': DateFormat('yyyy-MM-dd').format(selectedCheckIn!),
         'end_date': DateFormat('yyyy-MM-dd').format(selectedCheckOut!),
-      });
+      };
+      
+      print('Update data to send: $updateData');
+      print('Booking ID: ${booking!.id}');
+      
+      await ItemBookingController.updateBooking(booking!.id, updateData);
+      
+      print('Update request completed successfully');
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Booking berhasil diupdate')),
         );
-        Navigator.pop(context);
+        Navigator.pop(context, true); // Return true to indicate success
       }
     } catch (e) {
+      print('Error in _updateBooking: $e');
       if (mounted) {
         setState(() => isLoading = false);
         ScaffoldMessenger.of(
@@ -112,6 +170,12 @@ class _EditBookingState extends State<EditBooking> {
 
   @override
   Widget build(BuildContext context) {
+    if (booking == null || selectedCheckIn == null || selectedCheckOut == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: '#f2f2f2'.toColor(),
       appBar: AppBar(
@@ -122,7 +186,7 @@ class _EditBookingState extends State<EditBooking> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Detail Data Booking',
+          'Edit Data Booking',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -132,21 +196,72 @@ class _EditBookingState extends State<EditBooking> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow('Nama', booking.name),
+            _buildInfoRow('Nama', booking!.name),
             const SizedBox(height: 30),
-            _buildInfoRow('Gender', booking.gender),
+            _buildInfoRow('Gender', booking!.gender),
+            const SizedBox(height: 30),
+            _buildInfoRow('Nama camp', campInfo),
             const SizedBox(height: 30),
             _buildInfoRow('Nomor kamar', kamarInfo),
             const SizedBox(height: 30),
-            _buildDateSelector(
-              'Tanggal Masuk: ${DateFormat('dd/MM/yyyy').format(selectedCheckIn!)}',
-              () => _selectDate(context, true),
+            
+            // Check-in date selector
+            GestureDetector(
+              onTap: () {
+                print('Check-in date selector tapped');
+                _selectDate(context, true);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'Tanggal Masuk: ${DateFormat('dd/MM/yyyy').format(selectedCheckIn!)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const Spacer(),
+                    const Icon(Icons.calendar_today, color: Colors.black),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 30),
-            _buildDateSelector(
-              'Tanggal Keluar: ${DateFormat('dd/MM/yyyy').format(selectedCheckOut!)}',
-              () => _selectDate(context, false),
+            
+            // Check-out date selector
+            GestureDetector(
+              onTap: () {
+                print('Check-out date selector tapped');
+                _selectDate(context, false);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'Tanggal Keluar: ${DateFormat('dd/MM/yyyy').format(selectedCheckOut!)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const Spacer(),
+                    const Icon(Icons.calendar_today, color: Colors.black),
+                  ],
+                ),
+              ),
             ),
+            
             const Spacer(),
             SizedBox(
               width: double.infinity,
@@ -196,27 +311,3 @@ class _EditBookingState extends State<EditBooking> {
       ],
     );
   }
-
-  Widget _buildDateSelector(String text, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Row(
-          children: [
-            Text(
-              text,
-              style: const TextStyle(fontSize: 16, color: Colors.black),
-            ),
-            const Spacer(),
-            const Icon(Icons.calendar_today, color: Colors.black),
-          ],
-        ),
-      ),
-    );
-  }
-}
