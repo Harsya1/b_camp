@@ -12,6 +12,7 @@ class PlaceholderCamp extends StatefulWidget {
 
 class _PlaceholderCampState extends State<PlaceholderCamp> {
   bool isLoading = true;
+  bool isDeleting = false;
   Map<String, dynamic>? campData;
   List<String> kamarTypes = [];
 
@@ -41,6 +42,31 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
+
+  Future<void> _deleteCamp() async {
+    try {
+      setState(() => isDeleting = true);
+      final success = await ItemCampController.deleteCamp(widget.campId);
+      
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Camp berhasil dihapus')),
+          );
+          Navigator.pop(context, true); // Return true to indicate deletion
+        } else {
+          throw Exception('Failed to delete camp');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => isDeleting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error menghapus camp: $e')),
+        );
       }
     }
   }
@@ -235,6 +261,9 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
                                     );
                                   },
                                 ),
+
+                              // Add bottom padding to prevent overlap with bottom button
+                              const SizedBox(height: 100),
                             ],
                           ),
                         ),
@@ -257,6 +286,53 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
                   ),
                 ],
               ),
+      // Delete button positioned at the bottom
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(20),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: isDeleting ? null : () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Konfirmasi'),
+                  content: const Text(
+                    'Menghapus camp juga akan menghapus seluruh data kamar yang tersedia\nApakah anda yakin ingin menghapusnya ?'
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Batal'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Hapus'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true) {
+                _deleteCamp();
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            child: isDeleting 
+              ? const CircularProgressIndicator(color: Colors.white)
+              : const Text(
+                  'Hapus Camp',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+          ),
+        ),
+      ),
     );
   }
 }
