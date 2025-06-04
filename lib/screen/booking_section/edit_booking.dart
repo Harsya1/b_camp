@@ -118,16 +118,20 @@ class _EditBookingState extends State<EditBooking> {
     if (selectedCheckIn == null || selectedCheckOut == null) {
       print('ERROR: One of the dates is null');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select both check-in and check-out dates')),
+        const SnackBar(
+          content: Text('Please select both check-in and check-out dates'),
+        ),
       );
       return;
     }
 
-    if (selectedCheckOut!.isBefore(selectedCheckIn!) || 
+    if (selectedCheckOut!.isBefore(selectedCheckIn!) ||
         selectedCheckOut!.isAtSameMomentAs(selectedCheckIn!)) {
       print('ERROR: Invalid date range');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Check-out date must be after check-in date')),
+        const SnackBar(
+          content: Text('Check-out date must be after check-in date'),
+        ),
       );
       return;
     }
@@ -157,9 +161,9 @@ class _EditBookingState extends State<EditBooking> {
       print('Error in _updateBooking: $e');
       if (mounted) {
         setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -271,12 +275,16 @@ class _EditBookingState extends State<EditBooking> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: isLoading 
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                      'Simpan Data',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                child:
+                    isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          'Simpan Data',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
               ),
             ),
             const SizedBox(height: 30),
@@ -299,14 +307,7 @@ class _EditBookingState extends State<EditBooking> {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
-        ),
+        Text(value, style: const TextStyle(fontSize: 16, color: Colors.grey)),
       ],
     );
   }
-}
