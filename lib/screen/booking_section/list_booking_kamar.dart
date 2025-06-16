@@ -59,6 +59,7 @@ class _ListBookingKamarState extends State<ListBookingKamar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Kamar ${widget.kamarType}'),
         backgroundColor: Colors.white,
@@ -101,6 +102,7 @@ class _ListBookingKamarState extends State<ListBookingKamar> {
         );
       },
       child: Card(
+        color: Colors.white,
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Column(

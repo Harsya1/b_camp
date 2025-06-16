@@ -53,7 +53,9 @@ class _ListKamarState extends State<ListKamar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF2F2F2),
       appBar: AppBar(
+        backgroundColor: Color(0xFFF2F2F2),
         title: Text('Kamar Tipe ${widget.type}'),
         actions: [
           IconButton(
@@ -129,6 +131,7 @@ class _ListKamarState extends State<ListKamar> {
       },
       child: Card(
         elevation: 3,
+        color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

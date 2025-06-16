@@ -74,6 +74,7 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())

@@ -124,6 +124,7 @@ class _CrudCampState extends State<CrudCamp> {
         ).then((value) => _loadCamps());
       },
       child: Card(
+        color: Colors.white,
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Column(

@@ -101,6 +101,7 @@ class _CreateCampState extends State<CreateCamp> {
     final monochrome = Colors.white;
 
     return Scaffold(
+      backgroundColor: monochrome,
       appBar: AppBar(
         title: const Text('Tambah Data Camp'),
         backgroundColor: monochrome,
