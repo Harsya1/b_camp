@@ -179,6 +179,7 @@ class _InputDataState extends State<InputData> {
                                 MaterialPageRoute(
                                   builder:
                                       (context) => Scaffold(
+                                        backgroundColor: Colors.white,
                                         body: Stack(
                                           children: [
                                             SingleChildScrollView(

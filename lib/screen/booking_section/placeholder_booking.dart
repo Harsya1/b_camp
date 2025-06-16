@@ -67,6 +67,7 @@ class _PlaceholderBookingState extends State<PlaceholderBooking> {
       itemBuilder: (context, index) {
         final kamarType = kamarTypes[index];
         return Card(
+          color: Colors.white,
           child: ListTile(
             leading: const Icon(Icons.bed),
             title: Text(kamarType),
@@ -98,6 +99,7 @@ class _PlaceholderBookingState extends State<PlaceholderBooking> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF2F2F2),
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
