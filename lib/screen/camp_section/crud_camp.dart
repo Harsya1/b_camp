@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:b_camp/screen/routes/app_drawer.dart';
 import 'package:b_camp/service/database/controller/itemCampController.dart';
+import 'package:b_camp/service/database/controller/itemKamarController.dart';
 
 class CrudCamp extends StatefulWidget {
   const CrudCamp({Key? key}) : super(key: key);
@@ -12,7 +13,21 @@ class CrudCamp extends StatefulWidget {
 
 class _CrudCampState extends State<CrudCamp> {
   List<Map<String, dynamic>> camps = [];
+  List<Map<String, dynamic>> filteredCamps = [];
   bool isLoading = true;
+  String selectedFilter = 'Semua';
+
+  // Deklarasi filters cukup sekali saja di sini
+  final List<String> filters = [
+    'Semua',
+    'Regular',
+    'Regular+',
+    'Homestay',
+    'Homestay+',
+    'VIP',
+  ];
+
+  Map<int, List<String>> campKamarTypes = {}; // Tambahkan ini untuk menyimpan tipe kamar
 
   @override
   void initState() {
@@ -23,19 +38,81 @@ class _CrudCampState extends State<CrudCamp> {
   Future<void> _loadCamps() async {
     try {
       setState(() => isLoading = true);
+      // Ambil semua camp terlebih dahulu
       final campData = await ItemCampController.getCamps();
+      
+      // Ambil tipe kamar untuk setiap camp
+      for (var camp in campData) {
+        final types = await ItemKamarController.getKamarTypesByCamp(camp['id']);
+        campKamarTypes[camp['id']] = types;
+      }
+
       setState(() {
         camps = campData;
+        _applyFilter(selectedFilter); // Terapkan filter setelah data lengkap
         isLoading = false;
       });
     } catch (e) {
       setState(() => isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
       }
     }
+  }
+
+  // Update fungsi _applyFilter
+  void _applyFilter(String tipe) {
+    setState(() {
+      selectedFilter = tipe;
+      if (tipe.toLowerCase() == 'semua') {
+        filteredCamps = List.from(camps);
+      } else {
+        // Filter camps berdasarkan tipe kamar
+        filteredCamps = camps.where((camp) {
+          List<String> types = campKamarTypes[camp['id']] ?? [];
+          return types.any((t) => t.toLowerCase() == tipe.toLowerCase());
+        }).toList();
+      }
+    });
+  }
+
+  // Update fungsi _showFilterDialog
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Filter Tipe Kamar'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children:
+                  filters.map((filter) {
+                    return RadioListTile<String>(
+                      title: Text(filter),
+                      value: filter,
+                      groupValue: selectedFilter,
+                      onChanged: (value) {
+                        Navigator.pop(context);
+                        if (value != null) {
+                          _applyFilter(value);
+                        }
+                      },
+                    );
+                  }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Tutup'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -79,7 +156,7 @@ class _CrudCampState extends State<CrudCamp> {
                     const SizedBox(height: 20),
                     if (isLoading)
                       const Center(child: CircularProgressIndicator())
-                    else if (camps.isEmpty)
+                    else if (filteredCamps.isEmpty)
                       const Center(
                         child: Image(
                           height: 160,
@@ -100,9 +177,10 @@ class _CrudCampState extends State<CrudCamp> {
                               mainAxisSpacing: 10,
                               mainAxisExtent: 250,
                             ),
-                        itemCount: camps.length,
+                        itemCount: filteredCamps.length,
                         itemBuilder:
-                            (context, index) => _buildCampCard(camps[index]),
+                            (context, index) =>
+                                _buildCampCard(filteredCamps[index]),
                       ),
                   ],
                 ),
@@ -114,7 +192,10 @@ class _CrudCampState extends State<CrudCamp> {
     );
   }
 
+  // Update _buildCampCard untuk menampilkan tipe kamar
   Widget _buildCampCard(Map<String, dynamic> camp) {
+    List<String> types = campKamarTypes[camp['id']] ?? [];
+    
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
@@ -128,7 +209,6 @@ class _CrudCampState extends State<CrudCamp> {
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
@@ -176,7 +256,7 @@ class _CrudCampState extends State<CrudCamp> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Text(
                     'Max Kamar: ${camp['jumlah_maksimal_kamar']?.toString() ?? '0'}',
                     style: TextStyle(fontSize: 12, color: Colors.grey[800]),
@@ -194,6 +274,7 @@ class _CrudCampState extends State<CrudCamp> {
     return Container(
       padding: const EdgeInsets.all(20),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Builder(
             builder:
@@ -202,10 +283,13 @@ class _CrudCampState extends State<CrudCamp> {
                   onPressed: () => Scaffold.of(context).openDrawer(),
                 ),
           ),
-          const SizedBox(width: 8),
           const Text(
             'Kelola Camp',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: _showFilterDialog,
           ),
         ],
       ),
