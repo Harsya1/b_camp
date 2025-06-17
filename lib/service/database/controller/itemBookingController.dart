@@ -25,22 +25,64 @@ class ItemBookingController {
         Uri.parse('$baseUrl/camp'),
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('Get Camps Status: ${response.statusCode}');
-      print('Get Camps Response: ${response.body}');
+      print('Get All Camps Status: ${response.statusCode}');
+      print('Get All Camps Response: ${response.body}');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        return List<Map<String, dynamic>>.from(data);
+        final data = json.decode(response.body);
+        // Handle both old and new response formats
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        } else if (data is Map && data['data'] != null) {
+          return List<Map<String, dynamic>>.from(data['data']);
+        }
+        return [];
       } else {
-        throw Exception('Failed to load camps');
+        throw Exception('Failed to load camps: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error getting camps: $e');
-      rethrow;
+      print('Error fetching camps: $e');
+      throw Exception('Error fetching camps: $e');
+    }
+  }
+
+  // Get all kamars - Add this method for screen_booking_data.dart
+  static Future<List<Map<String, dynamic>>> getAllKamars() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) throw Exception('Authentication required');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/kamar'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Get All Kamars Status: ${response.statusCode}');
+      print('Get All Kamars Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is Map && data['data'] != null) {
+          return List<Map<String, dynamic>>.from(data['data']);
+        }
+        return [];
+      } else {
+        throw Exception('Failed to load kamars: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching kamars: $e');
+      throw Exception('Error fetching kamars: $e');
     }
   }
 
@@ -106,8 +148,8 @@ class ItemBookingController {
     }
   }
 
-  // Get kamar detail for booking
-  static Future<Map<String, dynamic>> getKamarDetail(int kamarId) async {
+  // Get all bookings
+  static Future<List<Map<String, dynamic>>> getAllBookings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
@@ -115,24 +157,177 @@ class ItemBookingController {
       if (token == null) throw Exception('Authentication required');
 
       final response = await http.get(
-        Uri.parse('$baseUrl/booking-calendar/kamar/$kamarId'),
+        Uri.parse('$baseUrl/booking-calendar'),
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
+      );
+
+      print('Get All Bookings Status: ${response.statusCode}');
+      print('Get All Bookings Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        
+        // Debug: Print data structure
+        print('Response data structure: ${data.runtimeType}');
+        print('Data keys: ${data.keys}');
+        
+        // Check if data has the expected structure
+        if (data is Map && data['status'] == true && data['data'] != null) {
+          final bookings = data['data'];
+          print('Bookings type: ${bookings.runtimeType}');
+          print('Bookings length: ${bookings.length}');
+          
+          if (bookings is List) {
+            return List<Map<String, dynamic>>.from(bookings);
+          } else {
+            throw Exception('Data is not a list: ${bookings.runtimeType}');
+          }
+        } else if (data is Map && data['data'] != null) {
+          // Alternative format
+          return List<Map<String, dynamic>>.from(data['data']);
+        } else {
+          throw Exception('Invalid response structure: $data');
+        }
+      } else {
+        throw Exception('Failed to load bookings: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in getAllBookings: $e');
+      throw Exception('Error fetching bookings: $e');
+    }
+  }
+
+  // Get all bookings with kamar and camp relationships
+  static Future<List<Map<String, dynamic>>> getAllBookingsWithDetails() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) throw Exception('Authentication required');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/booking-calendar?include=kamar,kamar.camp'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Get Bookings With Details Status: ${response.statusCode}');
+      print('Get Bookings With Details Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        
+        if (data is Map && data['status'] == true && data['data'] != null) {
+          final bookings = data['data'];
+          if (bookings is List) {
+            return List<Map<String, dynamic>>.from(bookings);
+          }
+        } else if (data is Map && data['data'] != null) {
+          return List<Map<String, dynamic>>.from(data['data']);
+        }
+        return [];
+      } else {
+        throw Exception('Failed to load bookings with details: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in getAllBookingsWithDetails: $e');
+      // Fallback to regular getAllBookings
+      return await getAllBookings();
+    }
+  }
+
+  // Get kamar detail for booking
+  static Future<Map<String, dynamic>> getKamarDetail(int kamarId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/kamar/$kamarId'),
+        headers: await _getHeaders(),
       );
 
       print('Get Kamar Detail Status: ${response.statusCode}');
       print('Get Kamar Detail Response: ${response.body}');
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body)['data'];
+        final data = json.decode(response.body);
+        return data['data'];
       } else {
-        throw Exception('Failed to get kamar detail');
+        throw Exception('Failed to load kamar detail: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error getting kamar detail: $e');
-      rethrow;
+      print('Error fetching kamar detail: $e');
+      throw Exception('Error fetching kamar detail: $e');
+    }
+  }
+
+  // Update booking
+  static Future<void> updateBooking(int bookingId, Map<String, dynamic> data) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      print('=== BOOKING UPDATE REQUEST ===');
+      print('Booking ID: $bookingId');
+      print('Update data: $data');
+      print('Token exists: ${token != null}');
+      print('URL: $baseUrl/booking-calendar/$bookingId');
+
+      if (token == null) throw Exception('Authentication required');
+
+      final headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      print('Headers: $headers');
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/booking-calendar/$bookingId'),
+        headers: headers,
+        body: json.encode(data),
+      );
+
+      print('=== BOOKING UPDATE RESPONSE ===');
+      print('Status Code: ${response.statusCode}');
+      print('Response Headers: ${response.headers}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        print('✅ Booking updated successfully');
+        final responseData = json.decode(response.body);
+        print('Response data: $responseData');
+      } else {
+        print('❌ Update failed with status: ${response.statusCode}');
+        final errorData = json.decode(response.body);
+        print('Error data: $errorData');
+        throw Exception(errorData['message'] ?? 'Failed to update booking: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Exception in updateBooking: $e');
+      throw Exception('Error updating booking: $e');
+    }
+  }
+
+  // Delete booking
+  static Future<void> deleteBooking(int bookingId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/booking-calendar/$bookingId'),
+        headers: await _getHeaders(),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to delete booking');
+      }
+    } catch (e) {
+      throw Exception('Error deleting booking: $e');
     }
   }
 
@@ -212,6 +407,8 @@ class ItemBookingController {
   // Get all camp types with rooms for calendar view
   static Future<List<Map<String, dynamic>>> getAllCampTypesForCalendar() async {
     try {
+      print('\n=== Getting Camp Types for Calendar ===');
+      
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
 
@@ -219,25 +416,35 @@ class ItemBookingController {
 
       // Get all camps first
       final camps = await getAllCamps();
+      print('Got ${camps.length} camps for calendar');
+      
       List<Map<String, dynamic>> result = [];
 
       // For each camp, get its types
       for (var camp in camps) {
-        final types = await getKamarTypesByCamp(camp['id']);
-        if (types.isNotEmpty) {
-          result.add({
-            'camp_id': camp['id'],
-            'camp_name': camp['nama_camp'],
-            'types': types
-          });
+        try {
+          print('Getting types for camp: ${camp['nama_camp']}');
+          final types = await getKamarTypesByCamp(camp['id']);
+          print('Found ${types.length} types for camp ${camp['nama_camp']}');
+          
+          if (types.isNotEmpty) {
+            result.add({
+              'camp_id': camp['id'],
+              'camp_name': camp['nama_camp'],
+              'types': types
+            });
+          }
+        } catch (e) {
+          print('Error getting types for camp ${camp['id']}: $e');
+          // Continue with next camp
         }
       }
 
-      print('Loaded calendar data: ${result.length} camps');
+      print('Final result: ${result.length} camps with types');
       return result;
     } catch (e) {
-      print('Error getting camp types for calendar: $e');
-      rethrow;
+      print('Error in getAllCampTypesForCalendar: $e');
+      return [];
     }
   }
 
@@ -326,5 +533,48 @@ class ItemBookingController {
       print('Error getting rooms with availability: $e');
       rethrow;
     }
+  }
+
+  // Get booking detail with camp info
+  static Future<Map<String, dynamic>> getBookingDetail(int bookingId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) throw Exception('Authentication required');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/booking-calendar/$bookingId'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Get Booking Detail Status: ${response.statusCode}');
+      print('Get Booking Detail Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['data'];
+      } else {
+        throw Exception('Failed to load booking detail: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching booking detail: $e');
+      throw Exception('Error fetching booking detail: $e');
+    }
+  }
+
+  static Future<Map<String, String>> _getHeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    return {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
   }
 }

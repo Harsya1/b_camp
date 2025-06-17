@@ -6,6 +6,7 @@ import '../booking_section/input_data.dart' as inputdata;
 import '../camp_section/create_camp.dart' as create;
 import '../booking_section/placeholder_booking.dart' as booking;
 import '../camp_section/placeholder_camp.dart' as placecamp;
+import '../booking_section/screen_booking_data.dart' as bookingdata;
 import '../booking_section/list_booking_kamar.dart' as listBookingKamar;
 import '../camp_section/edit_camp.dart' as editCamp;
 import '../camp_section/edit_kamar.dart' as editKamar;
@@ -17,6 +18,8 @@ import '../login_register_section/login_action.dart' as loginAction;
 import '../booking_section/crud_booking.dart' as crudBooking;
 import '../booking_section/placeholder_booking.dart' as placeholderBooking;
 import '../booking_section/input_data.dart' as inputData;
+import '../booking_section/detail_booking.dart' as detailBooking;
+import '../booking_section/edit_booking.dart' as editBooking;
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -31,14 +34,19 @@ class RouteGenerator {
           throw Exception('Camp ID and type are required');
         }
         return MaterialPageRoute(
-          builder: (context) => listBookingKamar.ListBookingKamar(
-            campId: args['camp_id'],
-            kamarType: args['type'],
-          ),
+          builder:
+              (context) => listBookingKamar.ListBookingKamar(
+                campId: args['camp_id'],
+                kamarType: args['type'],
+              ),
         );
       case '/dashboard_camp':
         return MaterialPageRoute(
           builder: (context) => const campt.CrudBooking(),
+        );
+      case '/bookingdata':
+        return MaterialPageRoute(
+          builder: (context) => const bookingdata.ScreenBooking(),
         );
       case '/crud_booking':
         return MaterialPageRoute(
@@ -46,25 +54,31 @@ class RouteGenerator {
         );
       case '/booking_section':
         final args = settings.arguments as Map<String, dynamic>?;
-        if (args == null || args['camp_id'] == null || args['camp_data'] == null) {
+        if (args == null ||
+            args['camp_id'] == null ||
+            args['camp_data'] == null) {
           throw Exception('Camp ID and camp data are required');
         }
         return MaterialPageRoute(
-          builder: (context) => placeholderBooking.PlaceholderBooking(
-            campId: args['camp_id'],
-            campData: args['camp_data'],
-          ),
+          builder:
+              (context) => placeholderBooking.PlaceholderBooking(
+                campId: args['camp_id'],
+                campData: args['camp_data'],
+              ),
         );
       case '/input_data':
         final args = settings.arguments as Map<String, dynamic>?;
-        if (args == null || args['kamar_id'] == null || args['kamar_detail'] == null) {
+        if (args == null ||
+            args['kamar_id'] == null ||
+            args['kamar_detail'] == null) {
           throw Exception('Kamar ID and kamar detail are required');
         }
         return MaterialPageRoute(
-          builder: (context) => inputData.InputData(
-            kamarId: args['kamar_id'],
-            kamarDetail: args['kamar_detail'],
-          ),
+          builder:
+              (context) => inputData.InputData(
+                kamarId: args['kamar_id'],
+                kamarDetail: args['kamar_detail'],
+              ),
         );
       case '/create_camp':
         return MaterialPageRoute(
@@ -147,6 +161,26 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder:
               (context) => detailKamar.DetailKamar(kamarId: args['kamar_id']),
+        );
+
+      // ROUTE untuk BOOKING SECTION
+      case '/detail_booking':
+        final booking = settings.arguments;
+        if (booking == null) {
+          throw Exception('Booking data is required');
+        }
+        return MaterialPageRoute(
+          builder: (context) => detailBooking.DetailBooking(),
+          settings: settings,
+        );
+      case '/edit_booking':
+        final booking = settings.arguments;
+        if (booking == null) {
+          throw Exception('Booking data is required');
+        }
+        return MaterialPageRoute(
+          builder: (context) => editBooking.EditBooking(),
+          settings: settings,
         );
 
       default:

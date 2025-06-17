@@ -13,6 +13,7 @@ class PlaceholderCamp extends StatefulWidget {
 
 class _PlaceholderCampState extends State<PlaceholderCamp> {
   bool isLoading = true;
+  bool isDeleting = false;
   Map<String, dynamic>? campData;
   List<String> kamarTypes = [];
 
@@ -41,6 +42,31 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
+
+  Future<void> _deleteCamp() async {
+    try {
+      setState(() => isDeleting = true);
+      final success = await ItemCampController.deleteCamp(widget.campId);
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Camp berhasil dihapus')),
+          );
+          Navigator.pop(context, true); // Return true to indicate deletion
+        } else {
+          throw Exception('Failed to delete camp');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => isDeleting = false);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error menghapus camp: $e')));
       }
     }
   }
@@ -80,6 +106,44 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
                                         ),
                                       );
                                     },
+=======
+                children: [
+                  SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Gambar tanpa padding
+                        ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
+                          child:
+                              campData!['gambar_camp'] != null
+                                  ? InteractiveViewer(
+                                    minScale: 1.0,
+                                    maxScale: 5.0,
+                                    child: Image.network(
+                                      '${ItemCampController.imageBaseUrl}/${campData!['gambar_camp']}',
+                                      width: double.infinity,
+                                      height: 300,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Container(
+                                          height: 200,
+                                          color: Colors.grey[300],
+                                          child: const Icon(
+                                            Icons.broken_image,
+                                            size: 50,
+                                          ),
+                                        );
+                                      },
+                                    ),
+>>>>>>> c30211e1b0751ddc39f64b188239394ad6796b6f
                                   )
                                 : Container(
                                     height: 200,
@@ -165,6 +229,7 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
                                           if (value == true) _loadCampData();
                                         });
                                       },
+
                                       icon: const Icon(
                                         Icons.edit,
                                         color: Colors.black,
@@ -174,6 +239,19 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
                                         style: TextStyle(color: Colors.black),
                                       ),
                                     ),
+=======
+                                    );
+                                  },
+                                ),
+
+                              // Add bottom padding to prevent overlap with bottom button
+                              const SizedBox(height: 100),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
                                     // Add Kamar Button
                                     TextButton.icon(
@@ -274,6 +352,66 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
                     ),
                   ],
                 ),
+=======
+                  ),
+                ],
+              ),
+      // Delete button positioned at the bottom
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(20),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed:
+                isDeleting
+                    ? null
+                    : () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: const Text('Konfirmasi'),
+                              content: const Text(
+                                'Menghapus camp juga akan menghapus seluruh data kamar yang tersedia\nApakah anda yakin ingin menghapusnya ?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.pop(context, false),
+                                  child: const Text('Batal'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Hapus'),
+                                ),
+                              ],
+                            ),
+                      );
+                      if (confirm == true) {
+                        _deleteCamp();
+                      }
+                    },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            child:
+                isDeleting
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                      'Hapus Camp',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -7,11 +7,8 @@ import 'package:b_camp/service/database/controller/itemKamarController.dart';
 
 class CreateKamar extends StatefulWidget {
   final int campId;
-  
-  const CreateKamar({
-    Key? key,
-    required this.campId,
-  }) : super(key: key);
+
+  const CreateKamar({Key? key, required this.campId}) : super(key: key);
 
   @override
   State<CreateKamar> createState() => _CreateKamarState();
@@ -28,9 +25,9 @@ class _CreateKamarState extends State<CreateKamar> {
   final TextEditingController _peraturanController = TextEditingController();
   final TextEditingController _hargaController = TextEditingController();
 
-  String? _selectedKategori;
   String? _selectedTipeKamar;
   String? _selectedGender;
+  String _kategori = "Brilliant"; // Set default value
 
   bool _isLoading = false;
 
@@ -85,12 +82,12 @@ class _CreateKamarState extends State<CreateKamar> {
         campId: widget.campId,
         namaKamar: _namaKamarController.text,
         typeKamar: _selectedTipeKamar!,
-        kategori: _selectedKategori!,
+        kategori: _kategori, // Use the fixed kategori value
         gender: _selectedGender!,
         jumlahKasur: int.parse(_jumlahKasurController.text),
         fasilitas: _fasilitasController.text,
         peraturan: _peraturanController.text,
-        gambar: _image, // Pass the File directly
+        gambar: _image,
         harga: double.parse(_hargaController.text),
       );
 
@@ -136,36 +133,35 @@ class _CreateKamarState extends State<CreateKamar> {
                 onTap: _pickImage,
                 child: Container(
                   width: double.infinity,
-                  height: 180,
+                  height: 300,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child:
-                      _image != null
-                          ? ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.file(
-                              _image!,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            ),
-                          )
-                          : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.image,
-                                size: 48,
-                                color: Colors.grey[600],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Pilih Gambar',
-                                style: TextStyle(color: Colors.grey[700]),
-                              ),
-                            ],
+                  child: _image != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.file(
+                            _image!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
                           ),
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.image,
+                              size: 48,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Pilih Gambar',
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                          ],
+                        ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -175,29 +171,25 @@ class _CreateKamarState extends State<CreateKamar> {
                 child: TextFormField(
                   controller: _namaKamarController,
                   decoration: _inputDecoration('Nama Kamar'),
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Wajib diisi' : null,
                   style: const TextStyle(color: Colors.black),
                 ),
               ),
               const SizedBox(height: 12),
 
-              // Deskripsi
+              // Tipe Kamar
               SizedBox(
                 width: double.infinity,
                 child: DropdownSearch<String>(
                   mode: Mode.form,
-                  items:
-                      (filter, cs) => [
-                        "Regular",
-                        "Regular+",
-                        "Homestay",
-                        "Homestay+",
-                        "Barrack",
-                        "VIP",
-                        "VVIP",
-                      ],
+                  items: (filter, cs) => [
+                    "Regular",
+                    "Regular+",
+                    "Homestay",
+                    "Homestay+",
+                    "VIP",
+                  ],
                   selectedItem: _selectedTipeKamar,
                   decoratorProps: DropDownDecoratorProps(
                     decoration: _inputDecoration('Tipe Kamar'),
@@ -207,36 +199,37 @@ class _CreateKamarState extends State<CreateKamar> {
                       _selectedTipeKamar = value;
                     });
                   },
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
               ),
               const SizedBox(height: 12),
-              // Kategori (Dropdown)
-              SizedBox(
-                width: double.infinity,
-                child: DropdownSearch<String>(
-                  items: (filter, cs) => ["Brilliant", "Bieplus"],
-                  selectedItem: _selectedKategori,
-                  decoratorProps: DropDownDecoratorProps(
-                    decoration: _inputDecoration('Kategori'),
-                  ),
-                  popupProps: PopupProps.menu(
-                    fit: FlexFit.loose,
-                    showSearchBox: false,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedKategori = value;
-                    });
-                  },
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
+              
+              // Kategori (Aligned with other inputs)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Text(
+                      'Kategori: ',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      'Brilliant',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold, // Only this part is bold
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 12),
+              
               // Gender (Dropdown)
               SizedBox(
                 width: double.infinity,
@@ -255,9 +248,8 @@ class _CreateKamarState extends State<CreateKamar> {
                       _selectedGender = value;
                     });
                   },
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty ? 'Wajib diisi' : null,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
               ),
               const SizedBox(height: 12),
@@ -319,7 +311,9 @@ class _CreateKamarState extends State<CreateKamar> {
                   onPressed: _isLoading ? null : _saveKamar,
                   child: _isLoading
                       ? const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         )
                       : const Text(
                           'Tambah Data Kamar',

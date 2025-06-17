@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:b_camp/service/database/controller/itemKamarController.dart';
+import 'package:intl/intl.dart';
 
 class DetailKamar extends StatefulWidget {
   final int kamarId;
@@ -12,7 +13,13 @@ class DetailKamar extends StatefulWidget {
 
 class _DetailKamarState extends State<DetailKamar> {
   bool isLoading = true;
+  bool isDeleting = false;
   Map<String, dynamic>? kamarData;
+  final _currencyFormatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  );
 
   @override
   void initState() {
@@ -38,6 +45,31 @@ class _DetailKamarState extends State<DetailKamar> {
     }
   }
 
+  Future<void> _deleteKamar() async {
+    try {
+      setState(() => isDeleting = true);
+      final success = await ItemKamarController.deleteKamar(widget.kamarId);
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Kamar berhasil dihapus')),
+          );
+          Navigator.pop(context, true); // Return true to indicate deletion
+        } else {
+          throw Exception('Failed to delete kamar');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => isDeleting = false);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error menghapus kamar: $e')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,21 +91,29 @@ class _DetailKamarState extends State<DetailKamar> {
                           ),
                           child:
                               kamarData!['gambar'] != null
-                                  ? Image.network(
-                                    '${ItemKamarController.imageBaseUrl}/${kamarData!['gambar']}',
-                                    width: double.infinity,
-                                    height: 200,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 200,
-                                        color: Colors.grey[300],
-                                        child: const Icon(
-                                          Icons.broken_image,
-                                          size: 50,
-                                        ),
-                                      );
-                                    },
+                                  ? InteractiveViewer(
+                                    minScale: 1.0,
+                                    maxScale: 5.0,
+                                    child: Image.network(
+                                      '${ItemKamarController.imageBaseUrl}/${kamarData!['gambar']}',
+                                      width: double.infinity,
+                                      height: 300,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Container(
+                                          height: 200,
+                                          color: Colors.grey[300],
+                                          child: const Icon(
+                                            Icons.broken_image,
+                                            size: 50,
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   )
                                   : Container(
                                     height: 200,
@@ -100,7 +140,7 @@ class _DetailKamarState extends State<DetailKamar> {
                                     ),
                                   ),
                                   Text(
-                                    'Rp ${kamarData!['harga']?.toString() ?? '0'}',
+                                    _currencyFormatter.format(double.tryParse( kamarData!['harga'] ?? '0') ?? 0,),
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -175,37 +215,8 @@ class _DetailKamarState extends State<DetailKamar> {
                                   ),
                                 ),
                               ],
-                              const SizedBox(height: 30),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      '/edit_kamar',
-                                      arguments: {
-                                        'kamar_data': kamarData,
-                                        'camp_id': kamarData!['camp_id'],
-                                      },
-                                    ).then((value) {
-                                      if (value == true) _loadKamarDetail();
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.black,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 15,
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Edit Kamar',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              // Add bottom padding to prevent overlap with bottom buttons
+                              const SizedBox(height: 150),
                             ],
                           ),
                         ),
@@ -227,6 +238,99 @@ class _DetailKamarState extends State<DetailKamar> {
                   ),
                 ],
               ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Edit Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/edit_kamar',
+                    arguments: {
+                      'kamar_data': kamarData,
+                      'camp_id': kamarData!['camp_id'],
+                    },
+                  ).then((value) {
+                    if (value == true) _loadKamarDetail();
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  'Edit Kamar',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Delete Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed:
+                    isDeleting
+                        ? null
+                        : () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: const Text('Konfirmasi'),
+                                  content: const Text(
+                                    'Apakah anda yakin ingin menghapus data kamar ini ?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, false),
+                                      child: const Text('Batal'),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, true),
+                                      child: const Text('Hapus'),
+                                    ),
+                                  ],
+                                ),
+                          );
+                          if (confirm == true) {
+                            _deleteKamar();
+                          }
+                        },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child:
+                    isDeleting
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          'Hapus Kamar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
