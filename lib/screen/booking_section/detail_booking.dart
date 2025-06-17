@@ -58,6 +58,60 @@ class _DetailBookingState extends State<DetailBooking> {
     }
   }
 
+  // Add method to calculate duration
+  int _calculateDuration() {
+    return booking.checkOut.difference(booking.checkIn).inDays;
+  }
+
+  // Add duration widget
+  Widget _buildDurationWidget() {
+    final duration = _calculateDuration();
+    return Container(
+      margin: const EdgeInsets.only(top: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.access_time,
+            size: 20,
+            color: Colors.grey[600],
+          ),
+          const SizedBox(width: 12),
+          Text(
+            'Durasi Menginap',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[700],
+            ),
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.blue[200]!),
+            ),
+            child: Text(
+              '$duration hari',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue[700],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _deleteBooking() async {
     try {
       setState(() => isLoading = true);
@@ -117,6 +171,8 @@ class _DetailBookingState extends State<DetailBooking> {
               'Tanggal Keluar',
               DateFormat('dd/MM/yyyy').format(booking.checkOut),
             ),
+            // Add duration widget here
+            _buildDurationWidget(),
             const Spacer(),
             Row(
               children: [
