@@ -1,15 +1,24 @@
+import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:select2dot1/select2dot1.dart';
 import 'package:b_camp/screen/routes/app_drawer.dart';
 import 'package:b_camp/service/database/controller/itemBookingController.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:b_camp/service/auth/session_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../service/database/model/notification_model.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 class DashboardCalendar extends StatefulWidget {
-  const DashboardCalendar({super.key});
+  const DashboardCalendar({Key? key}) : super(key: key);
 
   @override
-  State<DashboardCalendar> createState() => _DashboardCalendarState();
+  _DashboardCalendarState createState() => _DashboardCalendarState();
 }
 
 class _DashboardCalendarState extends State<DashboardCalendar> {
@@ -20,16 +29,64 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
   String? selectedValue;
   bool isLoading = true;
   bool isLoadingKamar = false;
+  Timer? _notificationTimer;
+  Timer? _sessionCheckTimer; // Add this line
 
   // Remove cache completely for fresh data always
 
   // Add unique key for Select2dot1 to force rebuild
   int _selectKey = 0;
 
+  // Add new field for dismissed notifications
+  Set<int> dismissedNotificationIds = {};
+
+  // Add FlutterLocalNotificationsPlugin instance
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   @override
   void initState() {
     super.initState();
-    _loadCampData();
+    _initAsync();
+  }
+
+  Future<void> _initAsync() async {
+    try {
+      await _initializeNotifications();
+      await _loadCampData();
+      await _checkAndUpdateNotifications();
+      _startNotificationCheck();
+      _startSessionCheck();
+    } catch (e) {
+      print('Error initializing dashboard: $e');
+    }
+  }
+
+  // Initialize notifications
+  Future<void> _initializeNotifications() async {
+    tz.initializeTimeZones();
+
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+
+    const initializationSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (details) {
+        // Handle notification tap
+        _showNotifications(context);
+      },
+    );
   }
 
   // Keep existing _loadCampData method
@@ -584,6 +641,228 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
     }
   }
 
+  List<NotificationItem> notifications = [];
+
+  @override
+  void dispose() {
+    _notificationTimer?.cancel();
+    _sessionCheckTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startNotificationCheck() {
+    // Check for notifications every minute
+    _notificationTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      _checkAndUpdateNotifications();
+    });
+  }
+
+  void _startSessionCheck() {
+    _sessionCheckTimer?.cancel(); // Cancel existing timer if any
+    _sessionCheckTimer = Timer.periodic(const Duration(minutes: 5), (
+      timer,
+    ) async {
+      final isValid = await SessionManager.isSessionValid();
+      if (!isValid && mounted) {
+        timer.cancel();
+        await SessionManager.clearSession();
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
+    });
+  }
+
+  // 1. Update _checkAndUpdateNotifications method
+  Future<void> _checkAndUpdateNotifications() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // Load dismissed IDs from storage
+      dismissedNotificationIds = Set<int>.from(
+        prefs.getStringList('dismissed_notifications')?.map(int.parse) ?? [],
+      );
+
+      final bookings = await ItemBookingController.getAllBookingsWithDetails();
+      final now = DateTime.now();
+      List<NotificationItem> newNotifications = [];
+
+      for (var booking in bookings) {
+        if (booking['end_date'] == null) continue;
+
+        final id = int.parse(booking['id'].toString());
+        // Skip if notification was dismissed
+        if (dismissedNotificationIds.contains(id)) continue;
+
+        final checkOut = DateTime.parse(booking['end_date']);
+        final daysUntilCheckout = checkOut.difference(now).inDays;
+        final isCompleted = checkOut.isBefore(now);
+
+        // Auto remove old notifications after 7 days
+        if (isCompleted &&
+            checkOut.add(const Duration(days: 7)).isBefore(now)) {
+          dismissedNotificationIds.add(id);
+          continue;
+        }
+
+        if (daysUntilCheckout <= 2 ||
+            (isCompleted &&
+                checkOut.add(const Duration(days: 7)).isAfter(now))) {
+          newNotifications.add(
+            NotificationItem(
+              id: id,
+              name: booking['nama'] ?? 'Unknown',
+              gender: booking['gender'] ?? 'Unknown',
+              campName: booking['kamar']['camp']['nama_camp'] ?? 'Unknown Camp',
+              kamarName: booking['kamar']['nama_kamar'] ?? 'Unknown Room',
+              checkOut: checkOut,
+              isCompleted: isCompleted,
+              createdAt: now,
+            ),
+          );
+        }
+      }
+
+      // Save dismissed IDs
+      await prefs.setStringList(
+        'dismissed_notifications',
+        dismissedNotificationIds.map((id) => id.toString()).toList(),
+      );
+
+      // Show system notification for new items
+      for (var notification in newNotifications) {
+        if (!notification.isCompleted &&
+            notification.checkOut.difference(now).inDays <= 2) {
+          _showSystemNotification(
+            notification.id,
+            'Pengingat Check-out',
+            '${notification.name} akan check-out dalam ${notification.checkOut.difference(now).inDays} hari',
+          );
+        } else if (notification.isCompleted) {
+          _showSystemNotification(
+            notification.id,
+            'Status Inap',
+            '${notification.name} telah selesai menginap',
+          );
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          notifications = newNotifications;
+        });
+        // Add this line to update badge
+        await _updateAppBadge();
+      }
+    } catch (e) {
+      print('Error in _checkAndUpdateNotifications: $e');
+    }
+  }
+
+  // 2. Update _updateAppBadge method
+  Future<void> _updateAppBadge() async {
+    try {
+      if (Platform.isIOS) {
+        // Add platform check
+        await flutterLocalNotificationsPlugin.initialize(
+          InitializationSettings(
+            iOS: DarwinInitializationSettings(defaultPresentBadge: true),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error updating app badge: $e');
+    }
+  }
+
+  // 3. Add import for Platform
+  // import 'dart:io' show Platform;
+
+  // Add method to show system notification
+  Future<void> _showSystemNotification(
+    int id,
+    String title,
+    String body,
+  ) async {
+    const androidDetails = AndroidNotificationDetails(
+      'booking_notifications',
+      'Booking Notifications',
+      channelDescription: 'Notifications for booking status',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await flutterLocalNotificationsPlugin.show(id, title, body, details);
+  }
+
+  List<Widget> _buildActions() {
+    return [
+      IconButton(icon: const Icon(Icons.refresh), onPressed: _completeRefresh),
+      const SizedBox(width: 10),
+      badges.Badge(
+        position: badges.BadgePosition.topEnd(top: 0, end: 3),
+        showBadge: notifications.isNotEmpty,
+        badgeContent: Text(
+          notifications.length.toString(),
+          style: const TextStyle(color: Colors.white, fontSize: 12),
+        ),
+        badgeStyle: const badges.BadgeStyle(badgeColor: Colors.red),
+        child: IconButton(
+          icon: const Icon(Icons.notifications),
+          onPressed: () => _showNotifications(context),
+        ),
+      ),
+    ];
+  }
+
+  // Update _showNotifications method
+  void _showNotifications(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder:
+          (context) => StatefulBuilder(
+            builder: (context, setDialogState) {
+              return NotificationDialog(
+                notifications: notifications,
+                onDismiss: (id) async {
+                  // Add to dismissed set
+                  dismissedNotificationIds.add(id);
+
+                  // Save to storage
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setStringList(
+                    'dismissed_notifications',
+                    dismissedNotificationIds
+                        .map((id) => id.toString())
+                        .toList(),
+                  );
+
+                  setState(() {
+                    notifications.removeWhere((item) => item.id == id);
+                  });
+
+                  setDialogState(() {});
+
+                  if (notifications.isEmpty) {
+                    Navigator.pop(context);
+                  }
+                },
+              );
+            },
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -591,27 +870,146 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
       appBar: AppBar(
         title: const Text('Dashboard Calendar'),
         backgroundColor: const Color(0xFFF2F2F2),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              print('=== MANUAL COMPLETE REFRESH ===');
-              _completeRefresh();
-            },
-            tooltip: 'Complete Refresh',
-          ),
-        ],
+        actions: _buildActions(),
       ),
       drawer: const AppDrawer(),
-      body:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Row(
+      body: Row(
+        children: [
+          _buildRoomList(),
+          Expanded(child: _contentCalendar(selectedRoomIndex)),
+        ],
+      ),
+    );
+  }
+}
+
+class NotificationDialog extends StatelessWidget {
+  final List<NotificationItem> notifications;
+  final Function(int) onDismiss;
+
+  const NotificationDialog({
+    Key? key,
+    required this.notifications,
+    required this.onDismiss,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        width: double.infinity,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
                 children: [
-                  _buildRoomList(),
-                  Expanded(child: _contentCalendar(selectedRoomIndex)),
+                  const Text(
+                    'Notifikasi',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
                 ],
               ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child:
+                  notifications.isEmpty
+                      ? const Center(child: Text('Tidak ada notifikasi'))
+                      : ListView.builder(
+                        itemCount: notifications.length,
+                        itemBuilder: (context, index) {
+                          final notification = notifications[index];
+                          return NotificationListItem(
+                            notification: notification,
+                            onDismiss: onDismiss,
+                          );
+                        },
+                      ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class NotificationListItem extends StatelessWidget {
+  final NotificationItem notification;
+  final Function(int) onDismiss;
+
+  const NotificationListItem({
+    Key? key,
+    required this.notification,
+    required this.onDismiss,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final daysLeft = notification.checkOut.difference(now).inDays;
+
+    return Dismissible(
+      key: Key('notification_${notification.id}'),
+      onDismissed: (_) => onDismiss(notification.id),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${notification.name} (${notification.gender})',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  onPressed: () => onDismiss(notification.id),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text('Camp: ${notification.campName}'),
+            Text('Kamar: ${notification.kamarName}'),
+            const SizedBox(height: 4),
+            if (!notification.isCompleted)
+              Text(
+                'Durasi inap sisa: $daysLeft hari',
+                style: TextStyle(
+                  color: daysLeft <= 2 ? Colors.red : Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              )
+            else
+              const Text(
+                'Status inap: Selesai',
+                style: TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:b_camp/service/database/controller/UserAplikasiController.dart';
+import 'package:b_camp/service/auth/session_manager.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback onLogin;
@@ -169,13 +170,12 @@ class _LoginPageState extends State<LoginPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Mohon isi email dan password'),
-                              duration: Duration(seconds: 2),
                             ),
                           );
                           return;
                         }
 
-                        // Show loading indicator
+                        // Show loading
                         showDialog(
                           context: context,
                           barrierDismissible: false,
@@ -191,40 +191,39 @@ class _LoginPageState extends State<LoginPage> {
                           password: _passwordController.text,
                         );
 
-                        // Hide loading indicator
-                        Navigator.pop(context);
+                        // Hide loading
+                        if (mounted) {
+                          Navigator.pop(context);
+                        }
 
-                        if (response['status'] == 'success') {
-                          // Login successful
-                          widget.onLogin(); // Call the callback
-                          Navigator.pushReplacementNamed(
-                            context,
-                            '/dashboard_calender',
+                        if (response['status'] == 'success' &&
+                            response['data'] != null) {
+                          final token = response['data']['token'];
+                          await SessionManager.saveLoginSession(token);
+
+                          if (mounted) {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              '/dashboard_calender',
+                            );
+                          }
+                        } else {
+                          throw Exception(
+                            'Login failed: Invalid response format',
                           );
                         }
                       } catch (e) {
-                        // Hide loading indicator if still showing
-                        Navigator.of(context).pop();
-
-                        String errorMessage;
-                        if (e.toString().contains('Invalid credentials')) {
-                          errorMessage = 'Email atau password salah';
-                        } else if (e.toString().contains('User not found')) {
-                          errorMessage = 'Email belum terdaftar';
-                        } else if (e.toString().contains('SocketException')) {
-                          errorMessage =
-                              'Gagal terhubung ke server, cek koneksi internet Anda';
-                        } else {
-                          errorMessage =
-                              'Gagal masuk ke aplikasi, silakan coba lagi';
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                e.toString().contains('Invalid credentials')
+                                    ? 'Email atau password salah'
+                                    : 'Gagal masuk ke aplikasi',
+                              ),
+                            ),
+                          );
                         }
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(errorMessage),
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
                       }
                     },
                     child: const Text(
