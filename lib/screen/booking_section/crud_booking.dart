@@ -15,16 +15,20 @@ class CrudBooking extends StatefulWidget {
 
 class _CrudBooking extends State<CrudBooking> {
   List<Map<String, dynamic>> camps = [];
-  List<Map<String, dynamic>> filteredCamps = []; // New filtered list
+  List<Map<String, dynamic>> filteredCamps = [];
   bool isLoading = true;
-  TextEditingController searchController =
-      TextEditingController(); // Controller for search
+  TextEditingController searchController = TextEditingController();
+  
+  // Add total booking count only
+  int totalBookingCount = 0;
+  bool isLoadingTotal = true;
 
   @override
   void initState() {
     super.initState();
-    searchController.addListener(_filterCamps); // Add listener for search input
+    searchController.addListener(_filterCamps);
     _loadCamps();
+    _loadTotalBookingCount(); // Load total booking count
   }
 
   @override
@@ -66,61 +70,97 @@ class _CrudBooking extends State<CrudBooking> {
     });
   }
 
-  Widget _buildCampCard(Map<String, dynamic> camp) {
-    final imageUrl = ItemBookingController.getImageUrl(camp['gambar_camp']);
+  // Simplified method to load total booking count only
+  Future<void> _loadTotalBookingCount() async {
+    try {
+      setState(() => isLoadingTotal = true);
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          '/booking_section',
-          arguments: {'camp_id': camp['id'], 'camp_data': camp},
-        );
-      },
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Image.network(
-                imageUrl,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.image, size: 48),
-                  );
-                },
+      print('=== Loading Total Booking Count ===');
+      
+      // Get all bookings and just count total
+      final bookings = await ItemBookingController.getAllBookingsWithDetails();
+      print('Total bookings fetched: ${bookings.length}');
+
+      if (mounted) {
+        setState(() {
+          totalBookingCount = bookings.length;
+          isLoadingTotal = false;
+        });
+        
+        print('Total booking count set to: $totalBookingCount');
+      }
+    } catch (e) {
+      print('Error loading total booking count: $e');
+      if (mounted) {
+        setState(() {
+          isLoadingTotal = false;
+          totalBookingCount = 0;
+        });
+      }
+    }
+  }
+
+  // Total booking widget only
+  Widget _buildTotalBooking() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Column(
+            children: [
+              const Text(
+                'Total Booking Keseluruhan',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    camp['nama_camp'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+              const SizedBox(height: 8),
+              isLoadingTotal
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: totalBookingCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          const TextSpan(
+                            text: ' booking',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    camp['alamat'] ?? '',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -135,6 +175,7 @@ class _CrudBooking extends State<CrudBooking> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
+            _buildTotalBooking(), // Only total booking widget
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20),
               child: Column(
@@ -316,9 +357,9 @@ class _CrudBooking extends State<CrudBooking> {
                     ),
                   ],
                 ),
-              ),
+              )
             );
-          },
-        );
+            },
+          );
   }
 }
