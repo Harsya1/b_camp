@@ -37,6 +37,38 @@ class ItemCampController {
     }
   }
 
+  // Get camps by type
+  static Future<List<Map<String, dynamic>>> getCampsByType(String type) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      // Ubah format tipe untuk query parameter
+      String queryType = type.replaceAll('+', '_plus').toLowerCase();
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/camp/filter/$queryType'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Get Camps By Type Status: ${response.statusCode}');
+      print('Get Camps By Type Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return List<Map<String, dynamic>>.from(data);
+      } else {
+        throw Exception('Failed to load camps by type: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error getting camps by type: $e');
+      rethrow;
+    }
+  }
+
   // Get camp detail
   static Future<Map<String, dynamic>> getCampDetail(int id) async {
     try {
@@ -216,6 +248,51 @@ class ItemCampController {
       }
     } catch (e) {
       print('Error getting kamar types: $e');
+      rethrow;
+    }
+  }
+
+  static String normalizeType(String type) {
+    return type.toLowerCase().replaceAll('+', '_plus');
+  }
+
+  static Future<List<Map<String, dynamic>>> filterCampsByType(String type) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/camp'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        final List<Map<String, dynamic>> camps = List<Map<String, dynamic>>.from(data);
+        
+        if (type.toLowerCase() == 'semua') {
+          return camps;
+        }
+
+        // Normalisasi tipe untuk perbandingan
+        String normalizedType = type.toLowerCase()
+            .replaceAll('+', '_plus')
+            .replaceAll(' ', '_');
+
+        return camps.where((camp) {
+          String campType = (camp['tipe'] ?? '').toString().toLowerCase()
+              .replaceAll('+', '_plus')
+              .replaceAll(' ', '_');
+          return campType == normalizedType;
+        }).toList();
+      } else {
+        throw Exception('Failed to load camps');
+      }
+    } catch (e) {
+      print('Error filtering camps: $e');
       rethrow;
     }
   }

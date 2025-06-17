@@ -8,11 +8,8 @@ class EditKamar extends StatefulWidget {
   final Map<String, dynamic> kamarData;
   final int campId;
 
-  const EditKamar({
-    Key? key,
-    required this.kamarData,
-    required this.campId,
-  }) : super(key: key);
+  const EditKamar({Key? key, required this.kamarData, required this.campId})
+    : super(key: key);
 
   @override
   State<EditKamar> createState() => _EditKamarState();
@@ -85,9 +82,10 @@ class _EditKamarState extends State<EditKamar> {
   void _loadKamarData() {
     _namaKamarController.text = widget.kamarData['nama_kamar'] ?? '';
     _selectedTipeKamar = widget.kamarData['type_kamar'];
-    _kategori = widget.kamarData['kategori'] ?? 'Brilliant'; 
+    _kategori = widget.kamarData['kategori'] ?? 'Brilliant';
     _selectedGender = widget.kamarData['gender'];
-    _jumlahKasurController.text = widget.kamarData['jumlah_kasur']?.toString() ?? '0';
+    _jumlahKasurController.text =
+        widget.kamarData['jumlah_kasur']?.toString() ?? '0';
     _fasilitasController.text = widget.kamarData['fasilitas'] ?? '';
     _peraturanController.text = widget.kamarData['peraturan'] ?? '';
     _hargaController.text = widget.kamarData['harga']?.toString() ?? '0';
@@ -114,14 +112,14 @@ class _EditKamarState extends State<EditKamar> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kamar berhasil diupdate!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Kamar berhasil diupdate!')));
       Navigator.pop(context, true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -132,6 +130,7 @@ class _EditKamarState extends State<EditKamar> {
     final monochrome = Colors.white;
 
     return Scaffold(
+      backgroundColor: monochrome,
       appBar: AppBar(
         title: const Text('Edit Data Kamar'),
         backgroundColor: monochrome,
@@ -158,46 +157,47 @@ class _EditKamarState extends State<EditKamar> {
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: _image != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.file(
-                            _image!,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          ),
-                        )
-                      : widget.kamarData['gambar'] != null
+                  child:
+                      _image != null
                           ? ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.network(
-                                '${ItemKamarController.imageBaseUrl}/${widget.kamarData['gambar']}',
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    height: 180,
-                                    color: Colors.grey[300],
-                                    child: const Icon(Icons.broken_image),
-                                  );
-                                },
-                              ),
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.image,
-                                  size: 48,
-                                  color: Colors.grey[600],
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Pilih Gambar',
-                                  style: TextStyle(color: Colors.grey[700]),
-                                ),
-                              ],
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.file(
+                              _image!,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
                             ),
+                          )
+                          : widget.kamarData['gambar'] != null
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.network(
+                              '${ItemKamarController.imageBaseUrl}/${widget.kamarData['gambar']}',
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  height: 180,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.broken_image),
+                                );
+                              },
+                            ),
+                          )
+                          : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.image,
+                                size: 48,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Pilih Gambar',
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
+                            ],
+                          ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -208,7 +208,8 @@ class _EditKamarState extends State<EditKamar> {
                   controller: _namaKamarController,
                   decoration: _inputDecoration('Nama Kamar'),
                   validator:
-                      (value) => value == null || value.isEmpty ? 'Wajib diisi' : null,
+                      (value) =>
+                          value == null || value.isEmpty ? 'Wajib diisi' : null,
                   style: const TextStyle(color: Colors.black),
                 ),
               ),
@@ -236,11 +237,12 @@ class _EditKamarState extends State<EditKamar> {
                     });
                   },
                   validator:
-                      (value) => value == null || value.isEmpty ? 'Wajib diisi' : null,
+                      (value) =>
+                          value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               // Kategori (Aligned with other inputs)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -248,10 +250,7 @@ class _EditKamarState extends State<EditKamar> {
                   children: [
                     Text(
                       'Kategori: ',
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                      ),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
                     ),
                     Text(
                       _kategori,
@@ -265,7 +264,7 @@ class _EditKamarState extends State<EditKamar> {
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               // Gender (Dropdown)
               SizedBox(
                 width: double.infinity,
@@ -285,7 +284,8 @@ class _EditKamarState extends State<EditKamar> {
                     });
                   },
                   validator:
-                      (value) => value == null || value.isEmpty ? 'Wajib diisi' : null,
+                      (value) =>
+                          value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
               ),
               const SizedBox(height: 12),
@@ -345,14 +345,17 @@ class _EditKamarState extends State<EditKamar> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: _isLoading ? null : _updateKamar,
-                  child: _isLoading
-                      ? const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
-                      : const Text(
-                          'Edit Data Kamar',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          )
+                          : const Text(
+                            'Edit Data Kamar',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
                 ),
               ),
             ],

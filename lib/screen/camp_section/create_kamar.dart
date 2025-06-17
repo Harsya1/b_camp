@@ -93,14 +93,14 @@ class _CreateKamarState extends State<CreateKamar> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kamar berhasil dibuat!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Kamar berhasil dibuat!')));
       Navigator.pop(context, true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -108,12 +108,11 @@ class _CreateKamarState extends State<CreateKamar> {
 
   @override
   Widget build(BuildContext context) {
-    final monochrome = Colors.white;
-
     return Scaffold(
+      backgroundColor: Color(0xFFF2F2F2),
       appBar: AppBar(
         title: const Text('Tambah Data Kamar'),
-        backgroundColor: monochrome,
+        backgroundColor: Color(0xFFF2F2F2),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
@@ -138,30 +137,31 @@ class _CreateKamarState extends State<CreateKamar> {
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: _image != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.file(
-                            _image!,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
+                  child:
+                      _image != null
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.file(
+                              _image!,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
+                          )
+                          : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.image,
+                                size: 48,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Pilih Gambar',
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
+                            ],
                           ),
-                        )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.image,
-                              size: 48,
-                              color: Colors.grey[600],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Pilih Gambar',
-                              style: TextStyle(color: Colors.grey[700]),
-                            ),
-                          ],
-                        ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -171,8 +171,9 @@ class _CreateKamarState extends State<CreateKamar> {
                 child: TextFormField(
                   controller: _namaKamarController,
                   decoration: _inputDecoration('Nama Kamar'),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Wajib diisi' : null,
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty ? 'Wajib diisi' : null,
                   style: const TextStyle(color: Colors.black),
                 ),
               ),
@@ -183,13 +184,14 @@ class _CreateKamarState extends State<CreateKamar> {
                 width: double.infinity,
                 child: DropdownSearch<String>(
                   mode: Mode.form,
-                  items: (filter, cs) => [
-                    "Regular",
-                    "Regular+",
-                    "Homestay",
-                    "Homestay+",
-                    "VIP",
-                  ],
+                  items:
+                      (filter, cs) => [
+                        "Regular",
+                        "Regular+",
+                        "Homestay",
+                        "Homestay+",
+                        "VIP",
+                      ],
                   selectedItem: _selectedTipeKamar,
                   decoratorProps: DropDownDecoratorProps(
                     decoration: _inputDecoration('Tipe Kamar'),
@@ -199,12 +201,13 @@ class _CreateKamarState extends State<CreateKamar> {
                       _selectedTipeKamar = value;
                     });
                   },
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Wajib diisi' : null,
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               // Kategori (Aligned with other inputs)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -212,10 +215,7 @@ class _CreateKamarState extends State<CreateKamar> {
                   children: [
                     Text(
                       'Kategori: ',
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                      ),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
                     ),
                     Text(
                       'Brilliant',
@@ -229,7 +229,7 @@ class _CreateKamarState extends State<CreateKamar> {
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               // Gender (Dropdown)
               SizedBox(
                 width: double.infinity,
@@ -248,8 +248,9 @@ class _CreateKamarState extends State<CreateKamar> {
                       _selectedGender = value;
                     });
                   },
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Wajib diisi' : null,
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
               ),
               const SizedBox(height: 12),
@@ -309,16 +310,17 @@ class _CreateKamarState extends State<CreateKamar> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: _isLoading ? null : _saveKamar,
-                  child: _isLoading
-                      ? const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          )
+                          : const Text(
+                            'Tambah Data Kamar',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
-                        )
-                      : const Text(
-                          'Tambah Data Kamar',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
                 ),
               ),
             ],

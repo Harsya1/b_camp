@@ -73,6 +73,7 @@ class _DetailKamarState extends State<DetailKamar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -140,7 +141,12 @@ class _DetailKamarState extends State<DetailKamar> {
                                     ),
                                   ),
                                   Text(
-                                    _currencyFormatter.format(double.tryParse( kamarData!['harga'] ?? '0') ?? 0,),
+                                    _currencyFormatter.format(
+                                      double.tryParse(
+                                            kamarData!['harga'] ?? '0',
+                                          ) ??
+                                          0,
+                                    ),
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
