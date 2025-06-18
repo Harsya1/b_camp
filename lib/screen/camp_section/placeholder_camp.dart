@@ -175,6 +175,56 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
                                 ),
                               ],
                             ),
+                            
+                            const SizedBox(height: 20),
+                            // Tambahkan widget Edit Camp dan Tambah Kamar yang hilang
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Edit Camp Button
+                                TextButton.icon(
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/edit_camp',
+                                      arguments: campData,
+                                    ).then((value) {
+                                      if (value == true) _loadCampData();
+                                    });
+                                  },
+                                  icon: const Icon(
+                                    Icons.edit,
+                                    color: Colors.black,
+                                  ),
+                                  label: const Text(
+                                    'Edit Camp',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ),
+
+                                // Add Kamar Button
+                                TextButton.icon(
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/create_kamar',
+                                      arguments: {'camp_id': widget.campId},
+                                    ).then((value) {
+                                      if (value == true) _loadCampData();
+                                    });
+                                  },
+                                  icon: const Icon(
+                                    Icons.add,
+                                    color: Colors.black,
+                                  ),
+                                  label: const Text(
+                                    'Tambah Kamar',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            
                             const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -190,6 +240,60 @@ class _PlaceholderCampState extends State<PlaceholderCamp> {
                                   onPressed: isLoading
                                       ? null
                                       : () async {
+                                          // Konfirmasi pertama
+                                          final confirm1 = await showDialog<bool>(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: const Text('Konfirmasi'),
+                                              content: const Text(
+                                                'Apakah anda yakin ingin melakukan upgrade tipe kamar? Ini akan mengubah semua tipe kamar di camp tersebut saat ini',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, false),
+                                                  child: const Text('Batal'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, true),
+                                                  child: const Text('Ya, Upgrade'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+
+                                          // Hentikan jika konfirmasi pertama dibatalkan
+                                          if (confirm1 != true) return;
+
+                                          // Konfirmasi kedua dengan styling berbeda
+                                          final confirm2 = await showDialog<bool>(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: const Text('Konfirmasi'),
+                                              content: const Text(
+                                                'Apakah anda benar benar yakin? Tipe kamar yang diubah saat ini tidak bisa dikembalikan secara serentak',
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, false),
+                                                  style: TextButton.styleFrom(
+                                                    foregroundColor: Colors.blue,
+                                                  ),
+                                                  child: const Text('Batal'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, true),
+                                                  style: TextButton.styleFrom(
+                                                    foregroundColor: Colors.red,
+                                                  ),
+                                                  child: const Text('Ya, Saya Yakin'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+
+                                          // Hanya lanjutkan jika kedua konfirmasi disetujui
+                                          if (confirm2 != true) return;
+
                                           setState(() => isLoading = true);
                                           try {
                                             // 1. Ambil semua kamar camp ini

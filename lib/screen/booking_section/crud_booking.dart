@@ -5,6 +5,7 @@ import 'package:b_camp/service/database/controller/itemCampController.dart';
 import 'package:b_camp/service/database/model/Kamar.dart';
 import 'package:b_camp/screen/routes/app_drawer.dart';
 import 'package:b_camp/service/database/controller/itemBookingController.dart';
+import 'package:b_camp/service/database/controller/itemKamarController.dart';
 
 class CrudBooking extends StatefulWidget {
   const CrudBooking({super.key});
@@ -19,8 +20,9 @@ class _CrudBooking extends State<CrudBooking> {
   bool isLoading = true;
   TextEditingController searchController = TextEditingController();
   
-  // Add total booking count only
+  // Add total booking count and total kamar count
   int totalBookingCount = 0;
+  int totalKamarCount = 0;
   bool isLoadingTotal = true;
 
   @override
@@ -28,7 +30,7 @@ class _CrudBooking extends State<CrudBooking> {
     super.initState();
     searchController.addListener(_filterCamps);
     _loadCamps();
-    _loadTotalBookingCount(); // Load total booking count
+    _loadTotalCounts(); // Load both booking and kamar counts
   }
 
   @override
@@ -70,37 +72,77 @@ class _CrudBooking extends State<CrudBooking> {
     });
   }
 
-  // Simplified method to load total booking count only
-  Future<void> _loadTotalBookingCount() async {
+  // Optimized method to load both booking and kamar counts
+  Future<void> _loadTotalCounts() async {
     try {
       setState(() => isLoadingTotal = true);
 
-      print('=== Loading Total Booking Count ===');
+      print('=== Loading Total Booking and Kamar Counts (Optimized) ===');
       
-      // Get all bookings and just count total
-      final bookings = await ItemBookingController.getAllBookingsWithDetails();
+      // Run both queries in parallel using Future.wait
+      final results = await Future.wait([
+        ItemBookingController.getAllBookingsWithDetails(),
+        ItemCampController.getCamps(),
+      ]);
+      
+      final bookings = results[0] as List<Map<String, dynamic>>;
+      final camps = results[1] as List<Map<String, dynamic>>;
+      
       print('Total bookings fetched: ${bookings.length}');
+      print('Total camps fetched: ${camps.length}');
+      
+      // Process camps in parallel to get kamar counts
+      final kamarCountFutures = camps.map((camp) async {
+        try {
+          final kamarTypes = await ItemCampController.getKamarTypesByCamp(camp['id']);
+          
+          // Get kamar counts for all types in parallel
+          final kamarCounts = await Future.wait(
+            kamarTypes.map((type) => 
+              ItemKamarController.getKamarByType(camp['id'], type)
+                .then((kamars) => kamars.length)
+                .catchError((e) {
+                  print('Error getting kamars for camp ${camp['id']} type $type: $e');
+                  return 0;
+                })
+            )
+          );
+          
+          return kamarCounts.fold<int>(0, (sum, count) => sum + count);
+        } catch (e) {
+          print('Error getting kamars for camp ${camp['id']}: $e');
+          return 0;
+        }
+      });
+      
+      final kamarCountsPerCamp = await Future.wait(kamarCountFutures);
+      final totalKamars = kamarCountsPerCamp.fold<int>(0, (sum, count) => sum + count);
+      
+      print('Total kamars calculated: $totalKamars');
 
       if (mounted) {
         setState(() {
           totalBookingCount = bookings.length;
+          totalKamarCount = totalKamars;
           isLoadingTotal = false;
         });
         
         print('Total booking count set to: $totalBookingCount');
+        print('Total kamar count set to: $totalKamarCount');
       }
     } catch (e) {
-      print('Error loading total booking count: $e');
+      print('Error loading total counts: $e');
       if (mounted) {
         setState(() {
           isLoadingTotal = false;
           totalBookingCount = 0;
+          totalKamarCount = 0;
         });
       }
     }
   }
 
-  // Total booking widget only
+  // Updated total booking widget with kamar count
   Widget _buildTotalBooking() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -137,6 +179,7 @@ class _CrudBooking extends State<CrudBooking> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : RichText(
+                      textAlign: TextAlign.center,
                       text: TextSpan(
                         children: [
                           TextSpan(
@@ -148,7 +191,23 @@ class _CrudBooking extends State<CrudBooking> {
                             ),
                           ),
                           const TextSpan(
-                            text: ' booking',
+                            text: ' booking dari ',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          TextSpan(
+                            text: totalKamarCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          const TextSpan(
+                            text: ' kamar',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.normal,
@@ -175,7 +234,7 @@ class _CrudBooking extends State<CrudBooking> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
-            _buildTotalBooking(), // Only total booking widget
+            _buildTotalBooking(), // Updated widget with kamar count
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20),
               child: Column(
