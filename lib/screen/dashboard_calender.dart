@@ -1,3 +1,4 @@
+// ===== SECTION: IMPORTS =====
 import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
@@ -9,10 +10,11 @@ import 'package:b_camp/service/database/controller/itemBookingController.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:b_camp/service/auth/session_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../service/database/model/notification_model.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:intl/intl.dart';
+// ===== END SECTION =====
 
 class DashboardCalendar extends StatefulWidget {
   const DashboardCalendar({Key? key}) : super(key: key);
@@ -22,6 +24,7 @@ class DashboardCalendar extends StatefulWidget {
 }
 
 class _DashboardCalendarState extends State<DashboardCalendar> {
+  // ===== SECTION: STATE VARIABLES =====
   int selectedRoomIndex = 0;
   final CalendarController _calendarController = CalendarController();
   List<SingleCategoryModel> campOptions = [];
@@ -30,19 +33,15 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
   bool isLoading = true;
   bool isLoadingKamar = false;
   Timer? _notificationTimer;
-  Timer? _sessionCheckTimer; // Add this line
-
-  // Remove cache completely for fresh data always
-
-  // Add unique key for Select2dot1 to force rebuild
+  Timer? _sessionCheckTimer;
   int _selectKey = 0;
-
-  // Add new field for dismissed notifications
   Set<int> dismissedNotificationIds = {};
-
-  // Add FlutterLocalNotificationsPlugin instance
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  Set<int> notifiedIds = {};
+  DateTime? lastNotificationCheck;
+  List<NotificationItem> notifications = [];
+  // ===== END SECTION =====
 
   @override
   void initState() {
@@ -50,6 +49,7 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
     _initAsync();
   }
 
+  // ===== SECTION: INITIALIZATION =====
   Future<void> _initAsync() async {
     try {
       await _initializeNotifications();
@@ -61,11 +61,11 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
       print('Error initializing dashboard: $e');
     }
   }
+  // ===== END SECTION =====
 
-  // Initialize notifications
+  // ===== SECTION: NOTIFICATION INITIALIZATION =====
   Future<void> _initializeNotifications() async {
     tz.initializeTimeZones();
-
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
@@ -74,22 +74,20 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-
     const initializationSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
-
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (details) {
-        // Handle notification tap
         _showNotifications(context);
       },
     );
   }
+  // ===== END SECTION =====
 
-  // Keep existing _loadCampData method
+  // ===== SECTION: CAMP & KAMAR DATA =====
   Future<void> _loadCampData() async {
     try {
       print('\n=== Memulai Memuat Data Camp ===');
@@ -213,6 +211,9 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
     });
   }
 
+  // ===== END SECTION =====
+
+  // ===== SECTION: ROOM LIST WIDGET =====
   Widget _buildRoomList() {
     return Container(
       width: MediaQuery.of(context).size.width * 0.2,
@@ -291,7 +292,9 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
               ),
     );
   }
+  // ===== END SECTION =====
 
+  // ===== SECTION: CALENDAR CONTENT WIDGET =====
   Widget _contentCalendar(int roomIndex) {
     return Container(
       padding: const EdgeInsets.all(16.0),
@@ -368,8 +371,11 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
                         defaultDecoration: BoxDecoration(
                           border: Border.all(color: Colors.black, width: 1.5),
                           borderRadius: BorderRadius.circular(8),
-                          color: Colors.white,
+                          color: Colors.white, // <-- background putih
                         ),
+                      ),
+                      dropdownModalSettings: DropdownModalSettings(
+                        backgroundColor: Colors.white,
                       ),
                     );
                   })(),
@@ -596,8 +602,9 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
       ),
     );
   }
+  // ===== END SECTION =====
 
-  // NO CACHE - Always fresh data
+  // ===== SECTION: CALENDAR DATA SOURCE =====
   Future<MeetingDataSource> _getCalendarDataSource(int roomIndex) async {
     if (selectedTypeKamar.isEmpty || roomIndex >= selectedTypeKamar.length) {
       print('No room selected or index out of bounds');
@@ -640,19 +647,11 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
       return MeetingDataSource([]);
     }
   }
+  // ===== END SECTION =====
 
-  List<NotificationItem> notifications = [];
-
-  @override
-  void dispose() {
-    _notificationTimer?.cancel();
-    _sessionCheckTimer?.cancel();
-    super.dispose();
-  }
-
+  // ===== SECTION: NOTIFICATION LOGIC =====
   void _startNotificationCheck() {
-    // Check for notifications every minute
-    _notificationTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+    _notificationTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       _checkAndUpdateNotifications();
     });
   }
@@ -671,7 +670,6 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
     });
   }
 
-  // 1. Update _checkAndUpdateNotifications method
   Future<void> _checkAndUpdateNotifications() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -679,30 +677,64 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
       dismissedNotificationIds = Set<int>.from(
         prefs.getStringList('dismissed_notifications')?.map(int.parse) ?? [],
       );
-
       final bookings = await ItemBookingController.getAllBookingsWithDetails();
       final now = DateTime.now();
       List<NotificationItem> newNotifications = [];
 
+      // Ambil waktu terakhir notifikasi dicek
+      lastNotificationCheck ??= now.subtract(const Duration(minutes: 1));
+
       for (var booking in bookings) {
         if (booking['end_date'] == null) continue;
-
         final id = int.parse(booking['id'].toString());
-        // Skip if notification was dismissed
         if (dismissedNotificationIds.contains(id)) continue;
 
         final checkOut = DateTime.parse(booking['end_date']);
+        final checkIn = DateTime.parse(booking['start_date']);
         final daysUntilCheckout = checkOut.difference(now).inDays;
         final isCompleted = checkOut.isBefore(now);
 
-        // Auto remove old notifications after 7 days
+        // Hapus otomatis H+7 setelah selesai
         if (isCompleted &&
             checkOut.add(const Duration(days: 7)).isBefore(now)) {
           dismissedNotificationIds.add(id);
           continue;
         }
 
-        if (daysUntilCheckout <= 2 ||
+        // Hanya notifikasi baru (belum pernah dikirim)
+        if (!notifiedIds.contains(id)) {
+          // H-7 (kuning/orange)
+          if (daysUntilCheckout <= 7 && daysUntilCheckout > 2) {
+            _showSystemNotification(
+              id,
+              'Pengingat Check-out',
+              '${booking['nama']} akan check-out dalam $daysUntilCheckout hari',
+            );
+            notifiedIds.add(id);
+          }
+          // H-2 (merah)
+          else if (daysUntilCheckout <= 2 && daysUntilCheckout >= 0) {
+            _showSystemNotification(
+              id,
+              'Pengingat Check-out',
+              '${booking['nama']} akan check-out dalam $daysUntilCheckout hari',
+            );
+            notifiedIds.add(id);
+          }
+          // Selesai (hijau)
+          else if (isCompleted &&
+              checkOut.add(const Duration(days: 7)).isAfter(now)) {
+            _showSystemNotification(
+              id,
+              'Status Inap',
+              '${booking['nama']} telah selesai menginap',
+            );
+            notifiedIds.add(id);
+          }
+        }
+
+        // Tambahkan ke list notifikasi jika dalam range
+        if ((daysUntilCheckout <= 7 && daysUntilCheckout >= 0) ||
             (isCompleted &&
                 checkOut.add(const Duration(days: 7)).isAfter(now))) {
           newNotifications.add(
@@ -713,6 +745,7 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
               campName: booking['kamar']['camp']['nama_camp'] ?? 'Unknown Camp',
               kamarName: booking['kamar']['nama_kamar'] ?? 'Unknown Room',
               checkOut: checkOut,
+              checkIn: checkIn,
               isCompleted: isCompleted,
               createdAt: now,
             ),
@@ -720,43 +753,37 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
         }
       }
 
-      // Save dismissed IDs
+      // Simpan dismissed IDs
       await prefs.setStringList(
         'dismissed_notifications',
         dismissedNotificationIds.map((id) => id.toString()).toList(),
       );
 
-      // Show system notification for new items
-      for (var notification in newNotifications) {
-        if (!notification.isCompleted &&
-            notification.checkOut.difference(now).inDays <= 2) {
-          _showSystemNotification(
-            notification.id,
-            'Pengingat Check-out',
-            '${notification.name} akan check-out dalam ${notification.checkOut.difference(now).inDays} hari',
-          );
-        } else if (notification.isCompleted) {
-          _showSystemNotification(
-            notification.id,
-            'Status Inap',
-            '${notification.name} telah selesai menginap',
-          );
-        }
-      }
+      // Simpan notifiedIds agar tidak serentak saat login ulang
+      await prefs.setStringList(
+        'notified_ids',
+        notifiedIds.map((id) => id.toString()).toList(),
+      );
 
       if (mounted) {
         setState(() {
           notifications = newNotifications;
         });
-        // Add this line to update badge
         await _updateAppBadge();
       }
+      lastNotificationCheck = DateTime.now();
     } catch (e) {
       print('Error in _checkAndUpdateNotifications: $e');
     }
   }
 
-  // 2. Update _updateAppBadge method
+  Future<void> _loadNotifiedIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    notifiedIds = Set<int>.from(
+      prefs.getStringList('notified_ids')?.map(int.parse) ?? [],
+    );
+  }
+
   Future<void> _updateAppBadge() async {
     try {
       if (Platform.isIOS) {
@@ -772,10 +799,6 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
     }
   }
 
-  // 3. Add import for Platform
-  // import 'dart:io' show Platform;
-
-  // Add method to show system notification
   Future<void> _showSystemNotification(
     int id,
     String title,
@@ -803,28 +826,9 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
 
     await flutterLocalNotificationsPlugin.show(id, title, body, details);
   }
+  // ===== END SECTION =====
 
-  List<Widget> _buildActions() {
-    return [
-      IconButton(icon: const Icon(Icons.refresh), onPressed: _completeRefresh),
-      const SizedBox(width: 10),
-      badges.Badge(
-        position: badges.BadgePosition.topEnd(top: 0, end: 3),
-        showBadge: notifications.isNotEmpty,
-        badgeContent: Text(
-          notifications.length.toString(),
-          style: const TextStyle(color: Colors.white, fontSize: 12),
-        ),
-        badgeStyle: const badges.BadgeStyle(badgeColor: Colors.red),
-        child: IconButton(
-          icon: const Icon(Icons.notifications),
-          onPressed: () => _showNotifications(context),
-        ),
-      ),
-    ];
-  }
-
-  // Update _showNotifications method
+  // ===== SECTION: NOTIFICATION DIALOG =====
   void _showNotifications(BuildContext context) {
     showDialog(
       context: context,
@@ -862,9 +866,11 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
           ),
     );
   }
+  // ===== END SECTION =====
 
   @override
   Widget build(BuildContext context) {
+    // ===== SECTION: MAIN SCAFFOLD =====
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
       appBar: AppBar(
@@ -880,9 +886,38 @@ class _DashboardCalendarState extends State<DashboardCalendar> {
         ],
       ),
     );
+    // ===== END SECTION =====
+  }
+
+  List<Widget> _buildActions() {
+    return [
+      IconButton(icon: const Icon(Icons.refresh), onPressed: _completeRefresh),
+      const SizedBox(width: 10),
+      badges.Badge(
+        position: badges.BadgePosition.topEnd(top: 0, end: 3),
+        showBadge: notifications.isNotEmpty,
+        badgeContent: Text(
+          notifications.length.toString(),
+          style: const TextStyle(color: Colors.white, fontSize: 12),
+        ),
+        badgeStyle: const badges.BadgeStyle(badgeColor: Colors.red),
+        child: IconButton(
+          icon: const Icon(Icons.notifications),
+          onPressed: () => _showNotifications(context),
+        ),
+      ),
+    ];
+  }
+
+  @override
+  void dispose() {
+    _notificationTimer?.cancel();
+    _sessionCheckTimer?.cancel();
+    super.dispose();
   }
 }
 
+// ===== SECTION: NOTIFICATION DIALOG WIDGET =====
 class NotificationDialog extends StatelessWidget {
   final List<NotificationItem> notifications;
   final Function(int) onDismiss;
@@ -961,6 +996,19 @@ class NotificationListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final daysLeft = notification.checkOut.difference(now).inDays;
+    final dateFormat = DateFormat('dd MMM yyyy HH:mm');
+    Color statusColor = Colors.green;
+    String statusText = 'Status inap: Selesai';
+
+    if (!notification.isCompleted) {
+      if (daysLeft <= 2 && daysLeft >= 0) {
+        statusColor = Colors.red;
+        statusText = 'Durasi inap sisa: $daysLeft hari';
+      } else if (daysLeft <= 7 && daysLeft > 2) {
+        statusColor = Colors.orange;
+        statusText = 'Durasi inap sisa: $daysLeft hari';
+      }
+    }
 
     return Dismissible(
       key: Key('notification_${notification.id}'),
@@ -990,31 +1038,24 @@ class NotificationListItem extends StatelessWidget {
             const SizedBox(height: 4),
             Text('Camp: ${notification.campName}'),
             Text('Kamar: ${notification.kamarName}'),
+            Text(
+              'Waktu notifikasi: ${dateFormat.format(notification.createdAt)}',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
             const SizedBox(height: 4),
-            if (!notification.isCompleted)
-              Text(
-                'Durasi inap sisa: $daysLeft hari',
-                style: TextStyle(
-                  color: daysLeft <= 2 ? Colors.red : Colors.black,
-                  fontWeight: FontWeight.w500,
-                ),
-              )
-            else
-              const Text(
-                'Status inap: Selesai',
-                style: TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+            Text(
+              statusText,
+              style: TextStyle(color: statusColor, fontWeight: FontWeight.w500),
+            ),
           ],
         ),
       ),
     );
   }
 }
+// ===== END SECTION =====
 
-// Keep existing models unchanged
+// ===== SECTION: CALENDAR MODELS =====
 class StayDuration {
   StayDuration({
     required this.eventName,
@@ -1045,3 +1086,31 @@ class MeetingDataSource extends CalendarDataSource {
   @override
   bool isAllDay(int index) => appointments![index].isAllDay;
 }
+// ===== END SECTION =====
+
+// ===== SECTION: NOTIFICATION ITEM MODEL =====
+class NotificationItem {
+  final int id;
+  final String name;
+  final String gender;
+  final String campName;
+  final String kamarName;
+  final DateTime checkOut;
+  final DateTime checkIn;
+  final bool isCompleted;
+  final DateTime createdAt;
+
+  NotificationItem({
+    required this.id,
+    required this.name,
+    required this.gender,
+    required this.campName,
+    required this.kamarName,
+    required this.checkOut,
+    required this.checkIn,
+    required this.isCompleted,
+    required this.createdAt,
+  });
+}
+
+// ===== END SECTION =====

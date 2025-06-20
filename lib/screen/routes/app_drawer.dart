@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../booking_section/crud_booking.dart';
+import 'package:b_camp/service/auth/session_manager.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -83,8 +84,16 @@ class AppDrawer extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/login');
+                onPressed: () async {
+                  // Hapus sesi pengguna
+                  await SessionManager.clearSession();
+                  // Kembali ke halaman login
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/login',
+                    (route) => false,
+                  );
+                  
                 },
                 child: const Text(
                   'Logout',
