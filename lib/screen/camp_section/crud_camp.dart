@@ -27,7 +27,8 @@ class _CrudCampState extends State<CrudCamp> {
     'VIP',
   ];
 
-  Map<int, List<String>> campKamarTypes = {}; // Tambahkan ini untuk menyimpan tipe kamar
+  Map<int, List<String>> campKamarTypes =
+      {}; // Tambahkan ini untuk menyimpan tipe kamar
 
   @override
   void initState() {
@@ -40,7 +41,7 @@ class _CrudCampState extends State<CrudCamp> {
       setState(() => isLoading = true);
       // Ambil semua camp terlebih dahulu
       final campData = await ItemCampController.getCamps();
-      
+
       // Ambil tipe kamar untuk setiap camp
       for (var camp in campData) {
         final types = await ItemKamarController.getKamarTypesByCamp(camp['id']);
@@ -55,9 +56,9 @@ class _CrudCampState extends State<CrudCamp> {
     } catch (e) {
       setState(() => isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -70,10 +71,11 @@ class _CrudCampState extends State<CrudCamp> {
         filteredCamps = List.from(camps);
       } else {
         // Filter camps berdasarkan tipe kamar
-        filteredCamps = camps.where((camp) {
-          List<String> types = campKamarTypes[camp['id']] ?? [];
-          return types.any((t) => t.toLowerCase() == tipe.toLowerCase());
-        }).toList();
+        filteredCamps =
+            camps.where((camp) {
+              List<String> types = campKamarTypes[camp['id']] ?? [];
+              return types.any((t) => t.toLowerCase() == tipe.toLowerCase());
+            }).toList();
       }
     });
   }
@@ -85,12 +87,14 @@ class _CrudCampState extends State<CrudCamp> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Filter Tipe Kamar'),
+          backgroundColor: Colors.white,
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children:
                   filters.map((filter) {
                     return RadioListTile<String>(
+                      fillColor: MaterialStateProperty.all(Colors.black),
                       title: Text(filter),
                       value: filter,
                       groupValue: selectedFilter,
@@ -195,7 +199,7 @@ class _CrudCampState extends State<CrudCamp> {
   // Update _buildCampCard untuk menampilkan tipe kamar
   Widget _buildCampCard(Map<String, dynamic> camp) {
     List<String> types = campKamarTypes[camp['id']] ?? [];
-    
+
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
