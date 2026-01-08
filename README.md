@@ -4,14 +4,23 @@
 
 ## Main Features
 
-- **Booking Camp** 
- Users can search and book camps (dormitories) according to their needs during the learning process at Brilliant English Course.
+- **Dashboard Calendar**
+ View room availability and bookings via an interactive calendar interface.
 
-- **Login and Self Registration** 
- Before making a booking, users must log in and complete their personal data correctly.
+- **Booking Management**
+ Complete booking system allowing users to search, book, and manage camp reservations.
 
-- **Feed Events** 
- Users can see various events organized by Brilliant, such as seminars, competitions, and other social events.
+- **Camp Management**
+ Manage camp data including categories and types (CRUD capabilities).
+
+- **Search & Filter**
+ Advanced search functionality to find camps by category (e.g., VIP) and type.
+
+- **User Profile**
+ Profile management including personal data editing and password changes.
+
+- **Authentication**
+ Secure login and registration system.
 
 ## Technology Used
 
@@ -44,9 +53,13 @@
 
 ## Project Structure
 - `/lib` - contains the main source code
-- `/lib/screen` - pages such as Login, Booking, Feed, profile
-- `/lib/assets` - reusable UI components
-- `/lib/services` - API service or authentication service
+- `/lib/screen` - Application screens including Dashboard, Calendar, Profile, and management sections
+- `/lib/screen/booking_section` - Booking management screens
+- `/lib/screen/camp_section` - Camp management (CRUD) screens
+- `/lib/screen/profile_section` - Profile editing and settings
+- `/lib/service` - API integration, database controllers, and authentication logic
+- `/lib/model` - Data models
+- `/lib/assets` - Static resources (images, fonts, icons)
 
 ## Application Purpose
 
